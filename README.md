@@ -25,7 +25,7 @@
 
 ## How to Play
 
-In _Echo Relics_, the player moves across a 5x5 grid, leaving echoes of past movements. The challenge is to navigate the grid while avoiding being caught by your own echoes, which repeat your past movements. Along the way, collect relics to help you manage the grid and your echoes.
+In _Echo Relics_, the player moves across a 10x10 grid, leaving echoes of past movements. The challenge is to navigate the grid while avoiding being caught by your own echoes, which repeat your past movements. Along the way, collect relics to help you manage the grid and your echoes.
 
 - **Objective**: Navigate the grid, avoid echoes, and collect relics.
 - **Turn-based strategy**: Plan each move, as past actions will be replayed by your echoes.
@@ -48,7 +48,7 @@ In _Echo Relics_, the player moves across a 5x5 grid, leaving echoes of past mov
     
     Copy code
     
-    `git clone https://github.com/yourusername/echo-relics`
+    `git clone https://github.com/MomdAli/EchoRelics`
     
 2. Navigate to the project directory:
     
