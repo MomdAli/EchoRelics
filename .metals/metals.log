@@ -34,3 +34,7 @@
 2024.10.24 19:57:07 INFO  time: compiled root in 1.91s
 2024.10.24 19:57:07 INFO  compiling root (3 scala sources)
 2024.10.24 19:57:07 INFO  time: compiled root in 0.68s
+2024.10.24 19:59:25 INFO  Shutting down server
+2024.10.24 19:59:25 INFO  shutting down Metals
+2024.10.24 19:59:25 INFO  Shut down connection with build server.
+2024.10.24 19:59:25 INFO  Exiting server

@@ -1,0 +1,50 @@
+# SBT
+target/
+project/target/
+project/project/
+.sbt/
+.sbt.lock
+.sbt-scripted/
+local.sbt
+
+# Bloop
+.bsp/
+.bloop/
+
+# VS Code
+.vscode/
+
+# Metals
+.metals/
+metals.sbt
+
+# IDEA
+.idea/
+.idea_modules/
+.worksheet/
+
+# MacOS
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+*.tmp
+
+# Compiled class files
+*.class
+
+# ScalaTest reports
+test-reports/
+
+# Coverage reports
+coverage/
+.coverage/
+.coverage.*
+
+# Dependency caches
+lib_managed/
+src_managed/
