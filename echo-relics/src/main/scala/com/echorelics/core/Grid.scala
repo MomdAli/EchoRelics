@@ -1,6 +1,7 @@
 package com.echorelics.core
 
 import com.echorelics.math.{Direction, Position}
+import com.echorelics.model.Player
 
 final case class Grid(tiles: List[Tile], width: Int = 5, height: Int = 5) {
 

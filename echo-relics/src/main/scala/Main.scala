@@ -1,6 +1,7 @@
 import scala.io.AnsiColor._
-import com.echorelics.core.{Player, Grid, GameManager}
+import com.echorelics.core.{Grid, GameManager}
 import com.echorelics.math.Position
+import com.echorelics.model.Player
 
 @main def echorelics(): Unit = {
   println(s"\n${GREEN}Welcome to Echo Relics${RESET}\n")
