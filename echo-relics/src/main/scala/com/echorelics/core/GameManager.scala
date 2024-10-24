@@ -1,8 +1,8 @@
 package com.echorelics.core
 
-import com.echorelics.utils.InputHandler
-import com.echorelics.core.{Echo, Grid, Player}
-import com.echorelics.utils.DisplayRenderer
+import com.echorelics.utils.{DisplayRenderer, InputHandler}
+import com.echorelics.core.Grid
+import com.echorelics.model.Player
 
 class GameManager(player: Player, grid: Grid) {
 

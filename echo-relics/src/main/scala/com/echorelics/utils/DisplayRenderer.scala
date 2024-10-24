@@ -1,6 +1,7 @@
 package com.echorelics.utils
 
-import com.echorelics.core.{Echo, Grid, Player, Relic, Tile}
+import com.echorelics.core.{Grid, Tile}
+import com.echorelics.model.{Echo, Player, Relic}
 
 object DisplayRenderer {
 
