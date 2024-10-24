@@ -25,3 +25,12 @@
 2024.10.24 19:53:52 INFO  compilation cancelled
 2024.10.24 19:53:58 INFO  compiling root (3 scala sources)
 2024.10.24 19:53:58 INFO  time: compiled root in 0.79s
+2024.10.24 19:57:03 WARN  Invalid text document uri received from build server: file:///C:/Users/mohsa/Desktop/Github/EchoRelics/echo-relics/src/main/scala/com/echorelics/core/Player.scala
+2024.10.24 19:57:03 WARN  Invalid text document uri received from build server: file:///C:/Users/mohsa/Desktop/Github/EchoRelics/echo-relics/src/main/scala/com/echorelics/core/Relic.scala
+2024.10.24 19:57:03 INFO  time: compiled root in 9ms
+2024.10.24 19:57:03 INFO  compiling root-test (5 scala sources)
+2024.10.24 19:57:03 INFO  time: compiled root-test in 0.69s
+2024.10.24 19:57:05 INFO  compiling root (13 scala sources)
+2024.10.24 19:57:07 INFO  time: compiled root in 1.91s
+2024.10.24 19:57:07 INFO  compiling root (3 scala sources)
+2024.10.24 19:57:07 INFO  time: compiled root in 0.68s
