@@ -1,8 +1,8 @@
 package de.htwg.se.echorelics.utils
 
-import scala.io.StdIn
-import de.htwg.se.echorelics.math.Direction
-import de.htwg.se.echorelics.core.GameManager
+import de.htwg.se.echorelics.core.Grid
+import de.htwg.se.echorelics.core.TileContent.Player
+import de.htwg.se.echorelics.math.{Direction, Position}
 
 enum Input {
   case Move(direction: Direction)
@@ -10,14 +10,14 @@ enum Input {
 }
 
 object InputHandler {
-  def handleInput(input: String): Input = {
+  def parseInput(input: String): Option[Input] = {
     input.toLowerCase() match {
-      case "w" => Input.Move(Direction.Up)
-      case "a" => Input.Move(Direction.Left)
-      case "s" => Input.Move(Direction.Down)
-      case "d" => Input.Move(Direction.Right)
-      case "q" | "quit" | "stop" | "exit"  => Input.Quit
-      case _ => throw new IllegalArgumentException("Invalid input")
+      case "w" => Some(Input.Move(Direction.Up))
+      case "s" => Some(Input.Move(Direction.Down))
+      case "a" => Some(Input.Move(Direction.Left))
+      case "d" => Some(Input.Move(Direction.Right))
+      case "q" => Some(Input.Quit)
+      case _   => None
     }
   }
 }

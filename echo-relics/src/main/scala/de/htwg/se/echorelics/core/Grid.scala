@@ -1,40 +1,45 @@
 package de.htwg.se.echorelics.core
 
-import de.htwg.se.echorelics.math.{Direction, Position}
+import de.htwg.se.echorelics.math.Position
 import de.htwg.se.echorelics.model.Player
+import de.htwg.se.echorelics.math.Direction
 
-final case class Grid(tiles: List[Tile], width: Int = 5, height: Int = 5) {
-
-  def getTile(position: Position): Option[Tile] = {
-    tiles.find(tile => tile.position == position)
+case class Grid(tiles: Vector[Vector[Tile]], width: Int, height: Int) {
+  def setTileAt(position: Position, tile: Tile): Grid = {
+    val newTiles =
+      tiles.updated(position.y, tiles(position.y).updated(position.x, tile))
+    Grid(newTiles, width, height)
   }
 
-  def move(player: Player, direction: Direction): Option[Position] = {
-    val newPosition = player.position.move(direction)
-    if (newPosition.isWithinBounds(width, height))
-      getTile(player.position).foreach(tile => tile.content = None)
-      getTile(newPosition).foreach(tile => tile.content = Some(player))
-      Some(newPosition)
-    else None
+  def getTileAt(position: Position): Tile = {
+    tiles(position.y)(position.x)
+  }
+
+  def updatePlayerPosition(
+      currentPlayer: Player,
+      oldPosition: Position
+  ): Grid = {
+    if (currentPlayer.position.isWithinBounds(width, height)) {
+      // Clear old position and set new one
+      val oldTile = getTileAt(currentPlayer.position)
+      val clearedGrid =
+        setTileAt(currentPlayer.position, Tile.PlayerTile(currentPlayer.id))
+      clearedGrid.setTileAt(oldPosition, oldTile)
+    } else {
+      this
+    }
   }
 }
 
 object Grid {
-  def defaultGrid(): Grid = {
-    // Creating an empty 10x10 grid of tiles
-
-    val width = 10
-    val height = 10
-
-    val tiles = for {
-      y <- 0 until height
-      x <- 0 until width
-    } yield Tile(Position(x, y))
-
-    val grid = new Grid(tiles.toList, width, height)
-
-    // TODO: Place relics on specific tiles
-
-    grid
+  def DefaultGrid(players: Player, width: Int, height: Int): Grid = {
+    val tiles = Vector.tabulate(width, height) { (x, y) =>
+      if (x == players.position.x && y == players.position.y) {
+        Tile.PlayerTile(players.id)
+      } else {
+        Tile.EmptyTile
+      }
+    }
+    Grid(tiles, width, height)
   }
 }

@@ -18,3 +18,11 @@ case class Position(x: Int, y: Int) {
 
   override def toString(): String = s"($x, $y)"
 }
+
+object Position {
+  val Zero: Position = Position(0, 0)
+  val Up: Position = Position(0, -1)
+  val Down: Position = Position(0, 1)
+  val Left: Position = Position(-1, 0)
+  val Right: Position = Position(1, 0)
+}

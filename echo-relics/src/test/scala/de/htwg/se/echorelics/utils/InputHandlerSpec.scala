@@ -1,46 +1,35 @@
 package de.htwg.se.echorelics.utils
 
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers._
 import de.htwg.se.echorelics.math.Direction
 
-class InputHandlerSpec extends AnyWordSpec {
-
-    "InputHandler" should {
-        "return Move(Direction.Up) for input 'w'" in {
-            InputHandler.handleInput("w") should be (Input.Move(Direction.Up))
-        }
-
-        "return Move(Direction.Left) for input 'a'" in {
-            InputHandler.handleInput("a") should be (Input.Move(Direction.Left))
-        }
-
-        "return Move(Direction.Down) for input 's'" in {
-            InputHandler.handleInput("s") should be (Input.Move(Direction.Down))
-        }
-
-        "return Move(Direction.Right) for input 'd'" in {
-            InputHandler.handleInput("d") should be (Input.Move(Direction.Right))
-        }
-
-        "return Quit for input 'q'" in {
-            InputHandler.handleInput("q") should be (Input.Quit)
-        }
-
-        "return Quit for input 'quit'" in {
-            InputHandler.handleInput("quit") should be (Input.Quit)
-        }
-
-        "return Quit for input 'stop'" in {
-            InputHandler.handleInput("stop") should be (Input.Quit)
-        }
-
-        "return Quit for input 'exit'" in {
-            InputHandler.handleInput("exit") should be (Input.Quit)
-        }
-
-        "throw IllegalArgumentException for invalid input" in {
-            an [IllegalArgumentException] should be thrownBy InputHandler.handleInput("invalid")
-        }
+class InputHandlerSpec extends AnyWordSpec with Matchers {
+  "An InputHandler" should {
+    "parse 'w' as Move Up" in {
+      InputHandler.parseInput("w") should be(Some(Input.Move(Direction.Up)))
     }
+    "parse 's' as Move Down" in {
+      InputHandler.parseInput("s") should be(Some(Input.Move(Direction.Down)))
+    }
+    "parse 'a' as Move Left" in {
+      InputHandler.parseInput("a") should be(Some(Input.Move(Direction.Left)))
+    }
+    "parse 'd' as Move Right" in {
+      InputHandler.parseInput("d") should be(Some(Input.Move(Direction.Right)))
+    }
+    "parse 'q' as Quit" in {
+      InputHandler.parseInput("q") should be(Some(Input.Quit))
+    }
+    "return None for invalid input" in {
+      InputHandler.parseInput("x") should be(None)
+    }
+    "be case insensitive" in {
+      InputHandler.parseInput("W") should be(Some(Input.Move(Direction.Up)))
+      InputHandler.parseInput("S") should be(Some(Input.Move(Direction.Down)))
+      InputHandler.parseInput("A") should be(Some(Input.Move(Direction.Left)))
+      InputHandler.parseInput("D") should be(Some(Input.Move(Direction.Right)))
+      InputHandler.parseInput("Q") should be(Some(Input.Quit))
+    }
+  }
 }

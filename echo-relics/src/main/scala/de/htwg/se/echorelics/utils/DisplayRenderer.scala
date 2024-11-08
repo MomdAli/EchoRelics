@@ -1,36 +1,33 @@
 package de.htwg.se.echorelics.utils
 
-import de.htwg.se.echorelics.core.{Grid, Tile}
-import de.htwg.se.echorelics.model.{Echo, Player, Relic}
+import de.htwg.se.echorelics.core.{Grid, Tile, TileContent}
+import de.htwg.se.echorelics.math.Position
 
 object DisplayRenderer {
+  def render(grid: Grid): String = {
+    val horizontal = horizontalLine(grid.width)
 
-  def render(grid: Grid): Unit = {
-    val rowSeparator = createRowSeparator(grid.width)
-
-    grid.tiles.grouped(grid.width).foreach { row =>
-      println(rowSeparator)
-
-      print("|")
-      row.foreach { tile =>
-        print(renderTileContent(tile) + "|")
+    val rows = for (y <- 0 until grid.height) yield {
+      val row = for (x <- 0 until grid.width) yield {
+        val tile = grid.getTileAt(Position(x, y))
+        s"|${renderTile(tile)}"
       }
-      println()
+      row.mkString + "|"
     }
 
-    println(rowSeparator)
+    (horizontal +: rows.flatMap(row => Seq(row, horizontal))).mkString("\n")
   }
 
-  def createRowSeparator(width: Int): String = {
-    "+" + ("---+" * width)
+  def horizontalLine(width: Int): String = {
+    val line = "+---" * width + "+"
+    line
   }
 
-  def renderTileContent(tile: Tile): String = {
+  def renderTile(tile: Tile): String = {
     tile.content match {
-      case Some(_: Player) => " P "
-      case Some(_: Relic)  => " R "
-      case Some(_: Echo)   => " E "
-      case _               => "   "
+      case TileContent.Empty  => "   "
+      case TileContent.Wall   => " # "
+      case TileContent.Player => s" P "
     }
   }
 }
