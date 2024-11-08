@@ -1,34 +1,33 @@
 package de.htwg.se.echorelics.model
 
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import de.htwg.se.echorelics.math.Position
 
 class PlayerSpec extends AnyWordSpec with Matchers {
   "A Player" should {
-    "have an id and a position" in {
-      val player = Player("Player1", Position(0, 0))
-      player.id should be("Player1")
-      player.position should be(Position(0, 0))
+    val initialPosition = Position(0, 0)
+    val player = Player("player1", initialPosition)
+
+    "have an id" in {
+      player.id should be("player1")
     }
 
-    "leave an Echo at its current position" in {
-      val player = Player("Player1", Position(1, 1))
-      val echo = player.leaveEcho()
-      echo.playerID should be("Player1")
-      echo.position should be(Position(1, 1))
+    "have a position" in {
+      player.position should be(initialPosition)
     }
 
-    "be created with a default player" in {
-      val defaultPlayer = Player.defaultPlayer()
-      defaultPlayer.id should be("Player1")
-      defaultPlayer.position should be(Position(0, 0))
+    "move to a new position" in {
+      val newPosition = Position(1, 1)
+      val movedPlayer = player.move(newPosition)
+      movedPlayer.position should be(newPosition)
+      movedPlayer.id should be(player.id)
     }
 
-    "update its position" in {
-      val player = Player("Player1", Position(0, 0))
-      player.position = Position(2, 3)
-      player.position should be(Position(2, 3))
+    "not change id when moved" in {
+      val newPosition = Position(2, 2)
+      val movedPlayer = player.move(newPosition)
+      movedPlayer.id should be(player.id)
     }
   }
 }
