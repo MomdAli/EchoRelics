@@ -1,11 +1,24 @@
 package view
 
+import scala.io.AnsiColor._
 import utils.{InputHandler, Observer}
 import controller.Controller
 
 class TUI(controller: Controller) extends Observer {
 
   controller.add(this)
+
+  def init(): Unit = {
+    println(s"${GREEN}Welcome to Echo Relics!${RESET}")
+    printHelp()
+
+    var input = ""
+
+    while (input != "q") {
+      input = scala.io.StdIn.readLine("Input: ")
+      processInput(input)
+    }
+  }
 
   def update(): Unit = {
     println(controller.displayGrid)
