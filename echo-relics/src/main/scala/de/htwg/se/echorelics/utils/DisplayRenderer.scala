@@ -1,15 +1,15 @@
-package de.htwg.se.echorelics.utils
+package utils
 
-import de.htwg.se.echorelics.core.{Grid, Tile, TileContent}
-import de.htwg.se.echorelics.math.Position
+import model.{Grid, Tile, TileContent}
+import utils.Position
 
 object DisplayRenderer {
   def render(grid: Grid): String = {
-    val horizontal = horizontalLine(grid.width)
+    val horizontal = horizontalLine(grid.size)
 
-    val rows = for (y <- 0 until grid.height) yield {
-      val row = for (x <- 0 until grid.width) yield {
-        val tile = grid.getTileAt(Position(x, y))
+    val rows = for (y <- 0 until grid.size) yield {
+      val row = for (x <- 0 until grid.size) yield {
+        val tile = grid.tileAt(Position(x, y))
         s"|${renderTile(tile)}"
       }
       row.mkString + "|"
@@ -18,16 +18,17 @@ object DisplayRenderer {
     (horizontal +: rows.flatMap(row => Seq(row, horizontal))).mkString("\n")
   }
 
-  def horizontalLine(width: Int): String = {
-    val line = "+---" * width + "+"
+  def horizontalLine(size: Int): String = {
+    val line = "+---" * size + "+"
     line
   }
 
   def renderTile(tile: Tile): String = {
     tile.content match {
-      case TileContent.Empty  => "   "
-      case TileContent.Wall   => " # "
-      case TileContent.Player => s" P "
+      case TileContent.Empty      => "   "
+      case TileContent.Player(id) => s" ${id} "
+      case TileContent.Wall       => " # "
+      case TileContent.Out        => " X "
     }
   }
 }

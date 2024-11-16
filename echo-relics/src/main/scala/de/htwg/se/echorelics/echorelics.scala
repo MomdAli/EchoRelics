@@ -1,8 +1,17 @@
-package de.htwg.se.echorelics
+package echorelics
 
-import de.htwg.se.echorelics.core.GameManager
+import controller.Controller
+import view.TUI
+import model.GameManager
 
 @main def echorelics(): Unit = {
-  val gameManager = GameManager()
-  gameManager.run()
+  val controller = Controller(GameManager())
+  val tui = TUI(controller)
+
+  var input = ""
+
+  while (input != "q") {
+    input = scala.io.StdIn.readLine("Input: ")
+    tui.processInput(input)
+  }
 }

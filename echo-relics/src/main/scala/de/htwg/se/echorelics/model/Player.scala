@@ -1,9 +1,3 @@
-package de.htwg.se.echorelics.model
+package model
 
-import de.htwg.se.echorelics.math.Position
-
-case class Player(id: String, position: Position) {
-  def move(position: Position): Player = {
-    Player(id, position)
-  }
-}
+case class Player(val id: String) {}
