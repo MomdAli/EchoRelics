@@ -1,3 +1,13 @@
+<p align="center">
+<a style="text-decoration:none" href="https://momdali.de/Studium/Semester-3/Software-Engineering/Echo-Relics/Echo-Relics-(About)">
+    <img src="https://img.shields.io/badge/Echo_Relics-Website-7F6DF2" alt="Website"/></a>
+  <a style="text-decoration:none" href="https://coveralls.io/github/MomdAli/EchoRelics?branch=main">
+    <img src="https://coveralls.io/repos/github/MomdAli/EchoRelics/badge.svg?branch=main" alt="Test coverage" /></a>
+  <a style="text-decoration:none" href="https://app.codacy.com/gh/MomdAli/EchoRelics/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade">
+    <img src="https://app.codacy.com/project/badge/Grade/e684383e6c3e473f9cffa11a78e7855e" alt="Code quality" /></a>
+</p>
+
+---
 # Echo Relics
 
 **Echo Relics** is a turn-based, grid-based puzzle-adventure game set in a mystical world filled with ancient ruins. Players must explore a 10x10 grid, avoid traps, and collect relics, while dealing with echoes of their past moves that replay in future turns. Strategic movement and the careful use of relics are essential for survival and progression.
