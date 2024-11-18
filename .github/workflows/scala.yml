@@ -47,11 +47,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./echo-relics
-
     steps:
       - uses: actions/checkout@v4
 
