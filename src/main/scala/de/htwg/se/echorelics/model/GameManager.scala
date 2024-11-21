@@ -1,7 +1,7 @@
 package model
 
 import model.{GameState, Player}
-import utils.{DisplayRenderer, Direction, InputHandler}
+import utils.{DisplayRenderer, Direction, InputHandler, Position}
 
 case class GameManager(
     val move: Int = 0,
@@ -9,6 +9,8 @@ case class GameManager(
     val state: GameState = GameState.NotStarted,
     val grid: Grid = new Grid(10)
 ) {
+
+  def isGameStarted: Boolean = state != GameState.NotStarted
 
   def currentPlayer: Player = {
     players.size match {
@@ -42,6 +44,14 @@ case class GameManager(
       case _ =>
         this
     }
+  }
+
+  def getPlayer(id: String): Option[Player] = {
+    players.find(_.id == id)
+  }
+
+  def getPlayerPosition(id: String): Position = {
+    grid.findPlayer(getPlayer(id).get)
   }
 
   def removePlayer(player: Player): GameManager = {

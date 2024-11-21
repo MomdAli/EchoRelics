@@ -34,7 +34,7 @@ case class Grid(tiles: Vector[Vector[Tile]]) {
     }
   }
 
-  private def isOutOfBounds(position: Position): Boolean = {
+   def isOutOfBounds(position: Position): Boolean = {
     position.x < 0 || position.y < 0 || position.x >= size || position.y >= size
   }
 
@@ -49,7 +49,7 @@ case class Grid(tiles: Vector[Vector[Tile]]) {
     }
   }
 
-  private def findPlayer(player: Player): Position = {
+  def findPlayer(player: Player): Position = {
     val position = for {
       y <- 0 until size
       x <- 0 until size
