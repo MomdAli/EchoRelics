@@ -15,7 +15,8 @@ object DisplayRenderer {
       row.mkString + "|"
     }
 
-    (horizontal +: rows.flatMap(row => Seq(row, horizontal))).mkString("\n")
+    (horizontal +: rows.flatMap(row => Seq(row, horizontal)))
+      .mkString("\n")
   }
 
   def horizontalLine(size: Int): String = {
