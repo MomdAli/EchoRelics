@@ -65,9 +65,9 @@ class GridSpec extends AnyWordSpec with Matchers {
         }
 
         "render the grid as a string" in {
-            val grid = new Grid(3).set(Position(1, 1), Tile(TileContent.Player("1")))
+            val grid = new Grid(3).set(Position(1, 1), Tile(TileContent.Player("P")))
             val rendered = grid.toString
-            rendered should include("P1")
+            rendered should include("P")
         }
     }
 }

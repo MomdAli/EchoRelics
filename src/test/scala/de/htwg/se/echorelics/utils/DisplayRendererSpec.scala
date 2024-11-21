@@ -13,10 +13,10 @@ class DisplayRendererSpec extends AnyWordSpec with Matchers {
             ))
             val expected = 
                 """+---+---+
-                  ||   |   |
-                  +---+---+
-                  ||   |   |
-                  +---+---+""".stripMargin
+                   |   |   |
+                   +---+---+
+                   |   |   |
+                   +---+---+""".stripMargin
             DisplayRenderer.render(grid) should be(expected)
         }
 
@@ -27,10 +27,10 @@ class DisplayRendererSpec extends AnyWordSpec with Matchers {
             ))
             val expected = 
                 """+---+---+
-                  || 1 |   |
-                  +---+---+
-                  ||   |   |
-                  +---+---+""".stripMargin
+                   | 1 |   |
+                   +---+---+
+                   |   |   |
+                   +---+---+""".stripMargin
             DisplayRenderer.render(grid) should be(expected)
         }
 
@@ -41,10 +41,10 @@ class DisplayRendererSpec extends AnyWordSpec with Matchers {
             ))
             val expected = 
                 """+---+---+
-                  || # |   |
-                  +---+---+
-                  ||   |   |
-                  +---+---+""".stripMargin
+                   | # |   |
+                   +---+---+
+                   |   |   |
+                   +---+---+""".stripMargin
             DisplayRenderer.render(grid) should be(expected)
         }
 
@@ -55,10 +55,10 @@ class DisplayRendererSpec extends AnyWordSpec with Matchers {
             ))
             val expected = 
                 """+---+---+
-                  || X |   |
-                  +---+---+
-                  ||   |   |
-                  +---+---+""".stripMargin
+                   | X |   |
+                   +---+---+
+                   |   |   |
+                   +---+---+""".stripMargin
             DisplayRenderer.render(grid) should be(expected)
         }
 
@@ -70,12 +70,12 @@ class DisplayRendererSpec extends AnyWordSpec with Matchers {
             ))
             val expected = 
                 """+---+---+---+
-                  ||   | 1 |   |
-                  +---+---+---+
-                  || # |   | X |
-                  +---+---+---+
-                  ||   |   |   |
-                  +---+---+---+""".stripMargin
+                   |   | 1 |   |
+                   +---+---+---+
+                   | # |   | X |
+                   +---+---+---+
+                   |   |   |   |
+                   +---+---+---+""".stripMargin
             DisplayRenderer.render(grid) should be(expected)
         }
 
@@ -86,10 +86,10 @@ class DisplayRendererSpec extends AnyWordSpec with Matchers {
             ))
             val expected = 
                 """+---+---+
-                  || 1 | 2 |
-                  +---+---+
-                  || 3 | 4 |
-                  +---+---+""".stripMargin
+                   | 1 | 2 |
+                   +---+---+
+                   | 3 | 4 |
+                   +---+---+""".stripMargin
             DisplayRenderer.render(grid) should be(expected)
         }
     }

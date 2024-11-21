@@ -22,7 +22,7 @@ class GameManagerSpec extends AnyWordSpec with Matchers {
 
         "not add a player when the game is running" in {
             val gameManager = GameManager().startGame()
-            val player = Player("1")
+            val player = Player("3")
             val updatedGameManager = gameManager.addPlayer(player)
             updatedGameManager.players should not contain player
         }
@@ -76,14 +76,14 @@ class GameManagerSpec extends AnyWordSpec with Matchers {
         "move the current player" in {
             val player = Player("1")
             val gameManager = GameManager(players = List(player)).startGame()
-            val updatedGameManager = gameManager.moveNextPlayer(Direction.Up)
+            val updatedGameManager = gameManager.moveNextPlayer(Direction.Down)
             updatedGameManager.move should be(1)
         }
 
         "not move the player if the game is not running" in {
             val player = Player("1")
             val gameManager = GameManager(players = List(player))
-            val updatedGameManager = gameManager.moveNextPlayer(Direction.Up)
+            val updatedGameManager = gameManager.moveNextPlayer(Direction.Down)
             updatedGameManager.move should be(0)
         }
 

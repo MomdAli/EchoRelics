@@ -16,7 +16,10 @@ case class Tile(content: TileContent) {
   }
 
   // Checks if the tile contains a player
-  def hasPlayer: Boolean = content == TileContent.Player
+  def hasPlayer: Boolean = content match {
+    case TileContent.Player(_) => true
+    case _                     => false
+  }
 
   def isPlayer(player: Player): Boolean = content match {
     case TileContent.Player(id) => id == player.id
