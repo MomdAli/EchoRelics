@@ -30,6 +30,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       controller.initialGame()
       val initialGrid = controller.displayGrid
       controller.movePlayer(Direction.Up)
+      controller.movePlayer(Direction.Right)
       val updatedGrid = controller.displayGrid
       updatedGrid should not be initialGrid
     }
