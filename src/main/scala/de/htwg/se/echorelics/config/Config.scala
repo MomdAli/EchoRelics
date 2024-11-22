@@ -22,7 +22,7 @@ case class Config(
     playerCount: Int = 2,
     gridSize: Int = 10,
     maxMoves: Int = 100,
-    relicSpawnRate: Int = 10,
+    relicSpawnRate: Int = 15,
     echoIncrementer: Int = 3,
     minHealth: Int = 3,
     wallRatio: Int = 2
@@ -36,6 +36,7 @@ case class Config(
       relicSpawnRate >= 15 &&
       echoIncrementer >= 3 &&
       minHealth > 0
+      wallRatio >= 2
 
   def withPlayerCount(playerCount: Int): Config =
     copy(playerCount = playerCount)
