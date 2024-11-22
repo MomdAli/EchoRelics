@@ -5,6 +5,8 @@ enum TileContent(val symbol: String) {
   case Wall extends TileContent(" # ")
   case Player(val id: String) extends TileContent(s" $id ")
   case Out extends TileContent(" X ")
+  case Relic extends TileContent(" R ")
+  case Echo extends TileContent(" E ")
 }
 
 case class Tile(content: TileContent) {

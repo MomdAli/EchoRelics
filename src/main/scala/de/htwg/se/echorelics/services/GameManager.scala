@@ -1,7 +1,8 @@
-package model
+package services
 
-import model.{GameState, Player}
-import utils.{DisplayRenderer, Direction, InputHandler, Position}
+import model.{GameState, Grid, Player}
+import utils.{Direction, InputHandler, Position}
+import view.DisplayRenderer
 
 case class GameManager(
     val move: Int = 0,
@@ -19,6 +20,29 @@ case class GameManager(
     }
   }
 
+  def setGrid(newGrid: Grid): GameManager = {
+    if (state == GameState.NotStarted) {
+      new GameManager(move, players, state, newGrid)
+    } else {
+      this
+    }
+  }
+
+  def spawnEcho(): GameManager = {
+    state match {
+      case GameState.Running =>
+        val newGrid = grid.spawnEcho(currentPlayer)
+        if (newGrid == grid) {
+          this
+        } else {
+          new GameManager(move + 1, players, state, newGrid)
+        }
+
+      case _ =>
+        this
+    }
+  }
+
   def getState: GameState = state
 
   def moveNextPlayer(direction: Direction): GameManager = {
@@ -26,7 +50,6 @@ case class GameManager(
       case GameState.Running =>
         val newGrid = grid.movePlayer(currentPlayer, direction)
         if (newGrid == grid) {
-          InputHandler.invalidMove("Player can't move there")
           this
         } else {
           new GameManager(move + 1, players, state, newGrid)

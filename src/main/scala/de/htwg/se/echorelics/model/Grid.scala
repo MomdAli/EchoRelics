@@ -1,7 +1,9 @@
 package model
 
-import utils.{Position, Direction, DisplayRenderer}
+import utils.{Position, Direction}
 import model.{Tile, TileContent, Player}
+import view.DisplayRenderer
+import services.generator.RandomGenerator
 
 case class Grid(tiles: Vector[Vector[Tile]]) {
 
@@ -20,6 +22,10 @@ case class Grid(tiles: Vector[Vector[Tile]]) {
     newGrid
   }
 
+  def spawnEcho(player: Player): Grid = {
+    this
+  }
+
   def set(position: Position, tile: Tile): Grid = {
     copy(tiles.updated(position.y, tiles(position.y).updated(position.x, tile)))
   }
@@ -34,7 +40,7 @@ case class Grid(tiles: Vector[Vector[Tile]]) {
     }
   }
 
-   def isOutOfBounds(position: Position): Boolean = {
+  def isOutOfBounds(position: Position): Boolean = {
     position.x < 0 || position.y < 0 || position.x >= size || position.y >= size
   }
 

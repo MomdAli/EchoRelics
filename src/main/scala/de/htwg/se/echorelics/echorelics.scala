@@ -2,7 +2,7 @@ package echorelics
 
 import controller.Controller
 import view.TUI
-import model.GameManager
+import services.GameManager
 
 @main def echorelics(): Unit = {
   val controller = Controller(GameManager())
