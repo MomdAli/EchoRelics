@@ -1,66 +1,57 @@
 package view
 
-import scala.io.AnsiColor._
-import utils.{InputHandler, Observer}
 import controller.Controller
+import services.events.{GameEvent, EventListener}
+import utils.{Direction, Command, InputHandler}
+import org.jline.terminal.{Terminal, TerminalBuilder}
 
-class TUI(controller: Controller) extends Observer {
+class TUI(controller: Controller) extends EventListener {
+
+  private val terminal: Terminal = TerminalBuilder.terminal()
+  private val inputHandler = new InputHandler(terminal)
 
   controller.add(this)
 
-  def init(): Unit = {
-    println(s"${GREEN}Welcome to Echo Relics!${RESET}")
-    printHelp()
-
-    var input = ""
-
-    while (input != "q") {
-      input = scala.io.StdIn.readLine("Input: ")
-      processInput(input)
-    }
-  }
-
-  def update(): Unit = {
-    println(controller.displayGrid)
-    println(controller.gameManager.getInfo)
-  }
-
-  /** Allowed commands:
-    *   - h: Print help
-    *   - n <size>: Start a new game with a grid of size x size (default = 10)
-    *   - p <id>: Add a player with the given id
-    *   - p -<id>: Remove a player with the given id
-    *   - q: Quit the game
-    * @param input
-    *   The input to process
-    */
-  def processInput(input: String): Unit = {
-    input.split(" ").toList match {
-      case "h" :: Nil              => printHelp()
-      case "n" :: size :: Nil      => controller.initialGame(size.toInt)
-      case "n" :: Nil              => controller.initialGame()
-      case "p" :: id :: Nil        => controller.addPlayer(id)
-      case "p" :: "-" :: id :: Nil => controller.removePlayer(id)
-      case "q" :: Nil              => println("Goodbye!")
+  override def handleEvent(event: GameEvent): Unit = {
+    event match {
       case _ => {
-        InputHandler.parseInput(input) match {
-          case Some(direction) =>
-            controller.movePlayer(direction)
-          case None => println("Invalid input")
-        }
+        println(controller.displayGrid)
+        println(controller.gameManager.getInfo)
       }
     }
   }
 
-  def printHelp(): Unit = {
-    println(
-      """Commands:
-        |  - h: Print help
-        |  - n <size>: Start a new game with a grid of size x size (default = 10)
-        |  - p <id>: Add a player with the given id
-        |  - p -<id>: Remove a player with the given id
-        |  - q: Quit the game
-        |""".stripMargin
-    )
+  def init(): Unit = {
+    println("Welcome to Echo Relics!")
+    println("Press 's' to start the game")
+    println("Press 'q' to quit the game")
+
+    var continue = true
+    while (continue) {
+      inputHandler.getCurrentInput match {
+        case Command.MoveUp =>
+          controller.movePlayer(Direction.Up)
+        case Command.MoveDown =>
+          controller.movePlayer(Direction.Down)
+        case Command.MoveLeft =>
+          controller.movePlayer(Direction.Left)
+        case Command.MoveRight =>
+          controller.movePlayer(Direction.Right)
+        case Command.SpawnEcho =>
+          controller.spawnEcho
+        case Command.StartGame =>
+          controller.startGame
+        case Command.PauseGame =>
+          controller.pauseGame
+        case Command.ResumeGame =>
+          controller.resumeGame
+        case Command.SetGridSize =>
+          controller.setGridSize(10)
+        case Command.Quit =>
+          println("Quitting the game...")
+          continue = false
+        case Command.None => // Do nothing if no valid key pressed
+      }
+    }
   }
 }
