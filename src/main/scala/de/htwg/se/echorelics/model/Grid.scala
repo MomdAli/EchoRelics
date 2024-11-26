@@ -1,23 +1,31 @@
 package model
 
-import utils.{Position, Direction, DisplayRenderer}
-import model.{Tile, TileContent, Player}
+import model.generator.{Random, Spawner}
+import model.Tile
+import utils.{Direction, Position}
+import view.DisplayRenderer
 
 case class Grid(tiles: Vector[Vector[Tile]]) {
 
   def this(size: Int) = this(Vector.fill(size, size)(Tile(TileContent.Empty)))
 
-  def setupGrid(players: List[Player]): Grid = {
-    val random = new scala.util.Random
-    val newGrid = players.zipWithIndex.foldLeft(this) {
-      case (grid, (player, index)) =>
-        var position = Position(random.nextInt(size), random.nextInt(size))
-        while (isOutOfBounds(position)) {
-          position = Position(random.nextInt(size), random.nextInt(size))
+  def setupGrid(players: List[Player], wallRatio: Int): Grid = {
+    val newGrid =
+      Spawner.generateWalls(this, System.currentTimeMillis(), wallRatio)
+
+    players.zipWithIndex.foldLeft(newGrid) { case (grid, (player, _)) =>
+      val position = Iterator
+        .iterate(
+          Random(System.currentTimeMillis().toInt).randomPosition(size)._1
+        ) { pos =>
+          Random(System.currentTimeMillis().toInt).randomPosition(size)._1
         }
-        grid.set(position, Tile(TileContent.Player(player.id)))
+        .dropWhile { pos =>
+          isOutOfBounds(pos) || !grid.tileAt(pos).isWalkable
+        }
+        .next()
+      grid.set(position, Tile(TileContent.Player(player.id)))
     }
-    newGrid
   }
 
   def set(position: Position, tile: Tile): Grid = {
@@ -34,28 +42,52 @@ case class Grid(tiles: Vector[Vector[Tile]]) {
     }
   }
 
-  private def isOutOfBounds(position: Position): Boolean = {
+  def isOutOfBounds(position: Position): Boolean = {
     position.x < 0 || position.y < 0 || position.x >= size || position.y >= size
   }
 
-  def movePlayer(player: Player, direction: Direction): Grid = {
-    val playerPosition = findPlayer(player)
-    val newPosition = playerPosition.move(direction)
-    if (isOutOfBounds(newPosition) || !tileAt(newPosition).isWalkable) {
-      this
-    } else {
-      val newGrid = set(playerPosition, Tile(TileContent.Empty))
-      newGrid.set(newPosition, Tile(TileContent.Player(player.id)))
+  def movePlayer(
+      player: Player,
+      direction: Direction,
+      drop: TileContent
+  ): Grid = {
+    findPlayer(player) match {
+      case Some(playerPosition) =>
+        val newPosition = playerPosition.move(direction)
+        if (isOutOfBounds(newPosition) || !tileAt(newPosition).isWalkable) {
+          this
+        } else {
+          val newGrid = set(playerPosition, Tile(drop))
+          newGrid.set(newPosition, Tile(TileContent.Player(player.id)))
+        }
+      case None => this
     }
   }
 
-  private def findPlayer(player: Player): Position = {
+  // TODO: moveEcho should move an echo to a new position
+  def moveEcho(echo: Echo): Grid = { this }
+
+  def findPlayer(player: Player): Option[Position] = {
     val position = for {
       y <- 0 until size
       x <- 0 until size
       if tileAt(Position(x, y)).isPlayer(player)
     } yield Position(x, y)
-    position.head
+    position.headOption
+  }
+
+  def increaseSize: Grid = {
+    if (size >= 20) {
+      this
+    } else
+      new Grid(size + 1)
+  }
+
+  def decreaseSize: Grid = {
+    if (size <= 10) {
+      this
+    } else
+      new Grid(size - 1)
   }
 
   override def toString: String = {

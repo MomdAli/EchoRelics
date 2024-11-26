@@ -3,8 +3,10 @@ package model
 enum TileContent(val symbol: String) {
   case Empty extends TileContent("   ")
   case Wall extends TileContent(" # ")
-  case Player(val id: String) extends TileContent(s" $id ")
+  case Player(id: String) extends TileContent(s" $id ")
   case Out extends TileContent(" X ")
+  case Relic extends TileContent(" R ")
+  case Echo extends TileContent(" E ")
 }
 
 case class Tile(content: TileContent) {
@@ -16,7 +18,10 @@ case class Tile(content: TileContent) {
   }
 
   // Checks if the tile contains a player
-  def hasPlayer: Boolean = content == TileContent.Player
+  def hasPlayer: Boolean = content match {
+    case TileContent.Player(_) => true
+    case _                     => false
+  }
 
   def isPlayer(player: Player): Boolean = content match {
     case TileContent.Player(id) => id == player.id
