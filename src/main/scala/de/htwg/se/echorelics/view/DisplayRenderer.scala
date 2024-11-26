@@ -20,19 +20,11 @@ object DisplayRenderer {
       .mkString("\n")
   }
 
-  def renderGridSizePrompt(size: Int): String = {
+  def renderSizePrompt(size: Int, promptType: String): String = {
     val help =
-      s"${GREEN}Use ${RED}W${GREEN} and ${RED}S${GREEN} to change the grid size${RED}"
+      s"${GREEN}Use ${RED}W${GREEN} and ${RED}S${GREEN} to change the $promptType size${RED}"
     val border = "=" * 24
-    val prompt = s"++++++ ${GREEN}Grid size${RED} : $size ++++++++"
-    s"${RED}$help\n$border\n$prompt\n$border$RESET"
-  }
-
-  def renderPlayerSizePrompt(size: Int): String = {
-    val help =
-      s"${GREEN}Use ${RED}W${GREEN} and ${RED}S${GREEN} to change the player size${RED}"
-    val border = "=" * 24
-    val prompt = s"++++++ ${GREEN}Player size${RED} : $size ++++++++"
+    val prompt = s"++++++ ${GREEN}$promptType size${RED} : $size ++++++++"
     s"${RED}$help\n$border\n$prompt\n$border$RESET"
   }
 
@@ -71,7 +63,6 @@ object DisplayRenderer {
 
   private def renderTile(tile: Tile): String = {
     val content = tile.content match {
-      case TileContent.Empty      => "   "
       case TileContent.Player(id) => s" ${BLUE}${id} "
       case TileContent.Wall       => s" ▓ "
       case TileContent.Relic      => s" ${MAGENTA}$$ "

@@ -1,7 +1,7 @@
 package model
 
+import model.events.{GameEvent, EventListener, EventManager}
 import utils.Position
-import model.events.{EventManager, EventListener, GameEvent}
 
 case class Echo(
     id: String,

@@ -29,7 +29,7 @@ class TUI(controller: Controller) extends EventListener {
           GameEvent.OnGameResumeEvent |
           GameEvent.OnEchoSpawnEvent => { // Update the grid and display it
         writeln(DisplayRenderer.clear)
-        writeln(controller.getInfo)
+        writeln(controller.info)
         writeln(controller.displayGrid)
         writeln(DisplayRenderer.renderHelpPrompt)
       }
@@ -43,12 +43,12 @@ class TUI(controller: Controller) extends EventListener {
       case GameEvent
             .OnSetGridSizeEvent(size) => { // Display the grid size prompt
         writeln(DisplayRenderer.clear)
-        writeln(DisplayRenderer.renderGridSizePrompt(size))
+        writeln(DisplayRenderer.renderSizePrompt(size, "Grid"))
       }
       case GameEvent
             .OnSetPlayerSizeEvent(size) => { // Display the player size prompt
         writeln(DisplayRenderer.clear)
-        writeln(DisplayRenderer.renderPlayerSizePrompt(size))
+        writeln(DisplayRenderer.renderSizePrompt(size, "Player"))
       }
       case GameEvent.OnErrorEvent(message) => { // Display the error message
         writeln(DisplayRenderer.renderError(message))

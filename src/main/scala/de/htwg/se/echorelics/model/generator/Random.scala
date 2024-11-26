@@ -1,7 +1,6 @@
 package model.generator
 
-import utils.Direction
-import utils.Position
+import utils.{Direction, Position}
 
 case class Random(seed: Int) {
 

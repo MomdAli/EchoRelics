@@ -7,10 +7,9 @@ import model.events.{EventManager, GameEvent, EventListener}
 class EchoSpec extends AnyWordSpec with Matchers {
 
   "An Echo" should {
-
+    val player = Player("1")
+    val echo = Echo("1", Player("1"))
     "be created with a given id and owner" in {
-      val player = Player("1")
-      val echo = Echo("echo1", player)
       echo.id should be("echo1")
       echo.owner should be(player)
     }
@@ -27,8 +26,6 @@ class EchoSpec extends AnyWordSpec with Matchers {
       }
       EventManager.subscribe(listener)
 
-      val player = Player("1")
-      val echo = Echo("echo1", player)
       EventManager.notify(GameEvent.OnPlayerMoveEvent)
       eventNotified should be(true)
     }
@@ -45,15 +42,11 @@ class EchoSpec extends AnyWordSpec with Matchers {
       }
       EventManager.subscribe(listener)
 
-      val player = Player("1")
-      val echo = Echo("echo1", player)
       EventManager.notify(GameEvent.OnPlayerMoveEvent)
       eventNotified should be(true)
     }
 
     "print a message when the owner player dies" in {
-      val player = Player("1")
-      val echo = Echo("echo1", player)
 
       val stream = new java.io.ByteArrayOutputStream()
       Console.withOut(stream) {

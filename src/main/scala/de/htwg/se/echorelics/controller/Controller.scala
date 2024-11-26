@@ -2,19 +2,23 @@ package controller
 
 import scala.io.AnsiColor.{BLUE, RESET}
 
+import model.{Echo, Grid, Player}
+import model.events.{EventManager, EventListener, GameEvent}
 import service.GameManager
 import utils.Command
-import model.{Grid, Player}
-import model.events.{EventManager, EventListener, GameEvent}
-import model.Echo
 
 class Controller(var gameManager: GameManager = GameManager.StartingManager)
     extends EventListener {
 
   EventManager.subscribe(this)
 
-  // Should handle game logic events
-  override def handleEvent(event: GameEvent): Unit = {}
+  // TODO: Implement the event handling
+  override def handleEvent(event: GameEvent): Unit = {
+    event match {
+      case GameEvent.OnNoneEvent => ()
+      case _                     => ()
+    }
+  }
 
   def handleCommand(command: Command): Unit = {
     gameManager = gameManager.handleCommand(command)
@@ -23,7 +27,7 @@ class Controller(var gameManager: GameManager = GameManager.StartingManager)
 
   def displayGrid: String = gameManager.grid.toString
 
-  def getInfo: String = {
+  def info: String = {
     s"""
        |Round: ${(gameManager.move / gameManager.players.size).toInt + 1}
        |Player ${BLUE}${gameManager.currentPlayer.id}${RESET}'s turn

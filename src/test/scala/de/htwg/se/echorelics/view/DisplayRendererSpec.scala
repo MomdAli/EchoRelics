@@ -11,16 +11,16 @@ class DisplayRendererSpec extends AnyWordSpec with Matchers {
 
     "render grid size prompt correctly" in {
       val size = 10
-      val rendered = DisplayRenderer.renderGridSizePrompt(size)
-      rendered should include("Grid size")
-      rendered should include(s"$size")
+      val rendered = DisplayRenderer.renderSizePrompt(size, "Grid")
+      rendered.should(include("Grid size"))
+      rendered.should(include(s"$size"))
     }
 
     "render player size prompt correctly" in {
       val size = 2
-      val rendered = DisplayRenderer.renderPlayerSizePrompt(size)
-      rendered should include("Player size")
-      rendered should include(s"$size")
+      val rendered = DisplayRenderer.renderSizePrompt(size, "Player")
+      rendered.should(include("Player size"))
+      rendered.should(include(s"$size"))
     }
 
     "render welcome message correctly" in {

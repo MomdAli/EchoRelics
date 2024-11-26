@@ -1,7 +1,6 @@
 package model
 
-import model.events.EventManager
-import model.events.GameEvent
+import model.events.{EventManager, GameEvent}
 
 case class Player(id: String, stats: Stats = Stats(0, 0, 3)) {
   def takeDamage: Player = {

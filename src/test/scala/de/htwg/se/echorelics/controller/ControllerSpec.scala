@@ -30,7 +30,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
     "provide game information" in {
       val controller = new Controller()
-      val info = controller.getInfo
+      val info = controller.info
       info should include("Round")
       info should include("Player")
       info should include("State")

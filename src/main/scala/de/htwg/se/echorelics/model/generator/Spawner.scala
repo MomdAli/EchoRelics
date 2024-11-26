@@ -118,9 +118,9 @@ object Spawner {
             bfs(rest, visited)
           } else {
             val newVisited = visited + current
-            val neighbors =
-              getNeighbors(current, grid.size).filterNot(visited.contains)
-            bfs(rest ++ neighbors, newVisited)
+            val allNeighbors =
+              neighbors(current, grid.size).filterNot(visited.contains)
+            bfs(rest ++ allNeighbors, newVisited)
           }
       }
     }
@@ -131,7 +131,7 @@ object Spawner {
     )
   }
 
-  private def getNeighbors(position: Position, size: Int): Seq[Position] = {
+  private def neighbors(position: Position, size: Int): Seq[Position] = {
     val directions =
       Seq(Position(0, 1), Position(1, 0), Position(0, -1), Position(-1, 0))
     directions

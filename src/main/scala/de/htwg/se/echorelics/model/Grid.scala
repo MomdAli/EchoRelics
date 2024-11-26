@@ -1,9 +1,9 @@
 package model
 
+import model.generator.{Random, Spawner}
+import model.Tile
 import utils.{Direction, Position}
 import view.DisplayRenderer
-import model.Tile
-import model.generator.{Random, Spawner}
 
 case class Grid(tiles: Vector[Vector[Tile]]) {
 

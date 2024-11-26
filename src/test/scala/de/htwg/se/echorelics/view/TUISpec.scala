@@ -12,7 +12,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     var infoCalled = false
     var displayGridCalled = false
 
-    override def getInfo: String = {
+    override def info: String = {
       infoCalled = true
       "Info"
     }

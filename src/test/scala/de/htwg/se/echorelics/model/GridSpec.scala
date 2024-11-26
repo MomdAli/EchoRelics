@@ -8,7 +8,7 @@ import model.{Grid, Player, Tile, TileContent}
 class GridSpec extends AnyWordSpec with Matchers {
 
   "A Grid" should {
-
+    val player = Player("1")
     "be created with a given size" in {
       val grid = new Grid(5)
       grid.size should be(5)
@@ -32,7 +32,6 @@ class GridSpec extends AnyWordSpec with Matchers {
     }
 
     "move a player to a new position" in {
-      val player = Player("1")
       val grid =
         new Grid(5).set(Position(2, 2), Tile(TileContent.Player(player.id)))
       val newGrid = grid.movePlayer(player, Direction.Up, TileContent.Empty)
@@ -43,7 +42,6 @@ class GridSpec extends AnyWordSpec with Matchers {
     }
 
     "not move a player out of bounds" in {
-      val player = Player("1")
       val grid =
         new Grid(5).set(Position(0, 0), Tile(TileContent.Player(player.id)))
       val newGrid = grid.movePlayer(player, Direction.Left, TileContent.Empty)
@@ -65,7 +63,6 @@ class GridSpec extends AnyWordSpec with Matchers {
     }
 
     "find a player on the grid" in {
-      val player = Player("1")
       val grid =
         new Grid(5).set(Position(2, 2), Tile(TileContent.Player(player.id)))
       grid.findPlayer(player) should be(Some(Position(2, 2)))

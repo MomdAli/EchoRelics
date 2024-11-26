@@ -1,10 +1,9 @@
 package service
 
-import model.{Grid, Player, GameState}
-import utils.Command
+import model.{Grid, Player, GameState, Echo}
 import model.config.Config
 import model.events.GameEvent
-import model.Echo
+import utils.Command
 
 trait GameManager {
   // variables
@@ -26,7 +25,7 @@ trait GameManager {
       case _ => players(move % players.size)
     }
   }
-  def round = (move / players.size).toInt + 1
+  def round: Int = (move / players.size).toInt + 1
   def handleEchoMove(echo: Echo): GameManager = this
 }
 
