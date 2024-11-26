@@ -2,10 +2,10 @@ package echorelics
 
 import controller.Controller
 import view.TUI
-import services.GameManager
+import service.GameManager
 
 @main def echorelics(): Unit = {
-  val controller = Controller(GameManager())
+  val controller = Controller()
   val tui = TUI(controller)
   tui.init()
 }

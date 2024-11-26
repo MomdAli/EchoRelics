@@ -1,17 +1,63 @@
-package services.generator
+package model.generator
 
 import model.{Grid, Tile, TileContent}
 import utils.{Position, Direction}
-import config.Config
+import model.config.Config
 
-object WallGenerator {
-  def generateWalls(grid: Grid, seed: Long, config: Config): Grid = {
+object Spawner {
+  def generateWalls(grid: Grid, seed: Long, ratio: Int): Grid = {
     val numberOfWalls =
-      (grid.size * grid.size) / config.wallRatio // Adjust to control the amount of walls (e.g., 10% of the grid)
+      // Adjust to control the amount of walls (e.g., 10% of the grid)
+      (grid.size * grid.size) / ratio
     val potentialWalls =
       generatePotentialWalls(grid, seed, numberOfWalls, Set.empty)
     val newGrid = placeValidWalls(grid, potentialWalls, Set.empty)
     newGrid
+  }
+
+  // expects a grid with walls and players so it shouldn't
+  // remove any other content. It should only replace empty tiles
+  def spawnRelics(grid: Grid, seed: Long, numberOfRelics: Int): Grid = {
+    val emptyPositions = for {
+      y <- 0 until grid.size
+      x <- 0 until grid.size
+      if grid.tileAt(Position(x, y)).content == TileContent.Empty
+    } yield Position(x, y)
+
+    val relicsToPlace =
+      if (numberOfRelics > emptyPositions.size) emptyPositions.size
+      else numberOfRelics
+
+    val random = Random(seed.toInt)
+    val (relicPositions, _) = (0 until relicsToPlace).foldLeft(
+      (Set.empty[Position], random)
+    ) { case ((relics, random), _) =>
+      val (index, newRandom) = random.nextInt(emptyPositions.size)
+      val position = emptyPositions(index)
+      (relics + position, newRandom)
+    }
+
+    replaceEmptyTiles(grid, relicPositions, Tile(TileContent.Relic))
+  }
+
+  private def replaceEmptyTiles(
+      grid: Grid,
+      positions: Set[Position],
+      tile: Tile
+  ): Grid = {
+    grid.copy(
+      tiles = grid.tiles.zipWithIndex.map { case (row, y) =>
+        row.zipWithIndex.map { case (currentTile, x) =>
+          val position = Position(x, y)
+          if (
+            positions
+              .contains(position) && currentTile.content == TileContent.Empty
+          )
+            tile
+          else currentTile
+        }
+      }
+    )
   }
 
   private def generatePotentialWalls(
@@ -22,16 +68,22 @@ object WallGenerator {
   ): Set[Position] = {
     if (wallsLeft == 0) potentialWalls
     else {
-      val (newSeed, position) = RandomGenerator.randomPosition(seed, grid.size)
+      val random = Random(seed.toInt)
+      val (position, newRandom) = random.randomPosition(grid.size)
       if (grid.tileAt(position).content == TileContent.Empty) {
         generatePotentialWalls(
           grid,
-          newSeed,
+          newRandom.seed.toLong,
           wallsLeft - 1,
           potentialWalls + position
         )
       } else {
-        generatePotentialWalls(grid, newSeed, wallsLeft, potentialWalls)
+        generatePotentialWalls(
+          grid,
+          newRandom.seed.toLong,
+          wallsLeft,
+          potentialWalls
+        )
       }
     }
   }

@@ -1,62 +1,33 @@
 package controller
 
-import model.Player
-import services.events.{
-  EventManager,
-  OnAddPlayerEvent,
-  OnGamePauseEvent,
-  OnGameResumeEvent,
-  OnGameStartEvent,
-  OnPlayerMoveEvent,
-  OnRemovePlayerEvent,
-  OnSetGridSizeEvent,
-  OnSpawnEchoEvent
-}
-import utils.Direction
-import services.GameManager
-import model.Grid
+import scala.io.AnsiColor.{BLUE, RESET}
 
-class Controller(var gameManager: GameManager) extends EventManager {
+import service.GameManager
+import utils.Command
+import model.{Grid, Player}
+import model.events.{EventManager, EventListener, GameEvent}
+import model.Echo
 
-  def setGridSize(size: Int): Unit = {
-    gameManager = gameManager.setGrid(new Grid(size))
-    notifyListeners(OnSetGridSizeEvent(size))
+class Controller(var gameManager: GameManager = GameManager.StartingManager)
+    extends EventListener {
+
+  EventManager.subscribe(this)
+
+  // Should handle game logic events
+  override def handleEvent(event: GameEvent): Unit = {}
+
+  def handleCommand(command: Command): Unit = {
+    gameManager = gameManager.handleCommand(command)
+    EventManager.notify(gameManager.event)
   }
 
-  def startGame: Unit = {
-    gameManager = gameManager.startGame()
-    notifyListeners(OnGameStartEvent())
-  }
+  def displayGrid: String = gameManager.grid.toString
 
-  def pauseGame: Unit = {
-    gameManager = gameManager.pauseGame()
-    notifyListeners(OnGamePauseEvent())
+  def getInfo: String = {
+    s"""
+       |Round: ${(gameManager.move / gameManager.players.size).toInt + 1}
+       |Player ${BLUE}${gameManager.currentPlayer.id}${RESET}'s turn
+       |State: ${gameManager.state}
+       |""".stripMargin
   }
-
-  def resumeGame: Unit = {
-    gameManager = gameManager.resumeGame()
-    notifyListeners(OnGameResumeEvent())
-  }
-
-  def addPlayer(player: Player): Unit = {
-    gameManager = gameManager.addPlayer(player)
-    notifyListeners(OnAddPlayerEvent(player))
-  }
-
-  def removePlayer(player: Player): Unit = {
-    gameManager = gameManager.removePlayer(player)
-    notifyListeners(OnRemovePlayerEvent(player))
-  }
-
-  def movePlayer(direction: Direction): Unit = {
-    gameManager = gameManager.moveNextPlayer(direction)
-    notifyListeners(OnPlayerMoveEvent(direction))
-  }
-
-  def spawnEcho: Unit = {
-    gameManager = gameManager.spawnEcho()
-    notifyListeners(OnSpawnEchoEvent())
-  }
-
-  def displayGrid: Unit = gameManager.displayGrid
 }

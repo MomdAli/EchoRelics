@@ -1,57 +1,75 @@
 package view
 
 import controller.Controller
-import services.events.{GameEvent, EventListener}
 import utils.{Direction, Command, InputHandler}
 import org.jline.terminal.{Terminal, TerminalBuilder}
+import model.events.{EventListener, GameEvent}
+import model.GameState
+import model.events.EventManager
 
 class TUI(controller: Controller) extends EventListener {
 
-  private val terminal: Terminal = TerminalBuilder.terminal()
+  private var continue = true
+  private val terminal: Terminal = TerminalBuilder
+    .builder()
+    .system(true)
+    .build()
+
+  terminal.enterRawMode()
+
   private val inputHandler = new InputHandler(terminal)
+  private def writeln(s: Any): Unit = terminal.writer.println(s)
 
-  controller.add(this)
+  EventManager.subscribe(this)
 
+  // Should handle display events
   override def handleEvent(event: GameEvent): Unit = {
     event match {
-      case _ => {
-        println(controller.displayGrid)
-        println(controller.gameManager.getInfo)
+      case GameEvent.OnPlayerMoveEvent | GameEvent.OnGameStartEvent |
+          GameEvent.OnGameResumeEvent |
+          GameEvent.OnEchoSpawnEvent => { // Update the grid and display it
+        writeln(DisplayRenderer.clear)
+        writeln(controller.getInfo)
+        writeln(controller.displayGrid)
+        writeln(DisplayRenderer.renderHelpPrompt)
       }
+      case GameEvent.OnGameEndEvent => { // Display the end game message
+        writeln(DisplayRenderer.clear)
+        writeln(DisplayRenderer.renderWelcomeMessage)
+      }
+      case GameEvent.OnGamePauseEvent => { // Display the pause message
+        writeln("Game paused.")
+      }
+      case GameEvent
+            .OnSetGridSizeEvent(size) => { // Display the grid size prompt
+        writeln(DisplayRenderer.clear)
+        writeln(DisplayRenderer.renderGridSizePrompt(size))
+      }
+      case GameEvent
+            .OnSetPlayerSizeEvent(size) => { // Display the player size prompt
+        writeln(DisplayRenderer.clear)
+        writeln(DisplayRenderer.renderPlayerSizePrompt(size))
+      }
+      case GameEvent.OnErrorEvent(message) => { // Display the error message
+        writeln(DisplayRenderer.renderError(message))
+      }
+      case GameEvent.OnQuitEvent => { // Display the quit message
+        writeln("Goodbey!")
+        terminal.close()
+        continue = false
+      }
+      case _ => {} // Do nothing
     }
+
+    terminal.writer.flush()
   }
 
   def init(): Unit = {
-    println("Welcome to Echo Relics!")
-    println("Press 's' to start the game")
-    println("Press 'q' to quit the game")
+    writeln(DisplayRenderer.clear)
+    writeln(DisplayRenderer.renderWelcomeMessage)
 
-    var continue = true
     while (continue) {
-      inputHandler.getCurrentInput match {
-        case Command.MoveUp =>
-          controller.movePlayer(Direction.Up)
-        case Command.MoveDown =>
-          controller.movePlayer(Direction.Down)
-        case Command.MoveLeft =>
-          controller.movePlayer(Direction.Left)
-        case Command.MoveRight =>
-          controller.movePlayer(Direction.Right)
-        case Command.SpawnEcho =>
-          controller.spawnEcho
-        case Command.StartGame =>
-          controller.startGame
-        case Command.PauseGame =>
-          controller.pauseGame
-        case Command.ResumeGame =>
-          controller.resumeGame
-        case Command.SetGridSize =>
-          controller.setGridSize(10)
-        case Command.Quit =>
-          println("Quitting the game...")
-          continue = false
-        case Command.None => // Do nothing if no valid key pressed
-      }
+      controller.handleCommand(inputHandler.getCurrentInput)
     }
   }
 }

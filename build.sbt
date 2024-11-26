@@ -6,8 +6,10 @@ lazy val root = project
     name := "Echo Relics",
     version := "0.1.1-SNAPSHOT",
     scalaVersion := scala3Version,
-    libraryDependencies += "org.scalameta" %% "munit" % "1.0.0" % Test,
-    libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.10",
-    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.10" % Test,
-    libraryDependencies += "org.jline" % "jline" % "3.21.0"
+    libraryDependencies ++= Seq(
+      "org.scalameta" %% "munit" % "1.0.0" % Test,
+      "org.scalactic" %% "scalactic" % "3.2.10",
+      "org.scalatest" %% "scalatest" % "3.2.10" % Test,
+      "org.jline" % "jline" % "3.27.1"
+    )
   )

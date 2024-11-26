@@ -1,46 +1,47 @@
 package utils
 
 import org.jline.terminal.{Terminal, TerminalBuilder}
-import org.jline.keymap.KeyMap
-import org.jline.reader.Binding
-import org.jline.reader.impl.LineReaderImpl
+import org.jline.keymap.{BindingReader, KeyMap}
 
-enum Command extends Binding {
-  case MoveUp, MoveDown, MoveLeft, MoveRight, SpawnEcho, Quit, None,
-    StartGame, PauseGame, ResumeGame, SetGridSize
+enum Command {
+  case MoveUp, MoveDown, MoveLeft, MoveRight, SpawnEcho,
+    StartGame, PauseGame, ResumeGame, SetPlayerSize, SetGridSize, Quit, None
 }
 
-class InputHandler(terminal: Terminal) {
-  private var currentInput: Command = Command.None
+class InputHandler(val terminal: Terminal) {
 
-  private val reader = new LineReaderImpl(terminal)
-  private val keyMap = new KeyMap[Binding]
+  private val bindingReader = new BindingReader(terminal.reader())
+  private val keyMap = new KeyMap[Command]
 
-  keyMap.bind(Command.MoveUp: Binding, "\u001b[A") // Arrow Up
-  keyMap.bind(Command.MoveDown: Binding, "\u001b[B") // Arrow Down
-  keyMap.bind(Command.MoveLeft: Binding, "\u001b[D") // Arrow Left
-  keyMap.bind(Command.MoveRight: Binding, "\u001b[C") // Arrow Right
-  keyMap.bind(Command.MoveUp: Binding, "w") // W key
-  keyMap.bind(Command.MoveDown: Binding, "s") // S key
-  keyMap.bind(Command.MoveLeft: Binding, "a") // A key
-  keyMap.bind(Command.MoveRight: Binding, "d") // D key
+  // Mapping keys to commands
+  keyMap.bind(Command.MoveUp, "w")
+  keyMap.bind(Command.MoveDown, "s")
+  keyMap.bind(Command.MoveLeft, "a")
+  keyMap.bind(Command.MoveRight, "d")
+  keyMap.bind(Command.SpawnEcho, "e")
+  keyMap.bind(Command.StartGame, "n")
+  keyMap.bind(Command.PauseGame, "p")
+  keyMap.bind(Command.ResumeGame, "r")
+  keyMap.bind(Command.SetPlayerSize, "z")
+  keyMap.bind(Command.SetGridSize, "g")
+  keyMap.bind(Command.Quit, "q")
 
-  keyMap.bind(Command.SetGridSize: Binding, "g") // G key
-
-  keyMap.bind(Command.SpawnEcho: Binding, "e") // E key
-  keyMap.bind(Command.StartGame: Binding, "s") // S key
-  keyMap.bind(Command.PauseGame: Binding, "p") // P key
-  keyMap.bind(Command.ResumeGame: Binding, "r") // R key
-  keyMap.bind(Command.Quit: Binding, "q") // Q key to quit
+  // Arrow keys
+  keyMap.bind(Command.MoveUp, "\u001B[A")
+  keyMap.bind(Command.MoveDown, "\u001B[B")
+  keyMap.bind(Command.MoveLeft, "\u001B[D")
+  keyMap.bind(Command.MoveRight, "\u001B[C")
 
   def getCurrentInput: Command = {
-    val binding: Binding = reader.readBinding(keyMap)
-    binding match {
-      case command: Command =>
-        currentInput = command
-      case _ =>
-        currentInput = Command.None
+    try {
+      Option(bindingReader.readBinding(keyMap)) match {
+        case Some(command: Command) => command
+        case _                      => Command.None
+      }
+    } catch {
+      case e: Exception =>
+        println(s"Error reading input: ${e.getMessage}")
+        Command.None
     }
-    currentInput
   }
 }

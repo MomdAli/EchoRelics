@@ -5,23 +5,11 @@ case class Stats(
     val echoes: Int = 0,
     val health: Int = 3
 ) {
-  def addRelic: Stats = {
-    new Stats(relics + 1, echoes, health)
-  }
+  def updateRelics(amount: Int): Stats = this.copy(relics = relics + amount)
+  def updateEchoes(amount: Int): Stats = this.copy(echoes = echoes + amount)
+  def updateHealth(amount: Int): Stats = this.copy(health = health + amount)
+}
 
-  def addEcho: Stats = {
-    new Stats(relics, echoes + 1, health)
-  }
-
-  def removeEcho: Stats = {
-    new Stats(relics, echoes - 1, health)
-  }
-
-  def addHealth: Stats = {
-    new Stats(relics, echoes, health + 1)
-  }
-
-  def removeHealth: Stats = {
-    new Stats(relics, echoes, health - 1)
-  }
+object Stats {
+  def withHealth(health: Int): Stats = Stats(0, 0, health)
 }
