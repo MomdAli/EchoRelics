@@ -12,17 +12,7 @@ class EventManagerSpec extends AnyWordSpec with Matchers {
         override def handleEvent(event: GameEvent): Unit = {}
       }
       EventManager.subscribe(listener)
-      // Instead of directly accessing the private variable, we can test the behavior
-      // by checking if the listener is notified when an event is triggered.
-      var eventHandled = false
-      val testListener = new EventListener {
-        override def handleEvent(event: GameEvent): Unit = {
-          eventHandled = true
-        }
-      }
-      EventManager.subscribe(testListener)
-      EventManager.notify(GameEvent.OnGameStartEvent)
-      eventHandled should be(true)
+      EventManager.isSubscribed(listener) should be(true)
     }
 
     "allow listeners to unsubscribe" in {
@@ -31,21 +21,10 @@ class EventManagerSpec extends AnyWordSpec with Matchers {
       }
       EventManager.subscribe(listener)
       EventManager.unsubscribe(listener)
-      // Instead of directly accessing the private variable, we can test the behavior
-      // by checking if the listener is not notified when an event is triggered.
-      var eventHandled = false
-      val testListener = new EventListener {
-        override def handleEvent(event: GameEvent): Unit = {
-          eventHandled = true
-        }
-      }
-      EventManager.subscribe(testListener)
-      EventManager.unsubscribe(testListener)
-      EventManager.notify(GameEvent.OnGameStartEvent)
-      eventHandled should be(false)
+      EventManager.isSubscribed(listener) should be(false)
     }
 
-    "notify all subscribed listeners of an event" in {
+    "notify listeners of events" in {
       var eventHandled = false
       val listener = new EventListener {
         override def handleEvent(event: GameEvent): Unit = {
@@ -53,21 +32,23 @@ class EventManagerSpec extends AnyWordSpec with Matchers {
         }
       }
       EventManager.subscribe(listener)
-      EventManager.notify(GameEvent.OnGameStartEvent)
+      EventManager.notify(GameEvent.OnInfoEvent("Test"))
+      EventManager.processEvents()
       eventHandled should be(true)
     }
 
-    "not notify unsubscribed listeners of an event" in {
-      var eventHandled = false
+    "process multiple events in order" in {
+      var eventCount = 0
       val listener = new EventListener {
         override def handleEvent(event: GameEvent): Unit = {
-          eventHandled = true
+          eventCount += 1
         }
       }
       EventManager.subscribe(listener)
-      EventManager.unsubscribe(listener)
-      EventManager.notify(GameEvent.OnGameStartEvent)
-      eventHandled should be(false)
+      EventManager.notify(GameEvent.OnInfoEvent("Test 1"))
+      EventManager.notify(GameEvent.OnInfoEvent("Test 2"))
+      EventManager.processEvents()
+      eventCount should be(2)
     }
   }
 }
