@@ -1,32 +1,13 @@
 package model
 
-import model.generator.{Random, Spawner}
 import model.Tile
+import model.entity.{Echo, Player, Relic}
 import utils.{Direction, Position}
-import view.DisplayRenderer
+import model.events.{EventManager, GameEvent}
 
 case class Grid(tiles: Vector[Vector[Tile]]) {
 
-  def this(size: Int) = this(Vector.fill(size, size)(Tile(TileContent.Empty)))
-
-  def setupGrid(players: List[Player], wallRatio: Int): Grid = {
-    val newGrid =
-      Spawner.generateWalls(this, System.currentTimeMillis(), wallRatio)
-
-    players.zipWithIndex.foldLeft(newGrid) { case (grid, (player, _)) =>
-      val position = Iterator
-        .iterate(
-          Random(System.currentTimeMillis().toInt).randomPosition(size)._1
-        ) { pos =>
-          Random(System.currentTimeMillis().toInt).randomPosition(size)._1
-        }
-        .dropWhile { pos =>
-          isOutOfBounds(pos) || !grid.tileAt(pos).isWalkable
-        }
-        .next()
-      grid.set(position, Tile(TileContent.Player(player.id)))
-    }
-  }
+  def this(size: Int) = this(Vector.fill(size, size)(Tile.EmptyTile))
 
   def set(position: Position, tile: Tile): Grid = {
     copy(tiles.updated(position.y, tiles(position.y).updated(position.x, tile)))
@@ -36,7 +17,7 @@ case class Grid(tiles: Vector[Vector[Tile]]) {
 
   def tileAt(position: Position): Tile = {
     if (isOutOfBounds(position)) {
-      Tile(TileContent.Out)
+      Tile.EmptyTile
     } else {
       tiles(position.y)(position.x)
     }
@@ -48,8 +29,7 @@ case class Grid(tiles: Vector[Vector[Tile]]) {
 
   def movePlayer(
       player: Player,
-      direction: Direction,
-      drop: TileContent
+      direction: Direction
   ): Grid = {
     findPlayer(player) match {
       case Some(playerPosition) =>
@@ -57,10 +37,19 @@ case class Grid(tiles: Vector[Vector[Tile]]) {
         if (isOutOfBounds(newPosition) || !tileAt(newPosition).isWalkable) {
           this
         } else {
-          val newGrid = set(playerPosition, Tile(drop))
-          newGrid.set(newPosition, Tile(TileContent.Player(player.id)))
+          val newGrid = set(playerPosition, Tile.EmptyTile)
+          checkCollect(player, newPosition)
+          newGrid.set(newPosition, Tile(Some(player)))
         }
       case None => this
+    }
+  }
+
+  private def checkCollect(player: Player, position: Position) = {
+    tileAt(position) match {
+      case Tile(Some(Relic())) =>
+        EventManager.notify(GameEvent.OnRelicCollectEvent(player, Relic()))
+      case _ =>
     }
   }
 
@@ -90,7 +79,9 @@ case class Grid(tiles: Vector[Vector[Tile]]) {
       new Grid(size - 1)
   }
 
-  override def toString: String = {
-    DisplayRenderer.render(this)
+  def swap(pos1: Position, pos2: Position): Grid = {
+    val tile1 = tileAt(pos1)
+    val tile2 = tileAt(pos2)
+    set(pos1, tile2).set(pos2, tile1)
   }
 }

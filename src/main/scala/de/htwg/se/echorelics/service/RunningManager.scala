@@ -1,73 +1,118 @@
 package service
 
-import utils.{Command, Direction}
-import model.config.Config
 import model.events.GameEvent
-import model.{Grid, Player, GameState}
-import model.TileContent
-import model.Echo
+import model.{Grid, GameState}
+import model.entity.{Echo, Player, Relic}
+import utils.Direction
+import model.commands.{
+  Command,
+  EchoCommand,
+  QuitCommand,
+  PauseCommand,
+  MoveCommand,
+  PlayCardCommand
+}
+import model.item.Card
 
 case class RunningManager(
     move: Int,
     players: List[Player],
     grid: Grid,
-    config: Config,
-    event: GameEvent,
-    override val echoes: List[Echo] = List(),
-    confirmation: Boolean = false,
-    echoSpawned: Boolean = false
+    event: GameEvent
 ) extends GameManager {
 
   override def state: GameState = GameState.Running
 
-  override def handleCommand(command: Command): GameManager = {
+  override def isValid(command: Command): Boolean = {
     command match {
-      case Command.MoveDown  => movePlayer(Direction.Down)
-      case Command.MoveUp    => movePlayer(Direction.Up)
-      case Command.MoveLeft  => movePlayer(Direction.Left)
-      case Command.MoveRight => movePlayer(Direction.Right)
-      case Command.SpawnEcho => spawnEcho
-      case Command.PauseGame =>
-        PausedManager(
-          move,
-          players,
-          grid,
-          config,
-          GameEvent.OnGamePauseEvent
-        )
-      case Command.Quit =>
-        if (confirmation) {
-          MenuManager(
-            move,
-            players,
-            new Grid(grid.size),
-            config,
-            GameEvent.OnGameEndEvent
-          )
-        } else {
-          copy(
-            event = GameEvent.OnErrorEvent(
-              "Are you sure you want to quit? Press Q again to confirm."
-            ),
-            confirmation = true
-          )
-        }
-
-      case _ =>
-        copy(event = GameEvent.OnNoneEvent)
-
+      case MoveCommand(_) | PauseCommand() | QuitCommand() | EchoCommand() |
+          PlayCardCommand(_) =>
+        true
+      case _ => false
     }
   }
 
+  override def moveUp: GameManager = movePlayer(Direction.Up)
+  override def moveDown: GameManager = movePlayer(Direction.Down)
+  override def moveLeft: GameManager = movePlayer(Direction.Left)
+  override def moveRight: GameManager = movePlayer(Direction.Right)
+
+  override def echo: GameManager = ???
+
+  override def pause: GameManager = {
+    PausedManager(
+      move,
+      players,
+      grid,
+      GameEvent.OnGamePauseEvent
+    )
+  }
+
+  override def quit: GameManager = {
+    MenuManager(
+      move,
+      players,
+      new Grid(grid.size),
+      GameEvent.OnGameEndEvent
+    )
+  }
+
+  override def playerCard(index: Int): Option[Card] = {
+    currentPlayer.inventory.cardAt(index)
+  }
+
+  override def collectRelic(player: Player, relic: Relic): GameManager = {
+    val relicScore = relic.score
+    val relicCard = relic.collectCard
+
+    def updatePlayerScore(player: Player, score: Int): Player = {
+      player.copy(stats = player.stats.updateScore(score))
+    }
+
+    def updatePlayers(updatedPlayer: Player): List[Player] = {
+      players.map { p =>
+        if (p == player) updatedPlayer else p
+      }
+    }
+
+    val updatedPlayer = relicCard match {
+      case Some(card) if !player.inventory.isFull =>
+        player.inventory.addCard(card)
+        updatePlayerScore(player, relicScore)
+      case Some(card) =>
+        val cardScore = card.toScore
+        updatePlayerScore(player, relicScore + cardScore)
+      case None =>
+        updatePlayerScore(player, relicScore)
+    }
+
+    val updatedPlayers = updatePlayers(updatedPlayer)
+
+    val newEvent = relicCard match {
+      case Some(card) if !player.inventory.isFull =>
+        GameEvent.OnInfoEvent(
+          s"Player ${player.id} got $relicScore score and collected ${card.name}."
+        )
+      case Some(card) =>
+        val cardScore = card.toScore
+        GameEvent.OnInfoEvent(
+          s"Player ${player.id} got $relicScore score and because the inventory was full," +
+            s" the card turned into $cardScore score."
+        )
+      case None =>
+        GameEvent.OnInfoEvent(s"Player ${player.id} got $relicScore score.")
+    }
+
+    copy(players = updatedPlayers, event = newEvent)
+  }
+
   private def movePlayer(direction: Direction): RunningManager = {
-    val drop = if echoSpawned then TileContent.Echo else TileContent.Empty
-    val newGrid = grid.movePlayer(currentPlayer, direction, drop)
+    val newGrid = grid.movePlayer(currentPlayer, direction)
     if (newGrid == grid) {
       copy(
         event = GameEvent.OnErrorEvent(
           "Cannot move player there! Try again."
-        ),
-        confirmation = false
+        )
       )
     } else {
       copy(
@@ -76,25 +121,7 @@ case class RunningManager(
         event =
           if round % config.relicSpawnRate == 0 then GameEvent.OnRelicSpawnEvent
           else GameEvent.OnPlayerMoveEvent,
-        echoSpawned = false,
-        confirmation = false
       )
     }
-  }
-
-  private def spawnEcho: RunningManager = {
-    copy(
-      echoes = Echo("e", currentPlayer) :: echoes,
-      event = GameEvent.OnEchoSpawnEvent,
-      echoSpawned = true
-    )
-  }
-
-  override def handleEchoMove(echo: Echo): RunningManager = {
-    val newGrid = grid.moveEcho(echo)
-    copy(
-      grid = newGrid,
-      event = GameEvent.OnStealRelicEvent(echo)
-    )
   }
 }

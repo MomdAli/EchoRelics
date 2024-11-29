@@ -1,51 +1,62 @@
 package service
 
-import model.{Grid, Player, GameState}
+import model.entity.Player
+import model.{Grid, GameState}
 import model.events.GameEvent
-import utils.Command
-import model.config.Config
+import model.commands.{
+  Command,
+  GridSizeCommand,
+  PlayerSizeCommand,
+  StartCommand,
+  QuitCommand
+}
 
 case class MenuManager(
     move: Int,
     players: List[Player],
     grid: Grid,
-    config: Config,
     event: GameEvent
 ) extends GameManager {
 
   val state: GameState = GameState.NotStarted
 
-  def handleCommand(command: Command): GameManager = {
+  override def isValid(command: Command): Boolean = {
     command match {
-      case Command.SetGridSize =>
-        GridSizeManager(
-          move,
-          players,
-          grid,
-          config,
-          GameEvent.OnSetGridSizeEvent(grid.size)
-        )
-      case Command.SetPlayerSize =>
-        PlayerSizeManager(
-          move,
-          players,
-          grid,
-          config,
-          GameEvent.OnSetPlayerSizeEvent(players.size)
-        )
-      case Command.StartGame =>
-        val newConfig = Config.configurator(players.size, grid.size, 0)
-        RunningManager(
-          0,
-          players,
-          grid.setupGrid(players, newConfig.wallRatio),
-          newConfig,
-          GameEvent.OnGameStartEvent
-        )
-      case Command.Quit =>
-        copy(event = GameEvent.OnQuitEvent)
-      case _ =>
-        copy(event = GameEvent.OnNoneEvent)
+      case GridSizeCommand() | PlayerSizeCommand() | StartCommand() |
+          QuitCommand() =>
+        true
+      case _ => false
     }
+  }
+
+  override def setGridSize: GameManager = {
+    GridSizeManager(
+      move,
+      players,
+      grid,
+      GameEvent.OnSetGridSizeEvent(grid.size)
+    )
+  }
+
+  override def setPlayerSize: GameManager = {
+    PlayerSizeManager(
+      move,
+      players,
+      grid,
+      GameEvent.OnSetPlayerSizeEvent(players.size)
+    )
+  }
+
+  override def start: GameManager = {
+    RunningManager(
+      0, // Starting the game with 0 moves
+      players,
+      gridSpawner.setupStartingGrid(grid, players),
+      GameEvent.OnGameStartEvent
+    )
+  }
+
+  override def quit: GameManager = {
+    copy(event = GameEvent.OnQuitEvent)
   }
 }

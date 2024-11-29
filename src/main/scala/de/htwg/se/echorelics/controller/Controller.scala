@@ -1,37 +1,34 @@
 package controller
 
-import scala.io.AnsiColor.{BLUE, RESET}
-
-import model.{Echo, Grid, Player}
-import model.events.{EventManager, EventListener, GameEvent}
 import service.GameManager
-import utils.Command
+import model.events.{EventManager, GameEvent}
+import model.commands.Command
+import model.events.{EventListener, EventManager, GameEvent}
 
 class Controller(var gameManager: GameManager = GameManager.StartingManager)
     extends EventListener {
 
   EventManager.subscribe(this)
 
-  // TODO: Implement the event handling
   override def handleEvent(event: GameEvent): Unit = {
     event match {
-      case GameEvent.OnNoneEvent => ()
-      case _                     => ()
+      case GameEvent.OnRelicCollectEvent(player, relic) =>
+        gameManager = gameManager.collectRelic(player, relic)
+        EventManager.notify(gameManager.event)
+      case _ =>
     }
   }
 
-  def handleCommand(command: Command): Unit = {
-    gameManager = gameManager.handleCommand(command)
-    EventManager.notify(gameManager.event)
-  }
+  def handleCommand(command: Command): Boolean = {
+    if (gameManager.isValid(command)) {
+      gameManager = command.execute(gameManager)
+      if (gameManager.event == GameEvent.OnQuitEvent) {
+        return false
+      }
 
-  def displayGrid: String = gameManager.grid.toString
-
-  def info: String = {
-    s"""
-       |Round: ${(gameManager.move / gameManager.players.size).toInt + 1}
-       |Player ${BLUE}${gameManager.currentPlayer.id}${RESET}'s turn
-       |State: ${gameManager.state}
-       |""".stripMargin
+      EventManager.notify(gameManager.event)
+      EventManager.processEvents()
+    }
+    true
   }
 }

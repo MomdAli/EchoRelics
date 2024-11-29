@@ -1,29 +1,34 @@
 package service
 
-import model.{Grid, Player, GameState}
+import model.entity.Player
+import model.{Grid, GameState}
 import model.events.GameEvent
-import model.config.Config
-import utils.Command
+import model.commands.{Command, MoveCommand, QuitCommand}
+import utils.Direction
 
 case class PlayerSizeManager(
     move: Int,
     players: List[Player],
     grid: Grid,
-    config: Config,
     event: GameEvent
 ) extends GameManager {
 
   val state: GameState = GameState.NotStarted
 
-  def handleCommand(command: Command): GameManager = {
+  override def isValid(command: Command): Boolean = {
     command match {
-      case Command.MoveUp   => increasePlayerSize
-      case Command.MoveDown => decreasePlayerSize
-      case Command.Quit =>
-        MenuManager(move, players, grid, config, GameEvent.OnGameEndEvent)
-      case _ =>
-        PlayerSizeManager(move, players, grid, config, GameEvent.OnNoneEvent)
+      case MoveCommand(Direction.Up) | MoveCommand(Direction.Down) |
+          QuitCommand() =>
+        true
+      case _ => false
     }
+  }
+
+  override def moveUp: GameManager = increasePlayerSize
+  override def moveDown: GameManager = decreasePlayerSize
+
+  override def quit: GameManager = {
+    MenuManager(move, players, grid, GameEvent.OnGameEndEvent)
   }
 
   private def increasePlayerSize: PlayerSizeManager = {
