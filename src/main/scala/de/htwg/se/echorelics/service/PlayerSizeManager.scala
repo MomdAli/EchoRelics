@@ -24,8 +24,13 @@ case class PlayerSizeManager(
     }
   }
 
-  override def moveUp: GameManager = increasePlayerSize
-  override def moveDown: GameManager = decreasePlayerSize
+  override def move(direction: Direction): GameManager = {
+    direction match {
+      case Direction.Up   => increasePlayerSize
+      case Direction.Down => decreasePlayerSize
+      case _              => this
+    }
+  }
 
   override def quit: GameManager = {
     MenuManager(move, players, grid, GameEvent.OnGameEndEvent)
@@ -44,7 +49,7 @@ case class PlayerSizeManager(
 
   private def decreasePlayerSize: PlayerSizeManager = {
     val newPlayers =
-      if (players.size > 2) players.init
+      if (players.size > 1) players.init
       else players
 
     copy(

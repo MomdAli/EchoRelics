@@ -32,10 +32,27 @@ case class RunningManager(
     }
   }
 
-  override def moveUp: GameManager = movePlayer(Direction.Up)
-  override def moveDown: GameManager = movePlayer(Direction.Down)
-  override def moveLeft: GameManager = movePlayer(Direction.Left)
-  override def moveRight: GameManager = movePlayer(Direction.Right)
+  override def move(direction: Direction): GameManager = {
+    val newGrid = grid.movePlayer(currentPlayer, direction)
+    if (newGrid == grid) {
+      copy(
+        event = GameEvent.OnErrorEvent(
+          "Cannot move player there! Try again."
+        )
+      )
+    } else {
+      val newEvent =
+        if (move % config.relicSpawnRate == 0 && move != 0)
+          GameEvent.OnRelicSpawnEvent
+        else GameEvent.OnPlayerMoveEvent
+
+      copy(
+        move = move + 1,
+        grid = newGrid,
+        event = newEvent
+      )
+    }
+  }
 
   override def echo: GameManager = ???
 
@@ -59,6 +76,13 @@ case class RunningManager(
 
   override def playerCard(index: Int): Option[Card] = {
     currentPlayer.inventory.cardAt(index)
+  }
+
+  override def spawnRelic: GameManager = {
+    copy(
+      grid = gridSpawner.spawnRelic(grid),
+      event = GameEvent.OnInfoEvent("Relics spawned!")
+    )
   }
 
   override def collectRelic(player: Player, relic: Relic): GameManager = {
@@ -104,24 +128,5 @@ case class RunningManager(
     }
 
     copy(players = updatedPlayers, event = newEvent)
-  }
-
-  private def movePlayer(direction: Direction): RunningManager = {
-    val newGrid = grid.movePlayer(currentPlayer, direction)
-    if (newGrid == grid) {
-      copy(
-        event = GameEvent.OnErrorEvent(
-          "Cannot move player there! Try again."
-        )
-      )
-    } else {
-      copy(
-        move = move + 1,
-        grid = newGrid,
-        event =
-          if round % config.relicSpawnRate == 0 then GameEvent.OnRelicSpawnEvent
-          else GameEvent.OnPlayerMoveEvent,
-      )
-    }
   }
 }

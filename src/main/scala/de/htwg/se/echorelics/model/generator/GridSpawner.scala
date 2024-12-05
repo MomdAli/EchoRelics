@@ -8,6 +8,13 @@ import model.entity.{Player, Relic, Wall}
 // GridSpawner Facade Design Pattern
 class GridSpawner(config: Config) {
 
+  def spawnRelic(grid: Grid): Grid = {
+    val seed = System.currentTimeMillis()
+    val gridWithRelics =
+      spawnRelics(grid, seed, 3) // ! hardcoded number of relics
+    gridWithRelics
+  }
+
   def setupStartingGrid(grid: Grid, players: Seq[Player]): Grid = {
     val seed = System.currentTimeMillis()
     val gridWithWalls = generateWalls(grid, seed, config.wallRatio)

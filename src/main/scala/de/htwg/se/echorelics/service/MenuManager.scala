@@ -10,6 +10,7 @@ import model.commands.{
   StartCommand,
   QuitCommand
 }
+import model.item.Inventory
 
 case class MenuManager(
     move: Int,
@@ -50,7 +51,7 @@ case class MenuManager(
   override def start: GameManager = {
     RunningManager(
       0, // Starting the game with 0 moves
-      players,
+      players.map(player => Player(player.id)),
       gridSpawner.setupStartingGrid(grid, players),
       GameEvent.OnGameStartEvent
     )

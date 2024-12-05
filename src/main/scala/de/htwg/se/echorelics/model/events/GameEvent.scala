@@ -18,6 +18,8 @@ enum GameEvent:
   // Relics
   case OnRelicSpawnEvent
   case OnRelicCollectEvent(player: Player, relic: Relic)
+  // Cards
+  case OnTimeTravelEvent(turns: Int)
 
   // End Game Events
   case OnGameEndEvent
@@ -32,6 +34,7 @@ enum GameEvent:
   case OnGamePauseEvent
 
   // Special
+  case OnUpdateRenderEvent
   case OnErrorEvent(message: String)
   case OnInfoEvent(message: String)
   case OnQuitEvent

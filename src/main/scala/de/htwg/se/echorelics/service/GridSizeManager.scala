@@ -24,20 +24,24 @@ case class GridSizeManager(
     }
   }
 
-  override def moveUp: GameManager = {
-    val newGrid = grid.increaseSize
-    copy(
-      grid = newGrid,
-      event = GameEvent.OnSetGridSizeEvent(newGrid.size)
-    )
-  }
-
-  override def moveDown: GameManager = {
-    val newGrid = grid.decreaseSize
-    copy(
-      grid = newGrid,
-      event = GameEvent.OnSetGridSizeEvent(newGrid.size)
-    )
+  override def move(direction: Direction): GameManager = {
+    direction match {
+      case Direction.Up => {
+        val newGrid = grid.increaseSize
+        copy(
+          grid = newGrid,
+          event = GameEvent.OnSetGridSizeEvent(newGrid.size)
+        )
+      }
+      case Direction.Down => {
+        val newGrid = grid.decreaseSize
+        copy(
+          grid = newGrid,
+          event = GameEvent.OnSetGridSizeEvent(newGrid.size)
+        )
+      }
+      case _ => this
+    }
   }
 
   override def quit: GameManager =

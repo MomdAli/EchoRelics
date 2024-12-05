@@ -7,6 +7,7 @@ import model.entity.{Echo, Player, Relic}
 import model.commands.Command
 import model.generator.GridSpawner
 import model.item.Card
+import utils.Direction
 
 trait GameManager {
   // variables
@@ -20,10 +21,7 @@ trait GameManager {
   // methods to override
   def state: GameState
   def isValid(command: Command): Boolean
-  def moveUp: GameManager = this
-  def moveDown: GameManager = this
-  def moveRight: GameManager = this
-  def moveLeft: GameManager = this
+  def move(direction: Direction): GameManager = this
   def quit: GameManager = this
   def setPlayerSize: GameManager = this
   def setGridSize: GameManager = this
@@ -32,6 +30,7 @@ trait GameManager {
   def pause: GameManager = this
   def resume: GameManager = this
   def playerCard(index: Int): Option[Card] = None
+  def spawnRelic: GameManager = this
   def collectRelic(player: Player, relic: Relic): GameManager = this
 
   // already implemented methods
@@ -59,10 +58,12 @@ trait GameManager {
 }
 
 object GameManager {
-  def StartingManager: GameManager = MenuManager(
-    0,
-    List(Player("1"), Player("2")),
-    new Grid(10),
-    event = GameEvent.OnGameEndEvent
-  )
+  def apply(): GameManager = {
+    MenuManager(
+      0,
+      List(Player("1"), Player("2")),
+      new Grid(10),
+      event = GameEvent.OnGameEndEvent
+    )
+  }
 }

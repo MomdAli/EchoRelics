@@ -2,7 +2,7 @@ package model.entity
 
 import model.entity.Entity
 import model.generator.Random
-import model.item.{Card, HealCard, StrikeCard, SwapPlayerCard}
+import model.item.{Card, HealCard, StrikeCard, SwapPlayerCard, TimeTravelCard}
 
 case class Relic() extends Entity {
 
@@ -13,7 +13,8 @@ case class Relic() extends Entity {
   private val cards: List[Card] = List(
     HealCard(),
     SwapPlayerCard(),
-    StrikeCard()
+    StrikeCard(),
+    TimeTravelCard()
   )
 
   val score: Int = {

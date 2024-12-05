@@ -2,73 +2,79 @@ package model.commands
 
 import service.GameManager
 import utils.Direction
+import scala.util.Try
+import scala.util.Failure
 
 sealed trait Command {
-  def execute(gameManager: GameManager): GameManager
+  def execute(gameManager: GameManager): Try[GameManager]
+  def undo(gameManager: GameManager): Try[GameManager] = Failure(
+    new RuntimeException("Undo not implemented")
+  )
 }
 
 case class EchoCommand() extends Command {
-  override def execute(gameManager: GameManager): GameManager = {
-    gameManager.echo
+  override def execute(gameManager: GameManager): Try[GameManager] = {
+    Try(gameManager.echo)
   }
 }
 
 case class GridSizeCommand() extends Command {
-  override def execute(gameManager: GameManager): GameManager = {
-    gameManager.setGridSize
+  override def execute(gameManager: GameManager): Try[GameManager] = {
+    Try(gameManager.setGridSize)
   }
 }
 
 case class MoveCommand(direction: Direction) extends Command {
-  override def execute(gameManager: GameManager): GameManager = {
-    direction match {
-      case Direction.Up    => gameManager.moveUp
-      case Direction.Down  => gameManager.moveDown
-      case Direction.Left  => gameManager.moveLeft
-      case Direction.Right => gameManager.moveRight
-    }
+  override def execute(gameManager: GameManager): Try[GameManager] = {
+    Try(gameManager.move(direction))
+  }
+
+  override def undo(gameManager: GameManager): Try[GameManager] = {
+    Try(gameManager.move(direction.opposite))
   }
 }
 
 case class PauseCommand() extends Command {
-  override def execute(gameManager: GameManager): GameManager = {
-    gameManager.pause
+  override def execute(gameManager: GameManager): Try[GameManager] = {
+    Try(gameManager.pause)
   }
 }
 
 case class PlayerSizeCommand() extends Command {
-  override def execute(gameManager: GameManager): GameManager = {
-    gameManager.setPlayerSize
+  override def execute(gameManager: GameManager): Try[GameManager] = {
+    Try(gameManager.setPlayerSize)
   }
 }
 
 case class QuitCommand() extends Command {
-  override def execute(gameManager: GameManager): GameManager = {
-    gameManager.quit
+  override def execute(gameManager: GameManager): Try[GameManager] = {
+    Try(gameManager.quit)
   }
 }
 
 case class ResumeCommand() extends Command {
-  override def execute(gameManager: GameManager): GameManager = {
-    gameManager.resume
+  override def execute(gameManager: GameManager): Try[GameManager] = {
+    Try(gameManager.resume)
   }
 }
 
 case class StartCommand() extends Command {
-  override def execute(gameManager: GameManager): GameManager = {
-    gameManager.start
+  override def execute(gameManager: GameManager): Try[GameManager] = {
+    Try(gameManager.start)
   }
 }
 
 case class PlayCardCommand(index: Int) extends Command {
-  override def execute(gameManager: GameManager): GameManager = {
-    gameManager.playerCard(index) match {
-      case Some(card) => {
-        val gm = card.play(gameManager)
-        gameManager.currentPlayer.inventory.removeCard(index)
-        gm
+  override def execute(gameManager: GameManager): Try[GameManager] = {
+    Try {
+      gameManager.playerCard(index) match {
+        case Some(card) =>
+          val gm = card.play(gameManager)
+          gameManager.currentPlayer.inventory.removeCard(index)
+          gm
+        case None =>
+          throw new RuntimeException("No card found at the given index")
       }
-      case None => gameManager
     }
   }
 }
