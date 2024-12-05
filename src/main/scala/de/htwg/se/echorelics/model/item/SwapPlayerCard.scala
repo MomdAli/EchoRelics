@@ -1,9 +1,8 @@
 package model.item
 
-import service.GameManager
-import model.generator.Random
-import service.RunningManager
 import model.events.GameEvent
+import model.generator.Random
+import service.{GameManager, RunningManager}
 
 case class SwapPlayerCard() extends Card {
   override val rarity = Rarity.Rare
@@ -31,13 +30,22 @@ case class SwapPlayerCard() extends Card {
       )
     }
 
-    val newGrid = gameManager.grid.swap(pos1.get, pos2.get)
-
-    RunningManager(
-      gameManager.move + 1,
-      gameManager.players,
-      newGrid,
-      GameEvent.OnPlayCardEvent(this)
-    )
+    (pos1, pos2) match {
+      case (Some(p1), Some(p2)) =>
+        val newGrid = gameManager.grid.swap(p1, p2)
+        RunningManager(
+          gameManager.move + 1,
+          gameManager.players,
+          newGrid,
+          GameEvent.OnPlayCardEvent(this)
+        )
+      case _ =>
+        RunningManager(
+          gameManager.move,
+          gameManager.players,
+          gameManager.grid,
+          GameEvent.OnErrorEvent("Could not find player to swap with.")
+        )
+    }
   }
 }

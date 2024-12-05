@@ -42,7 +42,7 @@ class GridSpawner(config: Config) {
       Position(grid.size - 1, 0),
       Position(grid.size - 1, grid.size - 1)
     )
-    replaceTiles(grid, corners, Tile.EmptyTile)
+    replaceTiles(grid, corners, Tile.emptyTile)
   }
 
   private def spawnRelics(grid: Grid, seed: Long, numberOfRelics: Int): Grid = {
@@ -77,7 +77,7 @@ class GridSpawner(config: Config) {
     )
     val playerPositions = players.zip(corners)
     playerPositions.foldLeft(grid) { case (currentGrid, (player, position)) =>
-      currentGrid.set(position, Tile.PlayerTile(player))
+      currentGrid.set(position, Tile.playerTile(player))
     }
   }
 

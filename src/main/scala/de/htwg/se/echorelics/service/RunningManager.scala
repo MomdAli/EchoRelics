@@ -113,16 +113,18 @@ case class RunningManager(
     val updatedPlayers = updatePlayers(updatedPlayer)
 
     val newEvent = relicCard match {
-      case Some(card) if !player.inventory.isFull =>
-        GameEvent.OnInfoEvent(
-          s"Player ${player.id} got $relicScore score and collected ${card.name}."
-        )
       case Some(card) =>
-        val cardScore = card.toScore
-        GameEvent.OnInfoEvent(
-          s"Player ${player.id} got $relicScore score and because the inventory was full," +
-            s" the card turned into $cardScore score."
-        )
+        if (!player.inventory.isFull) {
+          GameEvent.OnInfoEvent(
+            s"Player ${player.id} got $relicScore score and collected ${card.name}."
+          )
+        } else {
+          val cardScore = card.toScore
+          GameEvent.OnInfoEvent(
+            s"Player ${player.id} got $relicScore score and because the inventory was full," +
+              s" the card turned into $cardScore score."
+          )
+        }
       case None =>
         GameEvent.OnInfoEvent(s"Player ${player.id} got $relicScore score.")
     }

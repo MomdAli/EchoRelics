@@ -2,11 +2,9 @@ package controller
 
 import scala.util.{Try, Success, Failure}
 
+import model.commands.{Command, CommandHistory}
+import model.events.{EventManager, EventListener, GameEvent}
 import service.GameManager
-import model.events.{EventManager, GameEvent}
-import model.commands.Command
-import model.events.{EventListener, EventManager, GameEvent}
-import model.commands.CommandHistory
 
 class Controller(var gameManager: GameManager = GameManager())
     extends EventListener {

@@ -2,8 +2,7 @@ package model.item
 
 import service.GameManager
 import controller.Controller
-import model.events.EventManager
-import model.events.GameEvent
+import model.events.{EventManager, GameEvent}
 
 case class TimeTravelCard() extends Card {
 

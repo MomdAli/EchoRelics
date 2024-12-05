@@ -4,12 +4,10 @@ import scala.io.AnsiColor._
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import model.{Grid, Tile}
 import model.entity.{Echo, Player, Relic, Wall}
+import model.{Grid, Tile, Stats}
+import model.item.{Card, HealCard, Inventory}
 import utils.Position
-import model.item.{Card, HealCard}
-import model.Stats
-import model.item.Inventory
 
 class TextRendererSpec extends AnyWordSpec with Matchers {
 

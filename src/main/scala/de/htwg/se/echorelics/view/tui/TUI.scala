@@ -62,7 +62,7 @@ class TUI(controller: Controller) extends UI {
 
   // This method should loop until the game is over
   override def processInput(): Unit = {
-    val input = inputHandler.getCurrentInput
+    val input = inputHandler.currentInput
 
     input.foreach { command =>
       controller.handleCommand(command) match {

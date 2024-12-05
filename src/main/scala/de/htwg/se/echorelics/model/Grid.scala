@@ -7,7 +7,7 @@ import model.events.{EventManager, GameEvent}
 
 case class Grid(tiles: Vector[Vector[Tile]]) {
 
-  def this(size: Int) = this(Vector.fill(size, size)(Tile.EmptyTile))
+  def this(size: Int) = this(Vector.fill(size, size)(Tile.emptyTile))
 
   def set(position: Position, tile: Tile): Grid = {
     copy(tiles.updated(position.y, tiles(position.y).updated(position.x, tile)))
@@ -17,7 +17,7 @@ case class Grid(tiles: Vector[Vector[Tile]]) {
 
   def tileAt(position: Position): Tile = {
     if (isOutOfBounds(position)) {
-      Tile.EmptyTile
+      Tile.emptyTile
     } else {
       tiles(position.y)(position.x)
     }
@@ -37,7 +37,7 @@ case class Grid(tiles: Vector[Vector[Tile]]) {
         if (isOutOfBounds(newPosition) || !tileAt(newPosition).isWalkable) {
           this
         } else {
-          val newGrid = set(playerPosition, Tile.EmptyTile)
+          val newGrid = set(playerPosition, Tile.emptyTile)
           checkCollect(player, newPosition)
           newGrid.set(newPosition, Tile(Some(player)))
         }

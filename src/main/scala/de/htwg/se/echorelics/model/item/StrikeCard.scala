@@ -1,7 +1,6 @@
 package model.item
 
-import service.GameManager
-import service.RunningManager
+import service.{GameManager, RunningManager}
 import model.events.GameEvent
 
 case class StrikeCard() extends Card {

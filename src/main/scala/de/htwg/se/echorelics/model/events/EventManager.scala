@@ -1,6 +1,6 @@
 package model.events
 
-import scala.collection.mutable.Queue
+import scala.collection.mutable
 import scala.concurrent.{Future, ExecutionContext}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Try, Success, Failure}
@@ -16,8 +16,7 @@ object EventManager {
     * instances of `GameEvent` and is used to store and process events in the
     * order they are added.
     */
-  private val eventQueue: Queue[GameEvent] = Queue()
-  private var isProcessing: Boolean = false
+  private val eventQueue: mutable.Queue[GameEvent] = mutable.Queue()
 
   /** Subscribes a new listener to the EventManager.
     *
@@ -66,7 +65,6 @@ object EventManager {
     */
   private def processNextEvent(): Unit = {
     if (eventQueue.nonEmpty) {
-      isProcessing = true
       val nextEvent = eventQueue.dequeue()
 
       // Process each listener for the given event asynchronously
@@ -83,8 +81,6 @@ object EventManager {
           }
         }
       }.onComplete { _ =>
-        // Once the current event is processed, proceed to the next one
-        isProcessing = false
         processNextEvent()
       }
     }

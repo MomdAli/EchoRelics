@@ -2,8 +2,7 @@ package model.commands
 
 import service.GameManager
 import utils.Direction
-import scala.util.Try
-import scala.util.Failure
+import scala.util.{Failure, Try}
 
 sealed trait Command {
   def execute(gameManager: GameManager): Try[GameManager]

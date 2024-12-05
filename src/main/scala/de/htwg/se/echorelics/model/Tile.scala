@@ -22,7 +22,7 @@ case class Tile(entity: Option[Entity]) {
 }
 
 object Tile {
-  def EmptyTile: Tile = Tile(None)
-  def WallTile: Tile = Tile(Some(Wall()))
-  def PlayerTile(player: Player): Tile = Tile(Some(player))
+  val emptyTile: Tile = Tile(None)
+  val wallTile: Tile = Tile(Some(Wall()))
+  def playerTile(player: Player): Tile = Tile(Some(player))
 }

@@ -4,18 +4,7 @@ import org.jline.terminal.{Terminal, TerminalBuilder}
 import org.jline.keymap.{BindingReader, KeyMap}
 
 import utils.Direction
-import model.commands.{
-  Command,
-  GridSizeCommand,
-  EchoCommand,
-  ResumeCommand,
-  StartCommand,
-  PauseCommand,
-  MoveCommand,
-  QuitCommand,
-  PlayerSizeCommand,
-  PlayCardCommand
-}
+import model.commands._
 
 class InputHandler(val terminal: Terminal) {
 
@@ -38,7 +27,7 @@ class InputHandler(val terminal: Terminal) {
   keyMap.bind(GridSizeCommand(), "g")
   keyMap.bind(QuitCommand(), "q")
 
-  def getCurrentInput: Option[Command] = {
+  def currentInput: Option[Command] = {
     val key = bindingReader.readBinding(keyMap)
     Option(key)
   }
