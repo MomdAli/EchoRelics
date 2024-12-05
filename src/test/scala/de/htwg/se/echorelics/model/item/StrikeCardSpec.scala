@@ -14,7 +14,7 @@ class StrikeCardSpec extends AnyWordSpec with Matchers {
     val strikeCard = StrikeCard()
     val player1 = Player("player1", Stats(0, 0, 3))
     val player2 = Player("player2", Stats(0, 0, 3))
-    val gameManager = GameManager.StartingManager.start
+    val gameManager = GameManager().start
 
     "have the correct rarity, name, and description" in {
       strikeCard.rarity should be(Rarity.Legendary)

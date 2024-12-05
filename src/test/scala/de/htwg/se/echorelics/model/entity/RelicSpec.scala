@@ -2,7 +2,7 @@ package model.entity
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import model.item.{HealCard, StrikeCard, SwapPlayerCard}
+import model.item.{HealCard, StrikeCard, SwapPlayerCard, TimeTravelCard}
 
 class RelicSpec extends AnyWordSpec with Matchers {
 
@@ -34,9 +34,13 @@ class RelicSpec extends AnyWordSpec with Matchers {
 
       collectedCard match {
         case Some(card) =>
-          card should (be(a[HealCard]) or be(a[SwapPlayerCard]) or be(
-            a[StrikeCard]
-          ))
+          card match {
+            case _: HealCard       => succeed
+            case _: StrikeCard     => succeed
+            case _: SwapPlayerCard => succeed
+            case _: TimeTravelCard => succeed
+            case _                 => fail("Unexpected card")
+          }
         case None =>
           collectedCard should be(None)
       }

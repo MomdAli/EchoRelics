@@ -7,48 +7,62 @@ class EventManagerSpec extends AnyWordSpec with Matchers {
 
   "An EventManager" should {
 
-    "allow listeners to subscribe" in {
+    "subscribe a listener" in {
       val listener = new EventListener {
-        override def handleEvent(event: GameEvent): Unit = {}
+        def handleEvent(event: GameEvent): Unit = {}
       }
       EventManager.subscribe(listener)
       EventManager.isSubscribed(listener) should be(true)
     }
 
-    "allow listeners to unsubscribe" in {
+    "unsubscribe a listener" in {
       val listener = new EventListener {
-        override def handleEvent(event: GameEvent): Unit = {}
+        def handleEvent(event: GameEvent): Unit = {}
       }
       EventManager.subscribe(listener)
       EventManager.unsubscribe(listener)
       EventManager.isSubscribed(listener) should be(false)
     }
 
-    "notify listeners of events" in {
+    "notify listeners instantly" in {
       var eventHandled = false
       val listener = new EventListener {
-        override def handleEvent(event: GameEvent): Unit = {
+        def handleEvent(event: GameEvent): Unit = {
           eventHandled = true
         }
       }
       EventManager.subscribe(listener)
-      EventManager.notify(GameEvent.OnInfoEvent("Test"))
+      EventManager.instantNotify(GameEvent.OnGameStartEvent)
+      eventHandled should be(true)
+    }
+
+    "enqueue and process events" in {
+      var eventHandled = false
+      val listener = new EventListener {
+        def handleEvent(event: GameEvent): Unit = {
+          eventHandled = true
+        }
+      }
+      EventManager.subscribe(listener)
+      EventManager.notify(GameEvent.OnGameStartEvent)
       EventManager.processEvents()
       eventHandled should be(true)
     }
 
-    "process multiple events in order" in {
-      var eventCount = 0
+    "handle multiple events in order" in {
+      var eventsHandled = List[GameEvent]()
       val listener = new EventListener {
-        override def handleEvent(event: GameEvent): Unit = {
-          eventCount += 1
+        def handleEvent(event: GameEvent): Unit = {
+          eventsHandled = eventsHandled :+ event
         }
       }
       EventManager.subscribe(listener)
-      EventManager.notify(GameEvent.OnInfoEvent("Test 1"))
-      EventManager.notify(GameEvent.OnInfoEvent("Test 2"))
+      EventManager.notify(GameEvent.OnGameStartEvent)
+      EventManager.notify(GameEvent.OnGameEndEvent)
       EventManager.processEvents()
-      eventCount should be(2)
+      eventsHandled should be(
+        List(GameEvent.OnGameStartEvent, GameEvent.OnGameEndEvent)
+      )
     }
   }
 }

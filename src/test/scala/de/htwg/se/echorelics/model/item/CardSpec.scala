@@ -8,7 +8,7 @@ class CardSpec extends AnyWordSpec with Matchers {
 
   "A Card" should {
 
-    val gameManager = GameManager.StartingManager
+    val gameManager = GameManager()
 
     "have a score based on its rarity" in {
       val commonCard = new Card {

@@ -10,7 +10,7 @@ class HealCardSpec extends AnyWordSpec with Matchers {
 
   "A HealCard" should {
 
-    val gameManager = GameManager.StartingManager.start
+    val gameManager = GameManager().start
     val healCard = HealCard()
 
     "have a rarity of Common" in {

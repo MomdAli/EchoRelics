@@ -1,80 +1,112 @@
 package service
 
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
 import model.{Grid, GameState}
-import model.config.Configurator
-import model.entity.Player
-import model.events.GameEvent
-import model.entity.Relic
+import model.entity.{Player, Relic}
+import model.item.Card
+import utils.Direction
 
 class GameManagerSpec extends AnyWordSpec with Matchers {
 
   "A GameManager" should {
 
-    val gameManager = GameManager.StartingManager
-
-    "have the correct initial state" in {
+    "initialize with default values" in {
+      val gameManager = GameManager()
       gameManager.move should be(0)
       gameManager.players should have size 2
       gameManager.grid.size should be(10)
-      gameManager.event should be(GameEvent.OnGameEndEvent)
+      gameManager.echoes should be(empty)
     }
 
     "return the correct round number" in {
+      val gameManager = GameManager()
       gameManager.round should be(1)
     }
 
-    "return the correct current player" in {
+    "return the current player" in {
+      val gameManager = GameManager()
       gameManager.currentPlayer.id should be("1")
     }
 
-    "return the correct current player by index" in {
+    "return the correct player by index" in {
+      val gameManager = GameManager()
       gameManager.currentPlayer(1).id should be("2")
     }
 
-    "have a valid configuration" in {
+    "return a valid configuration" in {
+      val gameManager = GameManager()
       val config = gameManager.config
       config.playerSize should be(2)
       config.gridSize should be(10)
     }
 
-    "not move up by default" in {
-      gameManager.moveUp should be(gameManager)
+    "move in a direction" in {
+      val gameManager = GameManager().start
+      val newGameManager =
+        gameManager.move(Direction.Down).move(Direction.Right)
+      newGameManager should not be theSameInstanceAs(gameManager)
     }
 
-    "not move down by default" in {
-      gameManager.moveDown should be(gameManager)
+    "quit the game" in {
+      val gameManager = GameManager()
+      val newGameManager = gameManager.quit
+      newGameManager should not be theSameInstanceAs(gameManager)
     }
 
-    "not move right by default" in {
-      gameManager.moveRight should be(gameManager)
+    "set player size" in {
+      val gameManager = GameManager()
+      val newGameManager = gameManager.setPlayerSize
+      newGameManager should not be theSameInstanceAs(gameManager)
     }
 
-    "not move left by default" in {
-      gameManager.moveLeft should be(gameManager)
+    "set grid size" in {
+      val gameManager = GameManager()
+      val newGameManager = gameManager.setGridSize
+      newGameManager should not be theSameInstanceAs(gameManager)
     }
 
-    "not echo by default" in {
-      gameManager.echo should be(gameManager)
+    "echo" in {
+      val gameManager = GameManager()
+      val newGameManager = gameManager.echo
+      newGameManager should be theSameInstanceAs (gameManager)
     }
 
-    "not pause by default" in {
-      gameManager.pause should be(gameManager)
+    "start the game" in {
+      val gameManager = GameManager()
+      val newGameManager = gameManager.start
+      newGameManager should not be theSameInstanceAs(gameManager)
     }
 
-    "not resume by default" in {
-      gameManager.resume should be(gameManager)
+    "pause the game" in {
+      val gameManager = GameManager()
+      val newGameManager = gameManager.pause
+      newGameManager should be theSameInstanceAs (gameManager)
     }
 
-    "return None for player card by default" in {
+    "resume the game" in {
+      val gameManager = GameManager()
+      val newGameManager = gameManager.resume
+      newGameManager should be theSameInstanceAs (gameManager)
+    }
+
+    "return a player card by index" in {
+      val gameManager = GameManager()
       gameManager.playerCard(0) should be(None)
     }
 
-    "not collect relic by default" in {
+    "spawn a relic" in {
+      val gameManager = GameManager().start
+      val newGameManager = gameManager.spawnRelic
+      newGameManager should not be theSameInstanceAs(gameManager)
+    }
+
+    "collect a relic" in {
+      val gameManager = GameManager()
       val player = Player("1")
       val relic = Relic()
-      gameManager.collectRelic(player, relic) should be(gameManager)
+      val newGameManager = gameManager.collectRelic(player, relic)
+      newGameManager should be theSameInstanceAs (gameManager)
     }
   }
 }

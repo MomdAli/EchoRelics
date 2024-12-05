@@ -32,40 +32,36 @@ class PlayerSizeManagerSpec extends AnyWordSpec with Matchers {
       playerSizeManager.isValid(MoveCommand(Direction.Right)) should be(false)
     }
 
-    "increase player size on move up" in {
-      val newManager = playerSizeManager.moveUp
-      newManager.players.size should be(3)
-      newManager.event should be(GameEvent.OnSetPlayerSizeEvent(3))
-    }
-
-    "not increase player size beyond 4" in {
-      val managerWithFourPlayers = playerSizeManager.copy(players =
-        List(Player("1"), Player("2"), Player("3"), Player("4"))
-      )
-      val newManager = managerWithFourPlayers.moveUp
-      newManager.players.size should be(4)
-      newManager.event should be(GameEvent.OnSetPlayerSizeEvent(4))
-    }
-
-    "decrease player size on move down" in {
-      val managerWithThreePlayers = playerSizeManager.copy(players =
-        List(Player("1"), Player("2"), Player("3"))
-      )
-      val newManager = managerWithThreePlayers.moveDown
-      newManager.players.size should be(2)
-      newManager.event should be(GameEvent.OnSetPlayerSizeEvent(2))
-    }
-
-    "not decrease player size below 2" in {
-      val newManager = playerSizeManager.moveDown
-      newManager.players.size should be(2)
-      newManager.event should be(GameEvent.OnSetPlayerSizeEvent(2))
-    }
-
     "quit to menu manager" in {
       val newManager = playerSizeManager.quit
       newManager shouldBe a[MenuManager]
       newManager.event should be(GameEvent.OnGameEndEvent)
+    }
+
+    "retain player size when moving left or right" in {
+      val newManagerLeft = playerSizeManager.move(Direction.Left)
+      newManagerLeft.players.size should be(2)
+      newManagerLeft.event should be(GameEvent.OnGameStartEvent)
+
+      val newManagerRight = playerSizeManager.move(Direction.Right)
+      newManagerRight.players.size should be(2)
+      newManagerRight.event should be(GameEvent.OnGameStartEvent)
+    }
+
+    "not change state when moving up or down" in {
+      val newManagerUp = playerSizeManager.move(Direction.Up)
+      newManagerUp.state should be(GameState.NotStarted)
+
+      val newManagerDown = playerSizeManager.move(Direction.Down)
+      newManagerDown.state should be(GameState.NotStarted)
+    }
+
+    "not change grid size when increasing or decreasing player size" in {
+      val newManagerUp = playerSizeManager.move(Direction.Up)
+      newManagerUp.grid.size should be(10)
+
+      val newManagerDown = playerSizeManager.move(Direction.Down)
+      newManagerDown.grid.size should be(10)
     }
   }
 }

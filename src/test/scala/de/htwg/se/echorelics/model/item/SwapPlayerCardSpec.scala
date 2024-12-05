@@ -15,7 +15,7 @@ class SwapPlayerCardSpec extends AnyWordSpec with Matchers {
     val swapCard = SwapPlayerCard()
     val player1 = Player("1", Stats(0, 0, 3))
     val player2 = Player("2", Stats(0, 0, 3))
-    val gameManager = GameManager.StartingManager.start
+    val gameManager = GameManager().start
 
     "have the correct rarity, name, and description" in {
       swapCard.rarity should be(Rarity.Rare)

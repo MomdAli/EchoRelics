@@ -31,22 +31,33 @@ class GridSizeManagerSpec extends AnyWordSpec with Matchers {
       gridSizeManager.isValid(MoveCommand(Direction.Right)) should be(false)
     }
 
-    "increase grid size on move up" in {
-      val newManager = gridSizeManager.moveUp
-      newManager.grid.size should be(11)
-      newManager.event should be(GameEvent.OnSetGridSizeEvent(11))
-    }
-
-    "decrease grid size on move down" in {
-      val newManager = gridSizeManager.moveDown
-      newManager.grid.size should be(10) // minimum value constraint
-      newManager.event should be(GameEvent.OnSetGridSizeEvent(10))
+    "not change grid size on invalid move" in {
+      val newManager = gridSizeManager.move(Direction.Left)
+      newManager.grid.size should be(10)
+      newManager.event should be(GameEvent.OnGameStartEvent)
     }
 
     "quit to menu manager" in {
       val newManager = gridSizeManager.quit
       newManager shouldBe a[MenuManager]
       newManager.event should be(GameEvent.OnGameEndEvent)
+    }
+
+    "handle multiple moves correctly" in {
+      val managerAfterUp = gridSizeManager.move(Direction.Up)
+      managerAfterUp.grid.size should be(11)
+      managerAfterUp.event should be(GameEvent.OnSetGridSizeEvent(11))
+
+      val managerAfterDown = managerAfterUp.move(Direction.Down)
+      managerAfterDown.grid.size should be(10)
+      managerAfterDown.event should be(GameEvent.OnSetGridSizeEvent(10))
+    }
+
+    "not decrease grid size below minimum" in {
+      val smallGridManager = gridSizeManager.copy(grid = new Grid(1))
+      val newManager = smallGridManager.move(Direction.Down)
+      newManager.grid.size should be(1)
+      newManager.event should be(GameEvent.OnSetGridSizeEvent(1))
     }
   }
 }
