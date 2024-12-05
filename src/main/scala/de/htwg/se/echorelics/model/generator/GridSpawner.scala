@@ -1,27 +1,55 @@
 package model.generator
 
-import model.{Grid, Tile, TileContent}
+import model.{Grid, Tile}
 import utils.{Position, Direction}
 import model.config.Config
+import model.entity.{Player, Relic, Wall}
 
-object Spawner {
-  def generateWalls(grid: Grid, seed: Long, ratio: Int): Grid = {
-    val numberOfWalls =
-      // Adjust to control the amount of walls (e.g., 10% of the grid)
-      (grid.size * grid.size) / ratio
+// GridSpawner Facade Design Pattern
+class GridSpawner(config: Config) {
+
+  def spawnRelic(grid: Grid): Grid = {
+    val seed = System.currentTimeMillis()
+    val gridWithRelics =
+      spawnRelics(grid, seed, 3) // ! hardcoded number of relics
+    gridWithRelics
+  }
+
+  def setupStartingGrid(grid: Grid, players: Seq[Player]): Grid = {
+    val seed = System.currentTimeMillis()
+    val gridWithWalls = generateWalls(grid, seed, config.wallRatio)
+    val gridWithoutCornerWalls = removeCornerWalls(gridWithWalls)
+    val gridWithRelics = spawnRelics(
+      gridWithoutCornerWalls,
+      seed,
+      3
+    ) // ! hardcoded number of relics
+    placePlayers(gridWithRelics, players)
+  }
+
+  private def generateWalls(grid: Grid, seed: Long, ratio: Int): Grid = {
+    val numberOfWalls = (grid.size * grid.size) / ratio
     val potentialWalls =
       generatePotentialWalls(grid, seed, numberOfWalls, Set.empty)
     val newGrid = placeValidWalls(grid, potentialWalls, Set.empty)
     newGrid
   }
 
-  // expects a grid with walls and players so it shouldn't
-  // remove any other content. It should only replace empty tiles
-  def spawnRelics(grid: Grid, seed: Long, numberOfRelics: Int): Grid = {
+  private def removeCornerWalls(grid: Grid): Grid = {
+    val corners = Set(
+      Position(0, 0),
+      Position(0, grid.size - 1),
+      Position(grid.size - 1, 0),
+      Position(grid.size - 1, grid.size - 1)
+    )
+    replaceTiles(grid, corners, Tile.emptyTile)
+  }
+
+  private def spawnRelics(grid: Grid, seed: Long, numberOfRelics: Int): Grid = {
     val emptyPositions = for {
       y <- 0 until grid.size
       x <- 0 until grid.size
-      if grid.tileAt(Position(x, y)).content == TileContent.Empty
+      if grid.tileAt(Position(x, y)).entity.isEmpty
     } yield Position(x, y)
 
     val relicsToPlace =
@@ -29,18 +57,31 @@ object Spawner {
       else numberOfRelics
 
     val random = Random(seed.toInt)
-    val (relicPositions, _) = (0 until relicsToPlace).foldLeft(
-      (Set.empty[Position], random)
-    ) { case ((relics, random), _) =>
-      val (index, newRandom) = random.nextInt(emptyPositions.size)
-      val position = emptyPositions(index)
-      (relics + position, newRandom)
-    }
+    val (relicPositions, _) =
+      (0 until relicsToPlace).foldLeft((Set.empty[Position], random)) {
+        case ((relics, random), _) =>
+          val (index, newRandom) = random.nextInt(emptyPositions.size)
+          val position = emptyPositions(index)
+          (relics + position, newRandom)
+      }
 
-    replaceEmptyTiles(grid, relicPositions, Tile(TileContent.Relic))
+    replaceTiles(grid, relicPositions, Tile(Some(Relic())))
   }
 
-  private def replaceEmptyTiles(
+  private def placePlayers(grid: Grid, players: Seq[Player]): Grid = {
+    val corners = Seq(
+      Position(0, 0),
+      Position(0, grid.size - 1),
+      Position(grid.size - 1, 0),
+      Position(grid.size - 1, grid.size - 1)
+    )
+    val playerPositions = players.zip(corners)
+    playerPositions.foldLeft(grid) { case (currentGrid, (player, position)) =>
+      currentGrid.set(position, Tile.playerTile(player))
+    }
+  }
+
+  private def replaceTiles(
       grid: Grid,
       positions: Set[Position],
       tile: Tile
@@ -49,12 +90,7 @@ object Spawner {
       tiles = grid.tiles.zipWithIndex.map { case (row, y) =>
         row.zipWithIndex.map { case (currentTile, x) =>
           val position = Position(x, y)
-          if (
-            positions
-              .contains(position) && currentTile.content == TileContent.Empty
-          )
-            tile
-          else currentTile
+          if (positions.contains(position)) tile else currentTile
         }
       }
     )
@@ -70,7 +106,7 @@ object Spawner {
     else {
       val random = Random(seed.toInt)
       val (position, newRandom) = random.randomPosition(grid.size)
-      if (grid.tileAt(position).content == TileContent.Empty) {
+      if (grid.tileAt(position).entity.isEmpty) {
         generatePotentialWalls(
           grid,
           newRandom.seed.toLong,
@@ -96,7 +132,7 @@ object Spawner {
     if (potentialWalls.isEmpty) grid
     else {
       val position = potentialWalls.head
-      val testGrid = grid.set(position, Tile(TileContent.Wall))
+      val testGrid = grid.set(position, Tile(Some(Wall())))
       val newGrid = if (isGridFullyAccessible(testGrid)) testGrid else grid
       placeValidWalls(newGrid, potentialWalls.tail, processedWalls + position)
     }
@@ -104,7 +140,7 @@ object Spawner {
 
   private def isGridFullyAccessible(grid: Grid): Boolean = {
     val start = Position(0, 0)
-    if (grid.tileAt(start).content == TileContent.Wall) return false
+    if (grid.tileAt(start).hasWall) return false
 
     def bfs(queue: List[Position], visited: Set[Position]): Set[Position] = {
       queue match {
@@ -113,7 +149,7 @@ object Spawner {
           if (
             visited.contains(current) || grid
               .tileAt(current)
-              .content == TileContent.Wall
+              .hasWall
           ) {
             bfs(rest, visited)
           } else {
@@ -127,7 +163,7 @@ object Spawner {
 
     val visited = bfs(List(Position(0, 0)), Set.empty)
     visited.size == grid.size * grid.size - grid.tiles.flatten.count(
-      _.content == TileContent.Wall
+      _.hasWall
     )
   }
 

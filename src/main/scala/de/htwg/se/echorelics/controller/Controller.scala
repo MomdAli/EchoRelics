@@ -1,37 +1,50 @@
 package controller
 
-import scala.io.AnsiColor.{BLUE, RESET}
+import scala.util.{Try, Success, Failure}
 
-import model.{Echo, Grid, Player}
+import model.commands.{Command, CommandHistory}
 import model.events.{EventManager, EventListener, GameEvent}
 import service.GameManager
-import utils.Command
 
-class Controller(var gameManager: GameManager = GameManager.StartingManager)
+class Controller(var gameManager: GameManager = GameManager())
     extends EventListener {
 
   EventManager.subscribe(this)
 
-  // TODO: Implement the event handling
+  val commandHistory: CommandHistory = new CommandHistory()
+
   override def handleEvent(event: GameEvent): Unit = {
     event match {
-      case GameEvent.OnNoneEvent => ()
-      case _                     => ()
+      case GameEvent.OnRelicCollectEvent(player, relic) =>
+        gameManager = gameManager.collectRelic(player, relic)
+        EventManager.notify(GameEvent.OnUpdateRenderEvent)
+      case GameEvent.OnRelicSpawnEvent =>
+        gameManager = gameManager.spawnRelic
+        EventManager.notify(GameEvent.OnUpdateRenderEvent)
+        EventManager.notify(GameEvent.OnInfoEvent("Relic spawned!"))
+      case GameEvent.OnTimeTravelEvent(turns) =>
+        gameManager = commandHistory.undo(gameManager, turns)
+        EventManager.notify(GameEvent.OnUpdateRenderEvent)
+        EventManager.notify(
+          GameEvent.OnInfoEvent("Player activated time travel!")
+        )
+      case _ =>
     }
   }
 
-  def handleCommand(command: Command): Unit = {
-    gameManager = gameManager.handleCommand(command)
-    EventManager.notify(gameManager.event)
-  }
-
-  def displayGrid: String = gameManager.grid.toString
-
-  def info: String = {
-    s"""
-       |Round: ${(gameManager.move / gameManager.players.size).toInt + 1}
-       |Player ${BLUE}${gameManager.currentPlayer.id}${RESET}'s turn
-       |State: ${gameManager.state}
-       |""".stripMargin
+  def handleCommand(command: Command): Try[GameManager] = Try {
+    if (!gameManager.isValid(command)) {
+      gameManager
+    } else {
+      command.execute(gameManager) match {
+        case Success(updatedGameManager) =>
+          gameManager = updatedGameManager
+          commandHistory.add(command)
+          EventManager.notify(gameManager.event)
+          gameManager
+        case Failure(exception) =>
+          gameManager
+      }
+    }
   }
 }

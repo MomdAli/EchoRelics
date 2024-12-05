@@ -1,39 +1,100 @@
 package controller
 
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import model.events.{EventManager, GameEvent}
-import service.{GameManager}
-import utils.Command
-import model.{Grid, Player}
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers._
+import scala.util.{Success, Failure}
 
-class ControllerSpec extends AnyWordSpec with Matchers {
+import service.GameManager
+import model.events.{EventManager, GameEvent}
+import model.commands.{Command, CommandHistory}
+import model.entity.{Player, Relic}
+
+class ControllerSpec extends AnyWordSpec with Matchers with MockitoSugar {
 
   "A Controller" should {
 
-    "subscribe to EventManager on creation" in {
-      val controller = new Controller()
-      EventManager.isSubscribed(controller) should be(true)
+    "handle OnRelicCollectEvent correctly" in {
+      val gameManagerMock = mock[GameManager]
+      val controller = new Controller(gameManagerMock)
+      val player = Player("1")
+      val relic = Relic()
+
+      when(gameManagerMock.collectRelic(player, relic))
+        .thenReturn(gameManagerMock)
+
+      controller.handleEvent(GameEvent.OnRelicCollectEvent(player, relic))
+
+      verify(gameManagerMock).collectRelic(player, relic)
     }
 
-    "handle commands and update gameManager" in {
-      val controller = new Controller()
-      val initialManager = controller.gameManager
-      controller.handleCommand(Command.MoveDown)
-      controller.gameManager should not be initialManager
+    "handle OnRelicSpawnEvent correctly" in {
+      val gameManagerMock = mock[GameManager]
+      val controller = new Controller(gameManagerMock)
+
+      when(gameManagerMock.spawnRelic).thenReturn(gameManagerMock)
+
+      controller.handleEvent(GameEvent.OnRelicSpawnEvent)
+
+      verify(gameManagerMock).spawnRelic
     }
 
-    "display the current grid" in {
-      val controller = new Controller()
-      controller.displayGrid should be(controller.gameManager.grid.toString)
+    "handle OnTimeTravelEvent correctly" in {
+      val gameManagerMock = mock[GameManager]
+      val commandHistoryMock = mock[CommandHistory]
+      val controller = new Controller(gameManagerMock) {
+        override val commandHistory: CommandHistory = commandHistoryMock
+      }
+      val turns = 3
+
+      when(commandHistoryMock.undo(gameManagerMock, turns))
+        .thenReturn(gameManagerMock)
+
+      controller.handleEvent(GameEvent.OnTimeTravelEvent(turns))
+
+      verify(commandHistoryMock).undo(gameManagerMock, turns)
     }
 
-    "provide game information" in {
-      val controller = new Controller()
-      val info = controller.info
-      info should include("Round")
-      info should include("Player")
-      info should include("State")
+    "handle valid command correctly" in {
+      val gameManagerMock = mock[GameManager]
+      val commandMock = mock[Command]
+      val controller = new Controller(gameManagerMock)
+
+      when(gameManagerMock.isValid(commandMock)).thenReturn(true)
+      when(commandMock.execute(gameManagerMock))
+        .thenReturn(Success(gameManagerMock))
+
+      controller.handleCommand(commandMock) shouldBe Success(gameManagerMock)
+
+      verify(commandMock).execute(gameManagerMock)
+    }
+
+    "handle invalid command correctly" in {
+      val gameManagerMock = mock[GameManager]
+      val commandMock = mock[Command]
+      val controller = new Controller(gameManagerMock)
+
+      when(gameManagerMock.isValid(commandMock)).thenReturn(false)
+
+      controller.handleCommand(commandMock) shouldBe Success(gameManagerMock)
+
+      verify(commandMock, never).execute(gameManagerMock)
+    }
+
+    "handle command execution failure correctly" in {
+      val gameManagerMock = mock[GameManager]
+      val commandMock = mock[Command]
+      val controller = new Controller(gameManagerMock)
+
+      when(gameManagerMock.isValid(commandMock)).thenReturn(true)
+      when(commandMock.execute(gameManagerMock))
+        .thenReturn(Failure(new Exception("Execution failed")))
+
+      controller.handleCommand(commandMock) shouldBe Success(gameManagerMock)
+
+      verify(commandMock).execute(gameManagerMock)
     }
   }
 }

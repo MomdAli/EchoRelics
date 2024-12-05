@@ -1,5 +1,9 @@
-import model.generator.Spawner
-import model.{Grid, Tile, TileContent}
+import model.{Grid, Tile}
+import model.entity.{Player, Wall, Relic}
+import utils.Position
 
-val w = Spawner.generateWalls(new Grid(20), 0x3341, 4)
-val a = Spawner.spawnRelics(w, 13144, 20)
+val grid = new Grid(10)
+
+val position = Position(2, 3)
+
+val test = grid.tileAt(position).entity.isEmpty

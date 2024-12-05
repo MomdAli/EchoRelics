@@ -1,36 +1,37 @@
 package service
 
-import model.{Grid, Player, GameState}
-import utils.Command
+import model.{Grid, GameState}
 import model.config.Config
+import model.entity.Player
 import model.events.GameEvent
+import model.commands.{Command, ResumeCommand, QuitCommand}
 
 case class PausedManager(
     move: Int,
     players: List[Player],
     grid: Grid,
-    config: Config,
     event: GameEvent
 ) extends GameManager {
 
   val state: GameState = GameState.Paused
 
-  def handleCommand(command: Command): GameManager = {
+  override def isValid(command: Command): Boolean = {
     command match {
-      case Command.ResumeGame =>
-        RunningManager(move, players, grid, config, GameEvent.OnGameResumeEvent)
-      case Command.Quit =>
-        MenuManager(
-          move,
-          players,
-          new Grid(0),
-          config,
-          GameEvent.OnGameEndEvent
-        )
-      case _ =>
-        copy(event =
-          GameEvent.OnErrorEvent("Game is Paused. Press 'r' to resume.")
-        )
+      case ResumeCommand() | QuitCommand() => true
+      case _                               => false
     }
+  }
+
+  override def resume: GameManager = {
+    RunningManager(move, players, grid, GameEvent.OnGameResumeEvent)
+  }
+
+  override def quit: GameManager = {
+    MenuManager(
+      move,
+      players,
+      grid,
+      event = GameEvent.OnGameEndEvent
+    )
   }
 }

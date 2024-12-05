@@ -7,42 +7,31 @@ class StatsSpec extends AnyWordSpec with Matchers {
 
   "A Stats" should {
 
-    "be created with default values" in {
+    "have default values" in {
       val stats = Stats()
-      stats.relics should be(0)
+      stats.score should be(0)
       stats.echoes should be(0)
       stats.health should be(3)
     }
 
-    "be created with specified health" in {
-      val stats = Stats.withHealth(5)
-      stats.relics should be(0)
-      stats.echoes should be(0)
-      stats.health should be(5)
-    }
-
-    "update relics correctly" in {
-      val stats = Stats()
-      val updatedStats = stats.updateRelics(2)
-      updatedStats.relics should be(2)
-      updatedStats.echoes should be(0)
-      updatedStats.health should be(3)
+    "update score correctly" in {
+      val stats = Stats().updateScore(10)
+      stats.score should be(10)
     }
 
     "update echoes correctly" in {
-      val stats = Stats()
-      val updatedStats = stats.updateEchoes(3)
-      updatedStats.echoes should be(3)
-      updatedStats.relics should be(0)
-      updatedStats.health should be(3)
+      val stats = Stats().updateEchoes(5)
+      stats.echoes should be(5)
     }
 
     "update health correctly" in {
-      val stats = Stats()
-      val updatedStats = stats.updateHealth(-1)
-      updatedStats.health should be(2)
-      updatedStats.relics should be(0)
-      updatedStats.echoes should be(0)
+      val stats = Stats().updateHealth(-1)
+      stats.health should be(2)
+    }
+
+    "have a correct string representation" in {
+      val stats = Stats(10, 5, 2)
+      stats.toString should be("Score: 10\nEchoes: 5\nHealth: 2")
     }
   }
 }

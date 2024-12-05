@@ -1,4 +1,4 @@
-package model
+package model.entity
 
 import model.events.{GameEvent, EventListener, EventManager}
 import utils.Position
@@ -6,7 +6,8 @@ import utils.Position
 case class Echo(
     id: String,
     owner: Player
-) extends EventListener {
+) extends EventListener
+    with Entity {
   EventManager.subscribe(this)
 
   override def handleEvent(event: GameEvent): Unit = {
@@ -18,4 +19,7 @@ case class Echo(
       case _ =>
     }
   }
+
+  override def isWalkable: Boolean = true
+  override def isCollectable: Boolean = false
 }

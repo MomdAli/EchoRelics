@@ -10,41 +10,24 @@ class PositionSpec extends AnyWordSpec with Matchers {
     "add another position correctly" in {
       val pos1 = Position(1, 2)
       val pos2 = Position(3, 4)
-      val result = pos1 + pos2
-      result should be(Position(4, 6))
+      (pos1 + pos2) should be(Position(4, 6))
     }
 
     "check if within bounds correctly" in {
-      val pos = Position(2, 3)
-      pos.isWithinBounds(5, 5) should be(true)
-      pos.isWithinBounds(2, 3) should be(false)
+      val pos = Position(5, 5)
+      pos.isWithinBounds(10, 10) should be(true)
+      pos.isWithinBounds(5, 5) should be(false)
     }
 
-    "move up correctly" in {
+    "move in the correct direction" in {
       val pos = Position(2, 2)
-      val result = pos.move(Direction.Up)
-      result should be(Position(2, 1))
+      pos.move(Direction.Up) should be(Position(2, 1))
+      pos.move(Direction.Down) should be(Position(2, 3))
+      pos.move(Direction.Left) should be(Position(1, 2))
+      pos.move(Direction.Right) should be(Position(3, 2))
     }
 
-    "move down correctly" in {
-      val pos = Position(2, 2)
-      val result = pos.move(Direction.Down)
-      result should be(Position(2, 3))
-    }
-
-    "move left correctly" in {
-      val pos = Position(2, 2)
-      val result = pos.move(Direction.Left)
-      result should be(Position(1, 2))
-    }
-
-    "move right correctly" in {
-      val pos = Position(2, 2)
-      val result = pos.move(Direction.Right)
-      result should be(Position(3, 2))
-    }
-
-    "return correct string representation" in {
+    "have a correct string representation" in {
       val pos = Position(2, 3)
       pos.toString should be("(2, 3)")
     }

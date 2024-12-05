@@ -10,6 +10,7 @@ lazy val root = project
       "org.scalameta" %% "munit" % "1.0.0" % Test,
       "org.scalactic" %% "scalactic" % "3.2.10",
       "org.scalatest" %% "scalatest" % "3.2.10" % Test,
-      "org.jline" % "jline" % "3.27.1"
+      "org.jline" % "jline" % "3.27.1",
+      "org.scalatestplus" %% "mockito-3-4" % "3.2.9.0" % Test
     )
   )

@@ -2,75 +2,75 @@ package model
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import model.entity.{Player, Wall, Relic}
 
 class TileSpec extends AnyWordSpec with Matchers {
 
   "A Tile" should {
 
-    "be created with Empty content" in {
-      val tile = Tile(TileContent.Empty)
-      tile.content should be(TileContent.Empty)
-    }
-
-    "be created with Wall content" in {
-      val tile = Tile(TileContent.Wall)
-      tile.content should be(TileContent.Wall)
-    }
-
-    "be created with Player content" in {
-      val player = Player("1")
-      val tile = Tile(TileContent.Player(player.id))
-      tile.content should be(TileContent.Player(player.id))
-    }
-
-    "be walkable if it is empty" in {
-      val tile = Tile(TileContent.Empty)
+    "be walkable if it contains no entity" in {
+      val tile = Tile(None)
       tile.isWalkable should be(true)
     }
 
-    "not be walkable if it is a wall" in {
-      val tile = Tile(TileContent.Wall)
+    "not be walkable if it contains a non-walkable entity" in {
+      val tile = Tile(Some(Wall()))
       tile.isWalkable should be(false)
     }
 
-    "contain a player if it has player content" in {
-      val player = Player("1")
-      val tile = Tile(TileContent.Player(player.id))
+    "correctly identify if it contains a player" in {
+      val player = Player("player1")
+      val tile = Tile(Some(player))
       tile.hasPlayer should be(true)
     }
 
-    "not contain a player if it is empty" in {
-      val tile = Tile(TileContent.Empty)
+    "correctly identify if it does not contain a player" in {
+      val tile = Tile(None)
       tile.hasPlayer should be(false)
     }
 
-    "identify the correct player" in {
-      val player = Player("1")
-      val tile = Tile(TileContent.Player(player.id))
+    "correctly identify if it contains a wall" in {
+      val tile = Tile(Some(Wall()))
+      tile.hasWall should be(true)
+    }
+
+    "correctly identify if it does not contain a wall" in {
+      val tile = Tile(None)
+      tile.hasWall should be(false)
+    }
+
+    "correctly identify if it contains a relic" in {
+      val tile = Tile(Some(Relic()))
+      tile.hasRelic should be(true)
+    }
+
+    "correctly identify if it does not contain a relic" in {
+      val tile = Tile(None)
+      tile.hasRelic should be(false)
+    }
+
+    "correctly identify if it contains a specific player" in {
+      val player = Player("player1")
+      val tile = Tile(Some(player))
       tile.isPlayer(player) should be(true)
     }
 
-    "not identify a different player" in {
-      val player1 = Player("1")
-      val player2 = Player("2")
-      val tile = Tile(TileContent.Player(player1.id))
+    "correctly identify if it does not contain a specific player" in {
+      val player1 = Player("player1")
+      val player2 = Player("player2")
+      val tile = Tile(Some(player1))
       tile.isPlayer(player2) should be(false)
     }
 
-    "create an empty tile using the companion object" in {
-      val tile = Tile.EmptyTile
-      tile.content should be(TileContent.Empty)
+    "be empty if it contains no entity" in {
+      val tile = Tile(None)
+      tile.isEmpty should be(true)
     }
 
-    "create a wall tile using the companion object" in {
-      val tile = Tile.WallTile
-      tile.content should be(TileContent.Wall)
-    }
-
-    "create a player tile using the companion object" in {
-      val player = Player("1")
-      val tile = Tile.PlayerTile(player)
-      tile.content should be(TileContent.Player(player.id))
+    "not be empty if it contains an entity" in {
+      val player = Player("player1")
+      val tile = Tile(Some(player))
+      tile.isEmpty should be(false)
     }
   }
 }

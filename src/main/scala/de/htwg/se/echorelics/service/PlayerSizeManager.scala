@@ -1,29 +1,39 @@
 package service
 
-import model.{Grid, Player, GameState}
+import model.entity.Player
+import model.{Grid, GameState}
 import model.events.GameEvent
-import model.config.Config
-import utils.Command
+import model.commands.{Command, MoveCommand, QuitCommand}
+import utils.Direction
 
 case class PlayerSizeManager(
     move: Int,
     players: List[Player],
     grid: Grid,
-    config: Config,
     event: GameEvent
 ) extends GameManager {
 
   val state: GameState = GameState.NotStarted
 
-  def handleCommand(command: Command): GameManager = {
+  override def isValid(command: Command): Boolean = {
     command match {
-      case Command.MoveUp   => increasePlayerSize
-      case Command.MoveDown => decreasePlayerSize
-      case Command.Quit =>
-        MenuManager(move, players, grid, config, GameEvent.OnGameEndEvent)
-      case _ =>
-        PlayerSizeManager(move, players, grid, config, GameEvent.OnNoneEvent)
+      case MoveCommand(Direction.Up) | MoveCommand(Direction.Down) |
+          QuitCommand() =>
+        true
+      case _ => false
     }
+  }
+
+  override def move(direction: Direction): GameManager = {
+    direction match {
+      case Direction.Up   => increasePlayerSize
+      case Direction.Down => decreasePlayerSize
+      case _              => this
+    }
+  }
+
+  override def quit: GameManager = {
+    MenuManager(move, players, grid, GameEvent.OnGameEndEvent)
   }
 
   private def increasePlayerSize: PlayerSizeManager = {
@@ -39,7 +49,7 @@ case class PlayerSizeManager(
 
   private def decreasePlayerSize: PlayerSizeManager = {
     val newPlayers =
-      if (players.size > 2) players.init
+      if (players.size > 1) players.init
       else players
 
     copy(

@@ -1,36 +1,28 @@
 package model
 
-enum TileContent(val symbol: String) {
-  case Empty extends TileContent("   ")
-  case Wall extends TileContent(" # ")
-  case Player(id: String) extends TileContent(s" $id ")
-  case Out extends TileContent(" X ")
-  case Relic extends TileContent(" R ")
-  case Echo extends TileContent(" E ")
-}
-
-case class Tile(content: TileContent) {
+import model.entity.{Entity, Player, Wall, Relic}
+case class Tile(entity: Option[Entity]) {
 
   // Determines if the tile is walkable
-  def isWalkable: Boolean = content match {
-    case TileContent.Empty => true
-    case _                 => false
+  def isWalkable: Boolean = {
+    entity.forall(_.isWalkable)
   }
 
   // Checks if the tile contains a player
-  def hasPlayer: Boolean = content match {
-    case TileContent.Player(_) => true
-    case _                     => false
-  }
+  def hasPlayer: Boolean = entity.exists(_.isInstanceOf[Player])
+  def hasWall: Boolean = entity.exists(_.isInstanceOf[Wall])
+  def hasRelic: Boolean = entity.exists(_.isInstanceOf[Relic])
 
-  def isPlayer(player: Player): Boolean = content match {
-    case TileContent.Player(id) => id == player.id
+  def isPlayer(player: Player): Boolean = entity match {
+    case Some(Player(id, _, _)) => id == player.id
     case _                      => false
   }
+
+  def isEmpty: Boolean = entity.isEmpty
 }
 
 object Tile {
-  def EmptyTile: Tile = Tile(TileContent.Empty)
-  def WallTile: Tile = Tile(TileContent.Wall)
-  def PlayerTile(player: Player): Tile = Tile(TileContent.Player(player.id))
+  val emptyTile: Tile = Tile(None)
+  val wallTile: Tile = Tile(Some(Wall()))
+  def playerTile(player: Player): Tile = Tile(Some(player))
 }
