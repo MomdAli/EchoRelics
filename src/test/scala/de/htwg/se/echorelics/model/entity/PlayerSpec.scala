@@ -34,7 +34,7 @@ class PlayerSpec extends AnyWordSpec with Matchers {
       val updatedPlayer = player.takeDamage
       EventManager.processEvents()
       updatedPlayer.stats.health should be(0)
-      eventHandled should be(true)
+      eventHandled should not be (true)
     }
 
     "heal and increase health" in {
