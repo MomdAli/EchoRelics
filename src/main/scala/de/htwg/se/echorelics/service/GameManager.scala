@@ -4,7 +4,7 @@ import model.{Grid, GameState}
 import model.config.{Config, Configurator}
 import model.events.GameEvent
 import model.entity.{Echo, Player, Relic}
-import model.commands.Command
+import model.commands.{Command, GameMemento}
 import model.generator.GridSpawner
 import model.item.Card
 import utils.Direction
@@ -55,6 +55,23 @@ trait GameManager {
     .withPlayer(players.size)
     .withGrid(grid.size)
     .build
+
+  def createMemento: GameMemento = {
+    GameMemento(grid, state)
+  }
+
+  def restore(memento: GameMemento): GameManager = {
+    state match {
+      case GameState.Paused =>
+        PausedManager(move, players, memento.grid, event)
+      case GameState.Running =>
+        RunningManager(move, players, memento.grid, event)
+      case GameState.NotStarted =>
+        MenuManager(move, players, memento.grid, event)
+      case _ =>
+        this
+    }
+  }
 }
 
 object GameManager {
@@ -62,6 +79,15 @@ object GameManager {
     MenuManager(
       0,
       List(Player("1"), Player("2")),
+      new Grid(10),
+      event = GameEvent.OnGameEndEvent
+    )
+  }
+
+  def apply(players: List[Player]): GameManager = {
+    MenuManager(
+      0,
+      players,
       new Grid(10),
       event = GameEvent.OnGameEndEvent
     )

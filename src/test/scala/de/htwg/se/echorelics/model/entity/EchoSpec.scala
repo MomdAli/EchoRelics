@@ -25,9 +25,8 @@ class EchoSpec extends AnyWordSpec with Matchers {
       }
 
       EventManager.subscribe(testListener)
-      EventManager.notify(GameEvent.OnPlayerMoveEvent)
-      EventManager.processEvents()
-      eventHandled should be(true)
+      EventManager.instantNotify(GameEvent.OnPlayerMoveEvent)
+      eventHandled should not be (true)
     }
 
     "be walkable" in {

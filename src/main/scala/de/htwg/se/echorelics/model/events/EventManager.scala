@@ -86,7 +86,7 @@ object EventManager {
     }
   }
 
-  /** Processes all events in the event queue.
+  /** Processes all events in the event queue asynchronously.
     *
     * This method continuously dequeues events from the `eventQueue` and
     * notifies all registered listeners by calling their `handleEvent` method
@@ -95,9 +95,8 @@ object EventManager {
     * The method runs until the `eventQueue` is empty.
     */
   def processEvents(): Unit = {
-    while (eventQueue.nonEmpty) {
-      val event = eventQueue.dequeue()
-      listeners.foreach(_.handleEvent(event))
+    Future {
+      processNextEvent()
     }
   }
 

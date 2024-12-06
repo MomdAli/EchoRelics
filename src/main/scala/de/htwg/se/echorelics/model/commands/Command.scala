@@ -9,6 +9,9 @@ sealed trait Command {
   def undo(gameManager: GameManager): Try[GameManager] = Failure(
     new RuntimeException("Undo not implemented")
   )
+  def redo(gameManager: GameManager): Try[GameManager] = Failure(
+    new RuntimeException("Redo not implemented")
+  )
 }
 
 case class EchoCommand() extends Command {

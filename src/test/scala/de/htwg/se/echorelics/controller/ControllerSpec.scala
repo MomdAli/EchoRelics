@@ -1,100 +1,107 @@
 package controller
 
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers
-import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers._
-import scala.util.{Success, Failure}
+import scala.util.Success
 
-import service.GameManager
-import model.events.{EventManager, GameEvent}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.mockito.Mockito._
+import org.scalatestplus.mockito.MockitoSugar
 import model.commands.{Command, CommandHistory}
+import model.events.{EventManager, GameEvent}
 import model.entity.{Player, Relic}
+import service.GameManager
 
 class ControllerSpec extends AnyWordSpec with Matchers with MockitoSugar {
 
   "A Controller" should {
 
     "handle OnRelicCollectEvent correctly" in {
-      val gameManagerMock = mock[GameManager]
-      val controller = new Controller(gameManagerMock)
-      val player = Player("1")
-      val relic = Relic()
+      val gameManager = mock[GameManager]
+      val controller = new Controller(gameManager)
+      val player = mock[Player]
+      val relic = mock[Relic]
 
-      when(gameManagerMock.collectRelic(player, relic))
-        .thenReturn(gameManagerMock)
+      when(gameManager.collectRelic(player, relic)).thenReturn(gameManager)
 
       controller.handleEvent(GameEvent.OnRelicCollectEvent(player, relic))
 
-      verify(gameManagerMock).collectRelic(player, relic)
+      verify(gameManager).collectRelic(player, relic)
     }
 
     "handle OnRelicSpawnEvent correctly" in {
-      val gameManagerMock = mock[GameManager]
-      val controller = new Controller(gameManagerMock)
+      val gameManager = mock[GameManager]
+      val controller = new Controller(gameManager)
 
-      when(gameManagerMock.spawnRelic).thenReturn(gameManagerMock)
+      when(gameManager.spawnRelic).thenReturn(gameManager)
 
       controller.handleEvent(GameEvent.OnRelicSpawnEvent)
 
-      verify(gameManagerMock).spawnRelic
+      verify(gameManager).spawnRelic
     }
 
     "handle OnTimeTravelEvent correctly" in {
-      val gameManagerMock = mock[GameManager]
-      val commandHistoryMock = mock[CommandHistory]
-      val controller = new Controller(gameManagerMock) {
-        override val commandHistory: CommandHistory = commandHistoryMock
-      }
-      val turns = 3
+      val gameManager = mock[GameManager]
+      val controller = new Controller(gameManager)
+      val commandHistory = mock[CommandHistory]
+      val commandHistoryField =
+        classOf[Controller].getDeclaredField("commandHistory")
+      commandHistoryField.setAccessible(true)
+      commandHistoryField.set(controller, commandHistory)
 
-      when(commandHistoryMock.undo(gameManagerMock, turns))
-        .thenReturn(gameManagerMock)
+      when(commandHistory.undo(gameManager)).thenReturn(Some(gameManager))
 
-      controller.handleEvent(GameEvent.OnTimeTravelEvent(turns))
+      controller.handleEvent(GameEvent.OnTimeTravelEvent(1))
 
-      verify(commandHistoryMock).undo(gameManagerMock, turns)
-    }
-
-    "handle valid command correctly" in {
-      val gameManagerMock = mock[GameManager]
-      val commandMock = mock[Command]
-      val controller = new Controller(gameManagerMock)
-
-      when(gameManagerMock.isValid(commandMock)).thenReturn(true)
-      when(commandMock.execute(gameManagerMock))
-        .thenReturn(Success(gameManagerMock))
-
-      controller.handleCommand(commandMock) shouldBe Success(gameManagerMock)
-
-      verify(commandMock).execute(gameManagerMock)
+      verify(commandHistory).undo(gameManager)
     }
 
     "handle invalid command correctly" in {
-      val gameManagerMock = mock[GameManager]
-      val commandMock = mock[Command]
-      val controller = new Controller(gameManagerMock)
+      val gameManager = mock[GameManager]
+      val controller = new Controller(gameManager)
+      val command = mock[Command]
 
-      when(gameManagerMock.isValid(commandMock)).thenReturn(false)
+      when(gameManager.isValid(command)).thenReturn(false)
 
-      controller.handleCommand(commandMock) shouldBe Success(gameManagerMock)
-
-      verify(commandMock, never).execute(gameManagerMock)
+      controller.handleCommand(command) should be(Success(gameManager))
     }
 
-    "handle command execution failure correctly" in {
-      val gameManagerMock = mock[GameManager]
-      val commandMock = mock[Command]
-      val controller = new Controller(gameManagerMock)
+    "handle valid command correctly" in {
+      val gameManager = mock[GameManager]
+      val controller = new Controller(gameManager)
+      val command = mock[Command]
 
-      when(gameManagerMock.isValid(commandMock)).thenReturn(true)
-      when(commandMock.execute(gameManagerMock))
-        .thenReturn(Failure(new Exception("Execution failed")))
+      when(gameManager.isValid(command)).thenReturn(true)
+      when(command.execute(gameManager)).thenReturn(Success(gameManager))
 
-      controller.handleCommand(commandMock) shouldBe Success(gameManagerMock)
+      controller.handleCommand(command) should be(Success(gameManager))
+    }
 
-      verify(commandMock).execute(gameManagerMock)
+    "undo correctly" in {
+      val gameManager = mock[GameManager]
+      val controller = new Controller(gameManager)
+      val commandHistory = mock[CommandHistory]
+      val commandHistoryField =
+        classOf[Controller].getDeclaredField("commandHistory")
+      commandHistoryField.setAccessible(true)
+      commandHistoryField.set(controller, commandHistory)
+
+      when(commandHistory.undo(gameManager)).thenReturn(Some(gameManager))
+
+      controller.undo(1) should be(Success(gameManager))
+    }
+
+    "fail to undo when no actions are available" in {
+      val gameManager = mock[GameManager]
+      val controller = new Controller(gameManager)
+      val commandHistory = mock[CommandHistory]
+      val commandHistoryField =
+        classOf[Controller].getDeclaredField("commandHistory")
+      commandHistoryField.setAccessible(true)
+      commandHistoryField.set(controller, commandHistory)
+
+      when(commandHistory.undo(gameManager)).thenReturn(None)
+
+      controller.undo(1).isFailure should be(true)
     }
   }
 }

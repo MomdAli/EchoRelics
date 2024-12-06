@@ -13,7 +13,7 @@ case class TimeTravelCard() extends Card {
   override val description: String = "Let's you go back in time."
 
   override def play(gameManager: GameManager): GameManager = {
-    EventManager.notify(GameEvent.OnTimeTravelEvent(6))
+    EventManager.notify(GameEvent.OnTimeTravelEvent(6)) // ! Hardcoded value
     gameManager
   }
 

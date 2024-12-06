@@ -23,11 +23,12 @@ class Controller(var gameManager: GameManager = GameManager())
         EventManager.notify(GameEvent.OnUpdateRenderEvent)
         EventManager.notify(GameEvent.OnInfoEvent("Relic spawned!"))
       case GameEvent.OnTimeTravelEvent(turns) =>
-        gameManager = commandHistory.undo(gameManager, turns)
-        EventManager.notify(GameEvent.OnUpdateRenderEvent)
-        EventManager.notify(
-          GameEvent.OnInfoEvent("Player activated time travel!")
-        )
+        undo(turns) match {
+          case Success(updatedGameManager) =>
+            gameManager = updatedGameManager
+            EventManager.notify(GameEvent.OnUpdateRenderEvent)
+          case Failure(exception) =>
+        }
       case _ =>
     }
   }
@@ -39,11 +40,25 @@ class Controller(var gameManager: GameManager = GameManager())
       command.execute(gameManager) match {
         case Success(updatedGameManager) =>
           gameManager = updatedGameManager
-          commandHistory.add(command)
+          commandHistory.saveState(gameManager)
           EventManager.notify(gameManager.event)
           gameManager
         case Failure(exception) =>
           gameManager
+      }
+    }
+  }
+
+  def undo(turns: Int): Try[GameManager] = {
+    (0 until turns).foldLeft(Try(gameManager)) { (result, _) =>
+      result.flatMap { gm =>
+        commandHistory.undo(gm) match {
+          case Some(updatedGameManager) =>
+            EventManager.notify(GameEvent.OnUpdateRenderEvent)
+            Success(updatedGameManager)
+          case None =>
+            Failure(new Exception("No actions to undo."))
+        }
       }
     }
   }

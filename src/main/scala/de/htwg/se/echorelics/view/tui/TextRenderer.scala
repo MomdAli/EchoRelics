@@ -113,7 +113,7 @@ object TextRenderer {
     line + RESET
   }
 
-  private def renderTile(tile: Tile): String = {
+  def renderTile(tile: Tile): String = {
     val content = tile.entity match {
       case Some(Player(id, _, _)) => s" ${BLUE}${id} "
       case Some(Wall())           => s" ▓ "

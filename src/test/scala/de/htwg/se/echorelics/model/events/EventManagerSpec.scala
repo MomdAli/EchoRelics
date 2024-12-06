@@ -30,15 +30,6 @@ class EventManagerSpec extends AnyWordSpec with Matchers {
       listener.handledEvents should contain(event)
     }
 
-    "enqueue and process events" in {
-      val listener = new TestListener
-      EventManager.subscribe(listener)
-      val event = GameEvent.OnInfoEvent("Test")
-      EventManager.notify(event)
-      EventManager.processEvents()
-      listener.handledEvents should contain(event)
-    }
-
     "process events asynchronously" in {
       val listener = new TestListener
       EventManager.subscribe(listener)

@@ -5,32 +5,33 @@ import scala.util.{Try, Success, Failure}
 import service.GameManager
 
 class CommandHistory {
-  val history: Stack[Command] = Stack[Command]()
 
-  def add(command: Command): Unit = {
-    history.push(command)
+  private val undoHistory: Stack[GameMemento] = Stack()
+  private val redoHistory: Stack[GameMemento] = Stack()
+
+  def saveState(gameManager: GameManager): Unit = {
+    val newMemento = gameManager.createMemento
+    undoHistory.push(newMemento)
+    redoHistory.clear()
   }
 
-  def undo(gameManager: GameManager, steps: Int = 1): GameManager = {
-    val undoSteps = Math.min(steps, history.size)
-
-    def undoRecursively(
-        stepsUndone: Int,
-        currentGameManager: GameManager
-    ): GameManager = {
-      if (stepsUndone >= undoSteps || history.isEmpty) {
-        currentGameManager
-      } else {
-        val command = history.pop()
-        command.undo(currentGameManager) match {
-          case Success(updatedGameManager) =>
-            undoRecursively(stepsUndone + 1, updatedGameManager)
-          case Failure(_) =>
-            undoRecursively(stepsUndone, currentGameManager)
-        }
-      }
+  def undo(gameManager: GameManager): Option[GameManager] = {
+    if (undoHistory.nonEmpty) {
+      val lastMemento = undoHistory.pop()
+      redoHistory.push(gameManager.createMemento)
+      Some(gameManager.restore(lastMemento))
+    } else {
+      None
     }
+  }
 
-    undoRecursively(0, gameManager)
+  def redo(gameManager: GameManager): Option[GameManager] = {
+    if (redoHistory.nonEmpty) {
+      val lastMemento = redoHistory.pop()
+      undoHistory.push(gameManager.createMemento)
+      Some(gameManager.restore(lastMemento))
+    } else {
+      None
+    }
   }
 }
