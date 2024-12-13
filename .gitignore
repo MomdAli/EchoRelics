@@ -15,6 +15,13 @@ local.sbt
 # VS Code
 .vscode/
 
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+*.idea/
+.idea_modules/
+
 # Metals
 .metals/
 .metals/.reports

@@ -6,8 +6,9 @@ import scala.util.{Try, Success, Failure}
 import controller.Controller
 import model.GameState
 import model.events.{EventManager, GameEvent}
-import view.UI
 import service.GameManager
+import utils.TextRenderer
+import view.UI
 
 class TUI(controller: Controller) extends UI {
 
@@ -67,8 +68,6 @@ class TUI(controller: Controller) extends UI {
     input.foreach { command =>
       controller.handleCommand(command) match {
         case Success(manager) if manager.event != GameEvent.OnQuitEvent =>
-          render(manager)
-          EventManager.processEvents()
           processInput()
         case Success(_) =>
           close()

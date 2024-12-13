@@ -1,9 +1,8 @@
-package view.tui
+package utils
 
 import scala.io.AnsiColor._
 import model.{Grid, Tile}
 import model.entity.{Echo, Player, Relic, Wall}
-import utils.Position
 import model.item.{Card, HealCard}
 
 object TextRenderer {
