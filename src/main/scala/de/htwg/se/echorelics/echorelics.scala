@@ -3,9 +3,19 @@ package echorelics
 import controller.Controller
 import view.tui.TUI
 import service.GameManager
+import view.gui.GUI
 
-@main def echorelics(): Unit = {
-  val controller = Controller()
-  val tui = TUI(controller)
-  tui.initialize()
+object EchoRelics {
+  @main def main(): Unit = {
+    val controller = new Controller()
+    new Thread(new Runnable {
+      override def run(): Unit = {
+        val gui = new GUI(controller)
+        gui.main(Array())
+      }
+    }).start()
+
+    val tui = new TUI(controller)
+    tui.initialize()
+  }
 }

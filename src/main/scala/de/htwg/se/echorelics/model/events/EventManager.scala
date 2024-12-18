@@ -1,9 +1,12 @@
 package model.events
 
+import javafx.application.Platform
+
 import scala.collection.mutable
 import scala.concurrent.{Future, ExecutionContext}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Try, Success, Failure}
+import view.gui.GUI
 
 object EventManager {
 
@@ -71,7 +74,12 @@ object EventManager {
       Future {
         listeners.foreach { listener =>
           Try {
-            listener.handleEvent(nextEvent)
+            listener match {
+              case guiListener: GUI =>
+                Platform.runLater(() => guiListener.handleEvent(nextEvent))
+              case _ =>
+                listener.handleEvent(nextEvent)
+            }
           } match {
             case Success(_) => // Do nothing if successful
             case Failure(ex) =>

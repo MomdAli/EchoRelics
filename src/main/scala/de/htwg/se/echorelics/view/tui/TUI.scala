@@ -6,10 +6,12 @@ import scala.util.{Try, Success, Failure}
 import controller.Controller
 import model.GameState
 import model.events.{EventManager, GameEvent}
-import view.UI
 import service.GameManager
+import utils.TextRenderer
+import view.UI
+import model.events.EventListener
 
-class TUI(controller: Controller) extends UI {
+class TUI(controller: Controller) extends EventListener {
 
   private def writeln(s: String): Unit = {
     terminal.writer().println(s)
@@ -54,21 +56,19 @@ class TUI(controller: Controller) extends UI {
     }
   }
 
-  override def initialize(): Unit = {
+  def initialize(): Unit = {
     writeln(TextRenderer.clear)
     writeln(TextRenderer.renderWelcomeMessage)
     processInput()
   }
 
   // This method should loop until the game is over
-  override def processInput(): Unit = {
+  def processInput(): Unit = {
     val input = inputHandler.currentInput
 
     input.foreach { command =>
       controller.handleCommand(command) match {
         case Success(manager) if manager.event != GameEvent.OnQuitEvent =>
-          render(manager)
-          EventManager.processEvents()
           processInput()
         case Success(_) =>
           close()
@@ -79,7 +79,7 @@ class TUI(controller: Controller) extends UI {
     }
   }
 
-  override def render(gameManager: GameManager): Unit = {
+  def render(gameManager: GameManager): Unit = {
 
     // Clear the terminal
     writeln(TextRenderer.clear)
@@ -113,7 +113,7 @@ class TUI(controller: Controller) extends UI {
     }
   }
 
-  override def close(): Unit = {
+  def close(): Unit = {
     writeln(TextRenderer.clear)
     writeln("Goodbye!")
     terminal.close()

@@ -42,6 +42,8 @@ class Controller(var gameManager: GameManager = GameManager())
           gameManager = updatedGameManager
           commandHistory.saveState(gameManager)
           EventManager.notify(gameManager.event)
+          EventManager.notify(GameEvent.OnUpdateRenderEvent)
+          EventManager.processEvents()
           gameManager
         case Failure(exception) =>
           gameManager
