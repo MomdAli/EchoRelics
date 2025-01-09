@@ -16,7 +16,7 @@ import scalafx.stage.Stage
 
 import _root_.controller.Controller
 import _root_.model.events.{EventListener, EventManager, GameEvent}
-import _root_.service.GameManager
+import _root_.service.IGameManager
 import _root_.utils.{Renderer, TextRenderer}
 import _root_.view.UI
 import _root_.utils.NodeFinder
@@ -103,7 +103,7 @@ class GUI(controller: Controller) extends JFXApp3 with EventListener {
     }
   }
 
-  def render(gameManager: GameManager): Unit = {
+  def render(gameManager: IGameManager): Unit = {
 
     // Render the grid
     val gridContainer = NodeFinder.findNodeById(rootPane, "gridPane")

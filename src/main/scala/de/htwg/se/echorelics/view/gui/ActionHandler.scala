@@ -5,56 +5,57 @@ import javafx.fxml.FXML
 import scala.util.{Failure, Success}
 
 import _root_.controller.Controller
-import _root_.utils.Direction
-import _root_.model.commands.Command
+import _root_.model.ICommand
 import _root_.model.events.{EventManager, GameEvent}
-import _root_.model.commands._
+import _root_.service.IGameManager
+import _root_.utils.Direction
 
 class ActionHandler(gui: GUI, controller: Controller) {
 
   @FXML
   private def onStartButton(): Unit = {
-    sendCommand(StartCommand())
+    sendCommand(ICommand.startCommand())
   }
 
   @FXML
   private def onGridSizeButton(): Unit = {
-    sendCommand(GridSizeCommand())
+    sendCommand(ICommand.gridSizeCommand())
   }
 
   @FXML
   private def onPlayerSizeButton(): Unit = {
-    sendCommand(PlayerSizeCommand())
+    sendCommand(ICommand.playerSizeCommand())
   }
 
   @FXML
   private def onQuitButton(): Unit = {
-    sendCommand(QuitCommand())
+    sendCommand(ICommand.quitCommand())
   }
 
   @FXML
   private def onMoveRightButton(): Unit = {
-    sendCommand(MoveCommand(Direction.Right))
+    sendCommand(ICommand.moveCommand(Direction.Right))
   }
 
   @FXML
   private def onMoveUpButton(): Unit = {
-    sendCommand(MoveCommand(Direction.Up))
+    sendCommand(ICommand.moveCommand(Direction.Up))
   }
 
   @FXML
   private def onMoveDownButton(): Unit = {
-    sendCommand(MoveCommand(Direction.Down))
+    sendCommand(ICommand.moveCommand(Direction.Down))
   }
 
   @FXML
   private def onMoveLeftButton(): Unit = {
-    sendCommand(MoveCommand(Direction.Left))
+    sendCommand(ICommand.moveCommand(Direction.Left))
   }
 
-  def sendCommand(command: Command): Unit = {
+  def sendCommand(command: ICommand): Unit = {
     controller.handleCommand(command) match {
-      case Success(manager) if manager.event != GameEvent.OnQuitEvent =>
+      case Success(manager: IGameManager)
+          if manager.event != GameEvent.OnQuitEvent =>
       case Success(_) =>
         gui.close()
         System.exit(0)

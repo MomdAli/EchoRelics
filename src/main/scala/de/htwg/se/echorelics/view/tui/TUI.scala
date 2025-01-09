@@ -4,12 +4,10 @@ import org.jline.terminal.{Terminal, TerminalBuilder}
 import scala.util.{Try, Success, Failure}
 
 import controller.Controller
-import model.GameState
-import model.events.{EventManager, GameEvent}
-import service.GameManager
-import utils.TextRenderer
+import model.events.{EventManager, EventListener, GameEvent}
+import service.IGameManager
+import utils.{GameState, TextRenderer}
 import view.UI
-import model.events.EventListener
 
 class TUI(controller: Controller) extends EventListener {
 
@@ -68,7 +66,8 @@ class TUI(controller: Controller) extends EventListener {
 
     input.foreach { command =>
       controller.handleCommand(command) match {
-        case Success(manager) if manager.event != GameEvent.OnQuitEvent =>
+        case Success(manager: IGameManager)
+            if manager.event != GameEvent.OnQuitEvent =>
           processInput()
         case Success(_) =>
           close()
@@ -79,7 +78,7 @@ class TUI(controller: Controller) extends EventListener {
     }
   }
 
-  def render(gameManager: GameManager): Unit = {
+  def render(gameManager: IGameManager): Unit = {
 
     // Clear the terminal
     writeln(TextRenderer.clear)

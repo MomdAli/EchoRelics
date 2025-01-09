@@ -1,12 +1,12 @@
 package utils
 
 import scala.io.AnsiColor._
-import model.{Grid, Tile}
-import model.entity.{Echo, Player, Relic, Wall}
-import model.item.{Card, HealCard}
+import model.{IGrid, ITile}
+import model.entity.IEntity
+import model.item.ICard
 
 object TextRenderer {
-  def render(grid: Grid): String = {
+  def render(grid: IGrid): String = {
     val horizontal = horizontalLine(grid.size)
 
     val rows = for (y <- 0 until grid.size) yield {
@@ -65,7 +65,7 @@ object TextRenderer {
       Cards 2: [Damage]  Cards 2: [Empty]      Cards 2: [Empty]
       Cards 3: [Empty]  Cards 3: [Empty]      Cards 3: [Empty]
    */
-  def renderStats(players: List[Player]): String = {
+  def renderStats(players: List[IEntity]): String = {
     val spacing = 20
     val headers = players.zipWithIndex
       .map { case (_, index) => s"${CYAN}Player ${index + 1}:${RESET}" }
@@ -97,11 +97,11 @@ object TextRenderer {
     s"$headers\n$healths\n$scores\n$echoes\n$cards"
   }
 
-  def renderCurrentPlayerPrompt(player: Player): String = {
+  def renderCurrentPlayerPrompt(player: IEntity): String = {
     s"${GREEN}Current Player: ${BLUE}${player.id}${RESET}"
   }
 
-  def renderCardPlayed(player: Player, card: Card): String = {
+  def renderCardPlayed(player: IEntity, card: ICard): String = {
     s"${GREEN}Player ${player.id} played ${RED}${card.name}${RESET}"
   }
 
@@ -112,13 +112,13 @@ object TextRenderer {
     line + RESET
   }
 
-  def renderTile(tile: Tile): String = {
+  def renderTile(tile: ITile): String = {
     val content = tile.entity match {
-      case Some(Player(id, _, _)) => s" ${BLUE}${id} "
-      case Some(Wall())           => s" ▓ "
-      case Some(Relic())          => s" ${MAGENTA}$$ "
-      case Some(Echo(id, owner))  => s" ${RED}e "
-      case _                      => "   "
+      case Some(entity) if IEntity.isPlayer(entity) => s" ${BLUE}${entity.id} "
+      case Some(entity) if IEntity.isWall(entity)   => s" ▓ "
+      case Some(entity) if IEntity.isRelic(entity)  => s" ${MAGENTA}$$ "
+      case Some(entity) if IEntity.isEcho(entity)   => s" ${RED}e "
+      case _                                        => "   "
     }
     content + RESET
   }

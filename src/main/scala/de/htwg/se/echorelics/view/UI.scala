@@ -1,7 +1,7 @@
 package view
 
 import model.events.EventListener
-import service.GameManager
+import service.IGameManager
 
 /** Trait representing the User Interface (UI) for the EchoRelics game. This
   * trait defines the essential methods required for initializing, processing
@@ -20,7 +20,7 @@ trait UI extends EventListener {
 
   /** Renders the UI components to display the current state.
     */
-  def render(gameManager: GameManager): Unit
+  def render(gameManager: IGameManager): Unit
 
   /** Closes the UI and performs any necessary cleanup.
     */

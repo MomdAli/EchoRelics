@@ -9,14 +9,14 @@ import scalafx.scene.shape.Rectangle
 import scalafx.scene.control.{Label}
 import scalafx.scene.Node
 
-import model.{Grid, Tile}
-import model.entity.{Echo, Player, Relic, Wall}
+import model.{IGrid, ITile}
+import model.entity.IEntity
 
 object Renderer {
 
   // * Render the grid *
   def render(
-      grid: Grid,
+      grid: IGrid,
       parentWidth: Double,
       parentHeight: Double,
       padding: Double = 10
@@ -46,14 +46,15 @@ object Renderer {
   }
 
   // * Render a single tile *
-  def renderTile(tile: Tile, tileSize: Double): StackPane = {
+  def renderTile(tile: ITile, tileSize: Double): StackPane = {
     val rect = new Rectangle {
       width = tileSize
       height = tileSize
       arcWidth = tileSize / 4 // Rounded corners based on tile size
       arcHeight = tileSize / 4
+
       fill = tile.entity match {
-        case Some(Player(_, _, _)) =>
+        case Some(entity) if IEntity.isPlayer(entity) =>
           new LinearGradient(
             0,
             0,
@@ -66,11 +67,11 @@ object Renderer {
               Stop(1, Color.LightBlue)
             )
           ) // Gradient for Player
-        case Some(Wall()) =>
+        case Some(entity) if IEntity.isWall(entity) =>
           Color.DarkGray
-        case Some(Relic()) =>
+        case Some(entity) if IEntity.isRelic(entity) =>
           Color.Gold
-        case Some(Echo(_, _)) =>
+        case Some(entity) if IEntity.isEcho(entity) =>
           Color.OrangeRed
         case _ =>
           Color.White
@@ -79,10 +80,8 @@ object Renderer {
 
     // Optional image
     val imageView = tile.entity match {
-      case Some(Player("1", _, _)) =>
-        createImageView("/image/Player-1.png", tileSize)
-      case Some(Player("2", _, _)) =>
-        createImageView("/image/Player-2.png", tileSize)
+      case Some(entity) if IEntity.isPlayer(entity) =>
+        createImageView(s"/image/Player-${entity.id}.png", tileSize)
       case _ =>
         null
     }
@@ -140,7 +139,7 @@ object Renderer {
   }
 
   // * Render the player stats *
-  def renderStats(players: List[Player]): VBox = {
+  def renderStats(players: List[IEntity]): VBox = {
     val listSpacing = 10 // Spacing between each player's stats
     val vbox = new VBox {
       alignment = Pos.TopCenter
