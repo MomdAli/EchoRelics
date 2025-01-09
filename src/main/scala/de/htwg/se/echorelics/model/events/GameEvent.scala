@@ -1,8 +1,8 @@
 package model.events
 
-import model.entity.{Echo, Player, Relic}
+import model.entity.IEntity
 import utils.{Direction, Position}
-import model.item.Card
+import model.item.ICard
 
 enum GameEvent:
   // Start/Running Game Events
@@ -10,14 +10,14 @@ enum GameEvent:
   case OnGameResumeEvent
   // Players
   case OnPlayerMoveEvent
-  case OnPlayerDeathEvent(player: Player)
-  case OnPlayCardEvent(card: Card)
+  case OnPlayerDeathEvent(player: IEntity)
+  case OnPlayCardEvent(card: ICard)
   // Echoes
   case OnEchoSpawnEvent
-  case OnMoveEchoEvent(echo: Echo)
+  case OnMoveEchoEvent(echo: IEntity)
   // Relics
   case OnRelicSpawnEvent
-  case OnRelicCollectEvent(player: Player, relic: Relic)
+  case OnRelicCollectEvent(player: IEntity, relic: IEntity)
   // Cards
   case OnTimeTravelEvent(turns: Int)
 

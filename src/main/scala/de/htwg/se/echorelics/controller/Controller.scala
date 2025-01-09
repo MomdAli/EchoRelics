@@ -2,16 +2,16 @@ package controller
 
 import scala.util.{Try, Success, Failure}
 
-import model.commands.{Command, CommandHistory}
+import model.ICommand
 import model.events.{EventManager, EventListener, GameEvent}
-import service.GameManager
+import service.IGameManager
 
-class Controller(var gameManager: GameManager = GameManager())
+class Controller(var gameManager: IGameManager = IGameManager())
     extends EventListener {
 
   EventManager.subscribe(this)
 
-  val commandHistory: CommandHistory = new CommandHistory()
+  val commandHistory: ICommand = ICommand.createCommandHistory()
 
   override def handleEvent(event: GameEvent): Unit = {
     event match {
@@ -33,33 +33,29 @@ class Controller(var gameManager: GameManager = GameManager())
     }
   }
 
-  def handleCommand(command: Command): Try[GameManager] = Try {
-    if (!gameManager.isValid(command)) {
-      gameManager
-    } else {
-      command.execute(gameManager) match {
-        case Success(updatedGameManager) =>
-          gameManager = updatedGameManager
-          commandHistory.saveState(gameManager)
-          EventManager.notify(gameManager.event)
-          EventManager.notify(GameEvent.OnUpdateRenderEvent)
-          EventManager.processEvents()
-          gameManager
-        case Failure(exception) =>
-          gameManager
-      }
+  def handleCommand(command: ICommand): Try[IGameManager] = Try {
+    command.execute(gameManager) match {
+      case Success(updatedGameManager) =>
+        gameManager = updatedGameManager
+        commandHistory.execute(gameManager)
+        EventManager.notify(gameManager.event)
+        EventManager.notify(GameEvent.OnUpdateRenderEvent)
+        EventManager.processEvents()
+        gameManager
+      case Failure(exception) =>
+        gameManager
     }
   }
 
-  def undo(turns: Int): Try[GameManager] = {
+  def undo(turns: Int): Try[IGameManager] = {
     (0 until turns).foldLeft(Try(gameManager)) { (result, _) =>
       result.flatMap { gm =>
         commandHistory.undo(gm) match {
-          case Some(updatedGameManager) =>
+          case Success(updatedGameManager: IGameManager) =>
             EventManager.notify(GameEvent.OnUpdateRenderEvent)
             Success(updatedGameManager)
-          case None =>
-            Failure(new Exception("No actions to undo."))
+          case Failure(exception) =>
+            Failure(exception)
         }
       }
     }

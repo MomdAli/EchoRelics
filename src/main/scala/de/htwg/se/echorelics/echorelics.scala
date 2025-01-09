@@ -2,7 +2,7 @@ package echorelics
 
 import controller.Controller
 import view.tui.TUI
-import service.GameManager
+import service.IGameManager
 import view.gui.GUI
 
 object EchoRelics {
