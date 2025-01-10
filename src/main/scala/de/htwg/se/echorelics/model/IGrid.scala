@@ -17,7 +17,3 @@ trait IGrid {
   def decreaseSize: IGrid
   def swap(pos1: Position, pos2: Position): IGrid
 }
-
-object IGrid {
-  def apply(size: Int): IGrid = new Grid(size)
-}

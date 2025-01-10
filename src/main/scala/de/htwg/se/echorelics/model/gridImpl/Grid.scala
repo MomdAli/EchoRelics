@@ -1,11 +1,14 @@
 package model.gridImpl
 
+import com.google.inject.Inject
+
 import model.{IGrid, ITile}
 import model.entity.IEntity
 import model.events.{EventManager, GameEvent}
 import utils.{Direction, Position}
 
-case class Grid(tiles: Vector[Vector[ITile]]) extends IGrid {
+case class Grid @Inject() (tiles: Vector[Vector[ITile]] = Vector.empty)
+    extends IGrid {
 
   def this(size: Int) = this(Vector.fill(size, size)(ITile.emptyTile))
 

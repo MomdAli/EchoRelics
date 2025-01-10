@@ -15,7 +15,7 @@ case class HealCard() extends ICard {
       else player
     }
 
-    IGameManager.createRunningManager(
+    gameManager.change(
       gameManager.move + 1,
       updatedPlayers,
       gameManager.grid,

@@ -1,15 +1,16 @@
 package model.entity.entityImpl
 
+import com.google.inject.Inject
+
 import model.events.{EventManager, GameEvent}
 import model.item.IInventory
 import model.entity.IEntity
 import model.item.ICard
 import utils.Stats
 
-case class Player(
+case class Player @Inject() (
     id: String,
-    override val stats: Stats = Stats(0, 0, 3),
-    override val inventory: IInventory = IInventory()
+    override val stats: Stats = Stats(0, 0, 3)
 ) extends IEntity {
   override def takeDamage: Player = {
     val updatedStats = stats.updateHealth(-1)

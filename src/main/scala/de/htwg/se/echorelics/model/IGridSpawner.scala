@@ -8,7 +8,3 @@ trait IGridSpawner {
   def spawnRelic(grid: IGrid): IGrid
   def setupStartingGrid(grid: IGrid, players: Seq[IEntity]): IGrid
 }
-
-object IGridSpawner {
-  def apply(config: Config): IGridSpawner = new GridSpawner(config)
-}

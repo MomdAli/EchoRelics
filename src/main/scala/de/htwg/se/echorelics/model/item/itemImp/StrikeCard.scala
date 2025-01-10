@@ -22,7 +22,7 @@ case class StrikeCard() extends ICard {
       else player.takeDamage
     }
 
-    IGameManager.createRunningManager(
+    gameManager.change(
       gameManager.move + 1,
       updatedPlayers,
       gameManager.grid,

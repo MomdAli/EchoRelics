@@ -8,7 +8,3 @@ trait IInventory {
   def cardAt(index: Int): Option[ICard]
   def isFull: Boolean
 }
-
-object IInventory {
-  def apply(): IInventory = new Inventory()
-}

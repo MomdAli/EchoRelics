@@ -1,5 +1,7 @@
 package model.item.inventoryImpl
 
+import com.google.inject.Inject
+
 import model.item.ICard
 import model.item.IInventory
 

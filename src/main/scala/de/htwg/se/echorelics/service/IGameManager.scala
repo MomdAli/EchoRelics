@@ -1,5 +1,10 @@
 package service
 
+import com.google.inject.Guice
+import com.google.inject.name.Names
+import net.codingwell.scalaguice.InjectorExtensions._
+
+import modules.{EchorelicsModule, PlayerProvider}
 import model.IGrid
 import model.config.{Config, Configurator}
 import model.events.GameEvent
@@ -10,13 +15,17 @@ import service.serviceImpl.{MenuManager, PausedManager, RunningManager}
 import utils.{Direction, GameState, GameMemento}
 
 trait IGameManager {
+
+  val injector = Guice.createInjector(new EchorelicsModule)
+  val playerProvider = injector.instance[PlayerProvider]
+
   // variables
   val move: Int
   val players: List[IEntity]
   val grid: IGrid
   val event: GameEvent
   val echoes: List[IEntity] = List()
-  protected val gridSpawner: IGridSpawner = IGridSpawner(config)
+  protected val gridSpawner: IGridSpawner = injector.instance[IGridSpawner]
 
   // methods to override
   def state: GameState
@@ -37,14 +46,20 @@ trait IGameManager {
 
   def currentPlayer: IEntity = {
     players.size match {
-      case 0 => IEntity.createPlayer("0")
+      case 0 => {
+        playerProvider.setId("0")
+        playerProvider.get()
+      }
       case _ => players(move % players.size)
     }
   }
 
   def currentPlayer(index: Int): IEntity = {
     players.size match {
-      case 0 => IEntity.createPlayer("0")
+      case 0 => {
+        playerProvider.setId("0")
+        playerProvider.get()
+      }
       case _ => players((move + index) % players.size)
     }
   }
@@ -71,38 +86,22 @@ trait IGameManager {
         this
     }
   }
-}
 
-object IGameManager {
-  def apply(): IGameManager = {
-    MenuManager(
-      0,
-      List(IEntity.createPlayer("1"), IEntity.createPlayer("2")),
-      IGrid(10),
-      event = GameEvent.OnGameEndEvent
-    )
-  }
-
-  def apply(players: List[IEntity]): IGameManager = {
-    MenuManager(
-      0,
-      players,
-      IGrid(10),
-      event = GameEvent.OnGameEndEvent
-    )
-  }
-
-  def createRunningManager(
-      move: Int,
-      players: List[IEntity],
-      grid: IGrid,
-      event: GameEvent
-  ): RunningManager = {
-    RunningManager(
-      move,
-      players,
-      grid,
-      event
-    )
+  def change(
+      move: Int = this.move,
+      players: List[IEntity] = this.players,
+      grid: IGrid = this.grid,
+      event: GameEvent = this.event
+  ): IGameManager = {
+    state match {
+      case GameState.Paused =>
+        PausedManager(move, players, grid, event)
+      case GameState.Running =>
+        RunningManager(move, players, grid, event)
+      case GameState.NotStarted =>
+        MenuManager(move, players, grid, event)
+      case _ =>
+        this
+    }
   }
 }
