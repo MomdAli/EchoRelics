@@ -6,7 +6,6 @@ lazy val root = project
     name := "Echo Relics",
     version := "0.1.1-SNAPSHOT",
     scalaVersion := scala3Version,
-    scalacOptions += "-Ymacro-annotations",
     libraryDependencies ++= {
       // Determine OS version of JavaFX binaries
       lazy val osName = System.getProperty("os.name") match {
@@ -22,7 +21,9 @@ lazy val root = project
         "org.scalatestplus" %% "mockito-3-4" % "3.2.9.0" % Test,
         "org.jline" % "jline" % "3.27.1",
         "org.scalafx" %% "scalafx" % "21.0.0-R32",
-        "org.scalafx" %% "scalafx-extras" % "0.10.1"
+        "org.scalafx" %% "scalafx-extras" % "0.10.1",
+        "com.google.inject" % "guice" % "5.1.0",
+        "net.codingwell" %% "scala-guice" % "7.0.0"
       ) ++ Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
         .map(m => "org.openjfx" % s"javafx-$m" % "23" classifier osName)
     },
