@@ -1,17 +1,23 @@
 package controller
 
 import scala.util.{Try, Success, Failure}
+import com.google.inject.Guice
+import com.google.inject.name.Names
+import net.codingwell.scalaguice.InjectorExtensions._
 
 import model.ICommand
 import model.events.{EventManager, EventListener, GameEvent}
+import modules.EchorelicsModule
 import service.IGameManager
 
-class Controller(var gameManager: IGameManager = IGameManager())
-    extends EventListener {
+class Controller(implicit var gameManager: IGameManager) extends EventListener {
 
   EventManager.subscribe(this)
 
-  val commandHistory: ICommand = ICommand.createCommandHistory()
+  val injector = Guice.createInjector(new EchorelicsModule)
+
+  val commandHistory: ICommand =
+    injector.instance[ICommand](Names.named("History"))
 
   override def handleEvent(event: GameEvent): Unit = {
     event match {

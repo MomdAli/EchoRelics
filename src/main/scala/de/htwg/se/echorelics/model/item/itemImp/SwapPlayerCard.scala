@@ -23,7 +23,7 @@ case class SwapPlayerCard() extends ICard {
     val pos2 = gameManager.grid.findPlayer(other)
 
     if (pos1.isEmpty || pos2.isEmpty) {
-      return IGameManager.createRunningManager(
+      return gameManager.change(
         gameManager.move,
         gameManager.players,
         gameManager.grid,
@@ -34,14 +34,14 @@ case class SwapPlayerCard() extends ICard {
     (pos1, pos2) match {
       case (Some(p1), Some(p2)) =>
         val newGrid = gameManager.grid.swap(p1, p2)
-        IGameManager.createRunningManager(
+        gameManager.change(
           gameManager.move + 1,
           gameManager.players,
           newGrid,
           GameEvent.OnPlayCardEvent(this)
         )
       case _ =>
-        IGameManager.createRunningManager(
+        gameManager.change(
           gameManager.move,
           gameManager.players,
           gameManager.grid,

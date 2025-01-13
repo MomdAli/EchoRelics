@@ -29,9 +29,11 @@ case class PlayerSizeManager(
 
   private def increasePlayerSize: PlayerSizeManager = {
     val newPlayers =
-      if (players.size < 4)
-        players :+ IEntity.createPlayer((players.size + 1).toString)
-      else players
+      if (players.size < 4) {
+        playerProvider.setId((players.size + 1).toString)
+        val newPlayer = playerProvider.get()
+        players :+ newPlayer
+      } else players
 
     copy(
       players = newPlayers,

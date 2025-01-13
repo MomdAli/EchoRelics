@@ -3,49 +3,55 @@ package view.gui
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.KeyCode
 
+import com.google.inject.Guice
+import com.google.inject.name.Names
+import net.codingwell.scalaguice.InjectorExtensions._
+
 import _root_.model.ICommand
 import _root_.utils.Direction
 
 class KeyHandler(actionHandler: ActionHandler) {
 
+  private val injector = actionHandler.injector
+
   def handleKeyInput(event: KeyEvent): Unit = {
     event.getCode match {
       case KeyCode.W =>
-        sendCommand(ICommand.moveCommand(Direction.Up))
+        sendCommand(injector.instance[ICommand](Names.named("MoveUp")))
       case KeyCode.S =>
-        sendCommand(ICommand.moveCommand(Direction.Down))
+        sendCommand(injector.instance[ICommand](Names.named("MoveDown")))
       case KeyCode.A =>
-        sendCommand(ICommand.moveCommand(Direction.Left))
+        sendCommand(injector.instance[ICommand](Names.named("MoveLeft")))
       case KeyCode.D =>
-        sendCommand(ICommand.moveCommand(Direction.Right))
+        sendCommand(injector.instance[ICommand](Names.named("MoveRight")))
       case KeyCode.UP =>
-        sendCommand(ICommand.moveCommand(Direction.Up))
+        sendCommand(injector.instance[ICommand](Names.named("MoveUp")))
       case KeyCode.DOWN =>
-        sendCommand(ICommand.moveCommand(Direction.Down))
+        sendCommand(injector.instance[ICommand](Names.named("MoveDown")))
       case KeyCode.LEFT =>
-        sendCommand(ICommand.moveCommand(Direction.Left))
+        sendCommand(injector.instance[ICommand](Names.named("MoveLeft")))
       case KeyCode.RIGHT =>
-        sendCommand(ICommand.moveCommand(Direction.Right))
+        sendCommand(injector.instance[ICommand](Names.named("MoveRight")))
       case KeyCode.DIGIT1 =>
-        sendCommand(ICommand.playCardCommand(0))
+        sendCommand(injector.instance[ICommand](Names.named("PlayCard0")))
       case KeyCode.DIGIT2 =>
-        sendCommand(ICommand.playCardCommand(1))
+        sendCommand(injector.instance[ICommand](Names.named("PlayCard1")))
       case KeyCode.DIGIT3 =>
-        sendCommand(ICommand.playCardCommand(2))
+        sendCommand(injector.instance[ICommand](Names.named("PlayCard2")))
       case KeyCode.E =>
-        sendCommand(ICommand.echoCommand())
+        sendCommand(injector.instance[ICommand](Names.named("Echo")))
       case KeyCode.N =>
-        sendCommand(ICommand.startCommand())
+        sendCommand(injector.instance[ICommand](Names.named("Start")))
       case KeyCode.ESCAPE =>
-        sendCommand(ICommand.pauseCommand())
+        sendCommand(injector.instance[ICommand](Names.named("Pause")))
       case KeyCode.R =>
-        sendCommand(ICommand.resumeCommand())
+        sendCommand(injector.instance[ICommand](Names.named("Resume")))
       case KeyCode.Z =>
-        sendCommand(ICommand.playerSizeCommand())
+        sendCommand(injector.instance[ICommand](Names.named("PlayerSize")))
       case KeyCode.G =>
-        sendCommand(ICommand.gridSizeCommand())
+        sendCommand(injector.instance[ICommand](Names.named("GridSize")))
       case KeyCode.Q =>
-        sendCommand(ICommand.quitCommand())
+        sendCommand(injector.instance[ICommand](Names.named("Quit")))
       case _ =>
     }
   }

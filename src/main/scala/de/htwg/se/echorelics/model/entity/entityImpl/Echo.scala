@@ -1,10 +1,12 @@
 package model.entity.entityImpl
 
+import com.google.inject.Inject
+
 import model.entity.IEntity
 import model.events.{GameEvent, EventListener, EventManager}
 import utils.Position
 
-case class Echo(
+case class Echo @Inject() (
     id: String,
     owner: Player
 ) extends EventListener

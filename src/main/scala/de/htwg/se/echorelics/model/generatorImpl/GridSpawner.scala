@@ -1,13 +1,20 @@
 package model.generatorImpl
 
+import com.google.inject.{Guice, Inject}
+import com.google.inject.name.Names
+import net.codingwell.scalaguice.InjectorExtensions._
+
 import model.{IGrid, ITile}
 import model.config.Config
 import model.entity.IEntity
 import model.IGridSpawner
+import modules.EchorelicsModule
 import utils.{Position, Direction, Random}
 
 // GridSpawner Facade Design Pattern
 class GridSpawner(config: Config) extends IGridSpawner {
+
+  val injector = Guice.createInjector(new EchorelicsModule)
 
   override def spawnRelic(grid: IGrid): IGrid = {
     val seed = System.currentTimeMillis()
@@ -70,7 +77,11 @@ class GridSpawner(config: Config) extends IGridSpawner {
           (relics + position, newRandom)
       }
 
-    replaceTiles(grid, relicPositions, ITile(Some(IEntity.createRelic())))
+    replaceTiles(
+      grid,
+      relicPositions,
+      ITile(Some(injector.instance[IEntity](Names.named("Relic"))))
+    )
   }
 
   private def placePlayers(grid: IGrid, players: Seq[IEntity]): IGrid = {
@@ -132,7 +143,10 @@ class GridSpawner(config: Config) extends IGridSpawner {
     if (potentialWalls.isEmpty) grid
     else {
       val position = potentialWalls.head
-      val testGrid = grid.set(position, ITile.spawnEntity(IEntity.createWall()))
+      val testGrid = grid.set(
+        position,
+        ITile.spawnEntity(injector.instance[IEntity](Names.named("Wall")))
+      )
       val newGrid = if (isGridFullyAccessible(testGrid)) testGrid else grid
       placeValidWalls(newGrid, potentialWalls.tail, processedWalls + position)
     }

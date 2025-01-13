@@ -1,5 +1,8 @@
 package service.serviceImpl
 
+import com.google.inject.name.Names
+import net.codingwell.scalaguice.InjectorExtensions._
+
 import model.events.GameEvent
 import model.IGrid
 import model.entity.IEntity
@@ -53,7 +56,7 @@ case class RunningManager(
     MenuManager(
       move,
       players,
-      IGrid(grid.size),
+      injector.instance[IGrid](Names.named("Small")),
       GameEvent.OnGameEndEvent
     )
   }

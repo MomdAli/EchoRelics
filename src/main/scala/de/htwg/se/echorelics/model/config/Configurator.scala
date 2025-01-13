@@ -37,4 +37,6 @@ case class Configurator private (
 
 object Configurator {
   def apply(): Configurator = new Configurator()
+
+  def default: Config = Configurator().build
 }

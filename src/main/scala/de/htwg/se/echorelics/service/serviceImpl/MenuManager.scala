@@ -1,5 +1,9 @@
 package service.serviceImpl
 
+import net.codingwell.scalaguice.InjectorExtensions._
+
+import modules.PlayerProvider
+
 import model.entity.IEntity
 import model.IGrid
 import model.events.GameEvent
@@ -37,7 +41,10 @@ case class MenuManager(
   override def start: IGameManager = {
     RunningManager(
       0, // Starting the game with 0 moves
-      players.map(player => IEntity.createPlayer(player.id)),
+      players.map(player => {
+        playerProvider.setId(player.id)
+        playerProvider.get()
+      }),
       gridSpawner.setupStartingGrid(grid, players),
       GameEvent.OnGameStartEvent
     )
