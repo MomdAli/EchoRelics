@@ -1,7 +1,9 @@
 package model.entity.entityImpl
 
+import play.api.libs.json.{Json, JsObject}
+
 import model.entity.IEntity
-import model.item.{ICard, CardProvider}
+import model.item.ICard
 import utils.Random
 
 case class Relic() extends IEntity {
@@ -23,12 +25,27 @@ case class Relic() extends IEntity {
   override val collectCard: Option[ICard] = {
     val seed = System.currentTimeMillis().toInt
     val rng = Random(seed)
-    val (index, _) = rng.nextInt(CardProvider.cards.size)
-    val card = CardProvider.cards(index)
+    val (index, _) = rng.nextInt(ICard.cards.size)
+    val card = ICard.cards(index)
 
     val rarityChance = card.rarity.value
     val (randomValue, _) = rng.nextInt(1000)
 
     if (randomValue < rarityChance) Some(card) else None
+  }
+
+  override def toXml: scala.xml.Node = {
+    <entity type="relic">
+      <id>{id}</id>
+      <score>{score}</score>
+    </entity>
+  }
+
+  override def toJson: JsObject = {
+    Json.obj(
+      "type" -> "relic",
+      "id" -> id,
+      "score" -> score
+    )
   }
 }

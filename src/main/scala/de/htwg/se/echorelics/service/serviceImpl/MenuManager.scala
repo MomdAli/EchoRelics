@@ -39,14 +39,20 @@ case class MenuManager(
   }
 
   override def start: IGameManager = {
-    RunningManager(
-      0, // Starting the game with 0 moves
-      players.map(player => {
-        playerProvider.setId(player.id)
-        playerProvider.get()
-      }),
-      gridSpawner.setupStartingGrid(grid, players),
-      GameEvent.OnGameStartEvent
+    // RunningManager(
+    //   0, // Starting the game with 0 moves
+    //   players.map(player => {
+    //     playerProvider.setId(player.id)
+    //     playerProvider.get()
+    //   }),
+    //   gridSpawner.setupStartingGrid(grid, players),
+    //   GameEvent.OnGameStartEvent
+    // )
+    PlayerSizeManager(
+      move,
+      players,
+      grid,
+      GameEvent.OnSetPlayerSizeEvent(players.size)
     )
   }
 

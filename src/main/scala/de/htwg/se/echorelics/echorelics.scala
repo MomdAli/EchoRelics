@@ -2,13 +2,13 @@ package echorelics
 
 import com.google.inject.Guice
 import net.codingwell.scalaguice.InjectorExtensions._
+import com.google.inject.name.Names
 
 import controller.Controller
 import modules.EchorelicsModule
 import view.gui.GUI
 import view.tui.TUI
 import service.IGameManager
-import com.google.inject.name.Names
 
 object EchoRelics {
 

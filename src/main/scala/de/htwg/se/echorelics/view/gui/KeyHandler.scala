@@ -52,6 +52,8 @@ class KeyHandler(actionHandler: ActionHandler) {
         sendCommand(injector.instance[ICommand](Names.named("GridSize")))
       case KeyCode.Q =>
         sendCommand(injector.instance[ICommand](Names.named("Quit")))
+      case KeyCode.C =>
+        sendCommand(injector.instance[ICommand](Names.named("Load")))
       case _ =>
     }
   }

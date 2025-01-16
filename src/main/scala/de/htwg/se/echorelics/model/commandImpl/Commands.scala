@@ -5,6 +5,8 @@ import utils.Direction
 import scala.util.{Failure, Try}
 import model.item.ICard
 import model.ICommand
+import modules.Default.given
+import model.IFileIO
 
 case class EchoCommand() extends ICommand {
   override def execute(gameManager: IGameManager): Try[IGameManager] = {
@@ -70,5 +72,18 @@ case class PlayCardCommand(index: Int) extends ICommand {
           throw new RuntimeException("No card found at the given index")
       }
     }
+  }
+}
+
+case class SaveGameCommand() extends ICommand {
+  override def execute(gameManager: IGameManager): Try[IGameManager] = {
+    summon[IFileIO].save(gameManager)
+    Try(gameManager)
+  }
+}
+
+case class LoadGameCommand() extends ICommand {
+  override def execute(gameManager: IGameManager): Try[IGameManager] = {
+    summon[IFileIO].load
   }
 }

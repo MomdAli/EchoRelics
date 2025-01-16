@@ -1,4 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Almendra+SC&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Metamorphous&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Modern+Antiqua&display=swap');
 
 * {
     -text-color: #F5F5F5;
@@ -7,8 +10,9 @@
     -secondary-color: #fffea4;
     -accent-color: #F4C542;
 
+    -fx-alignment: center;
     -fx-text-fill: -text-color;
-    -fx-font-family: 'Almendra SC';
+    -fx-font-family: 'Metamorphous', sans-serif;
     -fx-font-size: 18px;
 }
 

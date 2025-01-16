@@ -44,7 +44,11 @@ class EchorelicsModule extends AbstractModule with ScalaModule {
       new generatorImpl.GridSpawner(config.Configurator.default)
     )
 
-    bind[item.IInventory].toProvider(() =>
+    // bind[item.IInventory].toProvider(() =>
+    //   new item.inventoryImpl.Inventory(maxCards = 3)
+    // )
+
+    bind[item.IInventory].toInstance(
       new item.inventoryImpl.Inventory(maxCards = 3)
     )
 
@@ -114,6 +118,12 @@ class EchorelicsModule extends AbstractModule with ScalaModule {
     bind[ICommand]
       .annotatedWithName("Quit")
       .toInstance(commandImpl.QuitCommand())
+    bind[ICommand]
+      .annotatedWithName("Save")
+      .toInstance(commandImpl.SaveGameCommand())
+    bind[ICommand]
+      .annotatedWithName("Load")
+      .toInstance(commandImpl.LoadGameCommand())
 
     bind[ICommand]
       .annotatedWithName("History")

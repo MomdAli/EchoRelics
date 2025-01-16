@@ -50,8 +50,9 @@ case class Grid @Inject() (tiles: Vector[Vector[ITile]] = Vector.empty)
 
   private def checkCollect(player: IEntity, position: Position) = {
     if (tileAt(position).entity.exists(_.isCollectable)) {
+      val relic = tileAt(position).entity.get
       EventManager.notify(
-        GameEvent.OnRelicCollectEvent(player, tileAt(position).entity.get)
+        GameEvent.OnRelicCollectEvent(player, relic)
       )
     }
   }

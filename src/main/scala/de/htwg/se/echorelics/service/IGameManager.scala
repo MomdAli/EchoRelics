@@ -3,6 +3,8 @@ package service
 import com.google.inject.Guice
 import com.google.inject.name.Names
 import net.codingwell.scalaguice.InjectorExtensions._
+import play.api.libs.json.{JsObject, Json, JsValue, JsArray}
+import scala.util.{Success, Try, Failure}
 
 import modules.{EchorelicsModule, PlayerProvider}
 import model.IGrid
@@ -12,9 +14,11 @@ import model.entity.IEntity
 import model.IGridSpawner
 import model.item.ICard
 import service.serviceImpl.{MenuManager, PausedManager, RunningManager}
-import utils.{Direction, GameState, GameMemento}
+import utils.{Direction, GameState, GameMemento, Serializable, Deserializable}
+import utils.Stats
+import model.item.IInventory
 
-trait IGameManager {
+trait IGameManager extends Serializable[IGameManager] {
 
   val injector = Guice.createInjector(new EchorelicsModule)
   val playerProvider = injector.instance[PlayerProvider]
@@ -104,4 +108,53 @@ trait IGameManager {
         this
     }
   }
+
+  override def toXml = {
+    <game>
+      <move>{move}</move>
+      {players.map(_.toXml)}
+      {grid.toXml}
+    </game>
+  }
+
+  override def toJson = {
+    Json.obj(
+      "move" -> move,
+      "players" -> JsArray(players.map(_.toJson)),
+      "grid" -> grid.toJson
+    )
+  }
+}
+
+object IGameManager extends Deserializable[IGameManager] {
+
+  override def fromXml(node: scala.xml.Node): Try[IGameManager] = Try {
+    val move = (node \ "move").text.toInt
+    val players =
+      (node \ "entity")
+        .map(IEntity.fromXml)
+        .collect { case Success(player) => player }
+        .toList
+
+    val grid = IGrid.fromXml((node \ "grid").head).get
+
+    RunningManager(move, players, grid, GameEvent.OnLoadSaveEvent)
+  }
+
+  override def fromJson(json: JsObject): Try[IGameManager] = Try {
+
+    val move = (json \ "move").as[Int]
+
+    val players =
+      (json \ "players")
+        .as[List[JsObject]]
+        .map(IEntity.fromJson)
+        .collect { case Success(player) => player }
+        .toList
+
+    val grid = IGrid.fromJson((json \ "grid").as[JsObject]).get
+
+    RunningManager(move, players, grid, GameEvent.OnLoadSaveEvent)
+  }
+
 }

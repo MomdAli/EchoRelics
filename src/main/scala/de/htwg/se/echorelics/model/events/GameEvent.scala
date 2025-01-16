@@ -39,3 +39,4 @@ enum GameEvent:
   case OnInfoEvent(message: String)
   case OnQuitEvent
   case OnNoneEvent
+  case OnLoadSaveEvent
