@@ -1,6 +1,6 @@
 package modules
 
-import model.fileIOImpl.xml.FileIO
+import model.fileIOImpl.json.FileIO
 
 import model._
 import model.config.Configurator

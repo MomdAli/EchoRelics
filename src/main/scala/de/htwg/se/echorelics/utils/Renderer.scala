@@ -84,7 +84,7 @@ object Renderer {
 
     if (tile.entity.exists(e => IEntity.isPlayer(e) && e.id == playerId)) {
       backgroundImage.setStyle(
-        "-fx-effect: innershadow(gaussian, #5C946E, 10, 0.5, 0, 0);"
+        "-fx-effect: innershadow(gaussian, #5C946E, 40, 0.5, 0, 0);"
       )
     }
 

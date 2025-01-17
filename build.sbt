@@ -23,7 +23,9 @@ lazy val root = project
         "org.scalafx" %% "scalafx" % "21.0.0-R32",
         "org.scalafx" %% "scalafx-extras" % "0.10.1",
         "com.google.inject" % "guice" % "5.1.0",
-        "net.codingwell" %% "scala-guice" % "7.0.0"
+        "net.codingwell" %% "scala-guice" % "7.0.0",
+        "org.playframework" %% "play-json" % "3.0.4",
+        "org.scala-lang.modules" %% "scala-xml" % "2.3.0"
       ) ++ Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
         .map(m => "org.openjfx" % s"javafx-$m" % "23" classifier osName)
     },
