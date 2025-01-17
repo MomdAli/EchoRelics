@@ -7,6 +7,8 @@ trait IFileIO {
   def load: Try[IGameManager]
   def save(gameManager: IGameManager): Unit
 
-  val filePath: String = "echorelics"
+}
+object IFileIO {
+  val filePath: String = "save"
   val fileExtension: String = "dat"
 }

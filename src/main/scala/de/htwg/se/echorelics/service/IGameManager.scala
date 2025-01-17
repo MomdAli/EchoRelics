@@ -33,17 +33,19 @@ trait IGameManager extends Serializable[IGameManager] {
 
   // methods to override
   def state: GameState
-  def move(direction: Direction): IGameManager = this
-  def quit: IGameManager = this
-  def setPlayerSize: IGameManager = this
-  def setGridSize: IGameManager = this
-  def echo: IGameManager = this
-  def start: IGameManager = this
-  def pause: IGameManager = this
-  def resume: IGameManager = this
+  def move(direction: Direction): IGameManager =
+    change(event = GameEvent.OnNoneEvent)
+  def quit: IGameManager = change(event = GameEvent.OnNoneEvent)
+  def setPlayerSize: IGameManager = change(event = GameEvent.OnNoneEvent)
+  def setGridSize: IGameManager = change(event = GameEvent.OnNoneEvent)
+  def echo: IGameManager = change(event = GameEvent.OnNoneEvent)
+  def start: IGameManager = change(event = GameEvent.OnNoneEvent)
+  def pause: IGameManager = change(event = GameEvent.OnNoneEvent)
+  def resume: IGameManager = change(event = GameEvent.OnNoneEvent)
+  def spawnRelic: IGameManager = change(event = GameEvent.OnNoneEvent)
+  def collectRelic(player: IEntity, relic: IEntity): IGameManager =
+    change(event = GameEvent.OnNoneEvent)
   def playerCard(index: Int): Option[ICard] = None
-  def spawnRelic: IGameManager = this
-  def collectRelic(player: IEntity, relic: IEntity): IGameManager = this
 
   // already implemented methods
   def round: Int = (move / players.size).toInt + 1

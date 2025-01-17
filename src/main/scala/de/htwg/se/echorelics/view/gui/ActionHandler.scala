@@ -24,50 +24,60 @@ class ActionHandler(gui: GUI, controller: Controller) {
   val audioManager = gui.audioManager
 
   @FXML
-  private def onVolumeChange(): Unit = {
+  def onResumeButton(): Unit = {
+    sendCommand(injector.instance[ICommand](Names.named("Resume")))
+  }
+
+  @FXML
+  def onVolumeChange(): Unit = {
     val sliderOption = NodeFinder.findNodeById(gui.rootPane, "volumeSlider")
     sliderOption match {
       case Some(slider: Slider) =>
         audioManager.setVolume("background", slider.getValue / 100)
-        println(audioManager.getVolume("background"))
       case _ =>
     }
   }
 
   @FXML
-  private def onContinueButton(): Unit = {
+  def onContinueButton(): Unit = {
     sendCommand(injector.instance[ICommand](Names.named("Load")))
     audioManager.playAudioClip("press")
   }
 
   @FXML
-  private def onStartButton(): Unit = {
+  def onStartButton(): Unit = {
     sendCommand(injector.instance[ICommand](Names.named("Start")))
     audioManager.playAudioClip("press")
   }
 
   @FXML
-  private def onQuitButton(): Unit = {
+  def onLeaveButton(): Unit = {
     sendCommand(injector.instance[ICommand](Names.named("Quit")))
   }
 
   @FXML
-  private def onMoveRightButton(): Unit = {
+  def onQuitButton(): Unit = {
+    sendCommand(injector.instance[ICommand](Names.named("Quit")))
+    sendCommand(injector.instance[ICommand](Names.named("Quit")))
+  }
+
+  @FXML
+  def onMoveRightButton(): Unit = {
     sendCommand(injector.instance[ICommand](Names.named("MoveRight")))
   }
 
   @FXML
-  private def onMoveUpButton(): Unit = {
+  def onMoveUpButton(): Unit = {
     sendCommand(injector.instance[ICommand](Names.named("MoveUp")))
   }
 
   @FXML
-  private def onMoveDownButton(): Unit = {
+  def onMoveDownButton(): Unit = {
     sendCommand(injector.instance[ICommand](Names.named("MoveDown")))
   }
 
   @FXML
-  private def onMoveLeftButton(): Unit = {
+  def onMoveLeftButton(): Unit = {
     sendCommand(injector.instance[ICommand](Names.named("MoveLeft")))
   }
 

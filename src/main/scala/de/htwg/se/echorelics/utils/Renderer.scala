@@ -2,16 +2,17 @@ package utils
 
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.text.{Font, Text, TextAlignment}
-import scalafx.scene.layout.{GridPane, StackPane, Pane, VBox}
+import scalafx.scene.layout._
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.paint.{Color, LinearGradient, Stop}
 import scalafx.scene.shape.Rectangle
-import scalafx.scene.control.{Label, ScrollPane}
+import scalafx.scene.control.{Label, ScrollPane, Button}
 import scalafx.scene.Node
 import scala.collection.mutable
 
 import model.{IGrid, ITile}
 import model.entity.IEntity
+import view.gui.ActionHandler
 
 object Renderer {
   private val eventLogQueue: mutable.Queue[(String, String)] =
@@ -33,8 +34,8 @@ object Renderer {
 
     val gridPane = new GridPane {
       alignment = Pos.Center
-      hgap = 1
-      vgap = 1
+      hgap = 0
+      vgap = 0
       styleClass += "grid"
     }
 
@@ -59,26 +60,32 @@ object Renderer {
     val rect = new Rectangle {
       width = tileSize
       height = tileSize
-      arcWidth = tileSize / 4 // Rounded corners based on tile size
-      arcHeight = tileSize / 4
+      // arcWidth = tileSize / 4 // Rounded corners based on tile size
+      // arcHeight = tileSize / 4
     }
 
-    val (floorIndex, _) = Random(seed).nextInt(4)
+    // val (floorIndex, _) = Random(seed).nextInt(4)
     val backgroundImage =
-      createImageView(s"/image/tile/Floor-${floorIndex + 1}.png", tileSize)
+      createImageView(s"/image/tile/Floor-${1}.jpg", tileSize)
 
     // Optional image
     val imageView = tile.entity match {
       case Some(entity) if IEntity.isPlayer(entity) =>
         createImageView(s"/image/Player-${entity.id}.png", tileSize)
       case Some(wall) if IEntity.isWall(wall) =>
-        val (wallIndex, _) = Random(seed).nextInt(4)
+        val (wallIndex, _) = Random(seed).nextInt(7)
         createImageView(s"/image/tile/Wall-${wallIndex + 1}.jpg", tileSize)
       case Some(entity) if IEntity.isRelic(entity) =>
         val (relicIndex, _) = Random(seed).nextInt(2)
         createImageView(s"/image/tile/Relic-${relicIndex + 1}.jpg", tileSize)
       case _ =>
         null
+    }
+
+    if (tile.entity.exists(e => IEntity.isPlayer(e) && e.id == playerId)) {
+      backgroundImage.setStyle(
+        "-fx-effect: innershadow(gaussian, #5C946E, 10, 0.5, 0, 0);"
+      )
     }
 
     val stackPane = new StackPane {
@@ -97,11 +104,37 @@ object Renderer {
       styleClass += "tile"
     }
 
-    if (tile.entity.exists(e => IEntity.isPlayer(e) && e.id == playerId)) {
-      stackPane.style = "-fx-border-color: red; -fx-border-width: 2;"
-    }
-
     stackPane
+  }
+
+  def createPauseMenu(actionHandler: ActionHandler): Pane = {
+    new BorderPane {
+      stylesheets.add(getClass.getResource("/css/design.css").toExternalForm)
+      center = new FlowPane {
+        columnHalignment = scalafx.geometry.HPos.Center
+        orientation = scalafx.geometry.Orientation.Vertical
+        vgap = 20
+        padding = Insets(20)
+        children = Seq(
+          new Button {
+            text = "Resume"
+            onAction = _ => actionHandler.onResumeButton()
+            styleClass += "btn-normal"
+          },
+          new Button {
+            text = "Main Menu"
+            onAction = _ => actionHandler.onLeaveButton()
+            styleClass += "btn-normal"
+          },
+          new Button {
+            text = "Quit"
+            onAction = _ => actionHandler.onQuitButton()
+            styleClass += "btn-normal"
+          }
+        )
+      }
+      // styleClass += "simple-background"
+    }
   }
 
   def clearLog(): Unit = {

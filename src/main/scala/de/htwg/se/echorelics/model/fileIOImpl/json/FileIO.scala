@@ -9,7 +9,9 @@ import utils.FileEncryption
 class FileIO extends IFileIO {
   override def load: Try[IGameManager] = {
     val encryptedData =
-      scala.io.Source.fromFile(filePath + "." + fileExtension).mkString
+      scala.io.Source
+        .fromFile(IFileIO.filePath + "." + IFileIO.fileExtension)
+        .mkString
     val jsonString = FileEncryption.decrypt(encryptedData)
     val json = Json.parse(jsonString)
     IGameManager.fromJson(json.as[JsObject])
@@ -18,7 +20,8 @@ class FileIO extends IFileIO {
   override def save(gameManager: IGameManager): Unit = {
     val jsonString = Json.prettyPrint(gameManager.toJson)
     val encryptedData = FileEncryption.encrypt(jsonString)
-    val pw = new java.io.PrintWriter(filePath + "." + fileExtension)
+    val pw =
+      new java.io.PrintWriter(IFileIO.filePath + "." + IFileIO.fileExtension)
     pw.write(encryptedData)
     pw.close()
   }

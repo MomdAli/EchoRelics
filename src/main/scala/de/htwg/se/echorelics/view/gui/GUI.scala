@@ -1,19 +1,24 @@
 package view.gui
 
+import java.nio.file.{Files, Paths}
+
 import javafx.fxml.{FXMLLoader, FXML}
 import javafx.scene.layout.{BorderPane, StackPane, VBox}
 import javafx.scene.control.Label
 import javafx.scene.{Node, Parent}
 import javafx.scene.input.KeyEvent
+import javafx.scene.control.Button
 
 import scalafx.application.JFXApp3
 import scalafx.application.ConditionalFeature.FXML
 import scalafx.Includes.jfxParent2sfx
 import scalafx.scene.input.KeyCombination
-import scalafx.scene.media.AudioClip
-import scalafx.scene.media.{Media, MediaPlayer}
+import scalafx.collections.CollectionIncludes.observableList2ObservableBuffer
+import scalafx.scene.media.{Media, MediaPlayer, AudioClip}
 import scalafx.scene.Scene
 import scalafx.stage.Stage
+import scalafx.scene.effect.GaussianBlur
+import scalafx.scene.layout.Pane
 
 import _root_.controller.Controller
 import _root_.model.events.{EventListener, EventManager, GameEvent}
@@ -21,6 +26,8 @@ import _root_.service.IGameManager
 import _root_.utils.{Renderer, TextRenderer}
 import _root_.view.UI
 import _root_.utils.NodeFinder
+import scala.annotation.switch
+import model.IFileIO
 
 class GUI(controller: Controller) extends JFXApp3 with EventListener {
 
@@ -55,6 +62,7 @@ class GUI(controller: Controller) extends JFXApp3 with EventListener {
 
     // Starts the application with the menu scene
     switchScene("Menu")
+    configureContinueButton()
     audioManager.playMediaPlayer("background")
   }
 
@@ -80,6 +88,7 @@ class GUI(controller: Controller) extends JFXApp3 with EventListener {
       case GameEvent.OnGameEndEvent =>
         audioManager.playMediaPlayer("background")
         switchScene("Menu")
+        configureContinueButton()
       case GameEvent.OnQuitEvent =>
         close()
       case GameEvent.OnGameStartEvent =>
@@ -112,6 +121,10 @@ class GUI(controller: Controller) extends JFXApp3 with EventListener {
         renderEventLog("Game loaded!", "#F5F5F5")
       case GameEvent.OnPlayerMoveEvent =>
         changeCurrentPlayerStatus(controller.gameManager.currentPlayer.id)
+      case GameEvent.OnGamePauseEvent =>
+        showPauseMenu()
+      case GameEvent.OnGameResumeEvent =>
+        hidePauseMenu()
       case _ =>
     }
   }
@@ -194,6 +207,47 @@ class GUI(controller: Controller) extends JFXApp3 with EventListener {
       case Some(vbox: VBox) =>
         vbox.getChildren.clear()
       case _ =>
+    }
+  }
+
+  def showPauseMenu(): Unit = {
+    // Create the pause menu using Renderer
+    val pauseMenu = Renderer.createPauseMenu(actionHandler)
+
+    // Style and bind size to make it fullscreen
+    pauseMenu.setStyle(
+      "-fx-background-color: rgba(0, 0, 0, 0.7);"
+    ) // Semi-transparent
+    pauseMenu.prefWidthProperty().bind(rootPane.widthProperty())
+    pauseMenu.prefHeightProperty().bind(rootPane.heightProperty())
+
+    rootPane.getChildren.headOption.foreach(_.setEffect(new GaussianBlur(10)))
+
+    rootPane.getChildren.add(pauseMenu)
+  }
+
+  def hidePauseMenu(): Unit = {
+    rootPane.getChildren.headOption.foreach(_.setEffect(null))
+
+    rootPane.getChildren.removeIf {
+      case node: javafx.scene.layout.Pane =>
+        node.getStyle.contains("rgba(0, 0, 0, 0.7);")
+      case _ => false
+    }
+  }
+
+  private def configureContinueButton(): Unit = {
+    // Find the Continue button in the Menu.fxml
+    val continueButtonOption =
+      NodeFinder.findNodeById(rootPane, "continueButton")
+    continueButtonOption match {
+      case Some(button: Button) =>
+        // Check if the save file exists and disable the button if not
+        val saveFilePath =
+          Paths.get(IFileIO.filePath + "." + IFileIO.fileExtension)
+        button.setDisable(!Files.exists(saveFilePath))
+      case _ =>
+        println("Continue button not found in Menu.fxml.")
     }
   }
 }

@@ -9,7 +9,9 @@ import utils.FileEncryption
 class FileIO extends IFileIO {
   override def load: Try[IGameManager] = {
     val encryptedData =
-      scala.io.Source.fromFile(filePath + "." + fileExtension).mkString
+      scala.io.Source
+        .fromFile(IFileIO.filePath + "." + IFileIO.fileExtension)
+        .mkString
     val xmlString = FileEncryption.decrypt(encryptedData)
     IGameManager.fromXml(XML.loadString(xmlString))
   }
@@ -18,7 +20,8 @@ class FileIO extends IFileIO {
     val prettyPrinter = new PrettyPrinter(120, 4)
     val xmlString = prettyPrinter.format(gameManager.toXml)
     val encryptedData = FileEncryption.encrypt(xmlString)
-    val pw = new java.io.PrintWriter(filePath + "." + fileExtension)
+    val pw =
+      new java.io.PrintWriter(IFileIO.filePath + "." + IFileIO.fileExtension)
     pw.write(encryptedData)
     pw.close()
   }

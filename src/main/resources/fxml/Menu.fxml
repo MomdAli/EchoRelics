@@ -10,14 +10,14 @@
 
 <BorderPane fx:id="menuPane" styleClass="menu-pane" stylesheets="@../css/design.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <center>
-      <FlowPane alignment="CENTER" columnHalignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" orientation="VERTICAL" prefHeight="400.0" prefWidth="722.0" prefWrapLength="0.0">
+      <FlowPane alignment="CENTER" columnHalignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" orientation="VERTICAL" prefHeight="400.0" prefWidth="722.0" prefWrapLength="0.0" vgap="40.0">
          <children>
-            <Button mnemonicParsing="false" onAction="#onContinueButton" prefHeight="42.0" prefWidth="150.0" styleClass="btn-normal" text="Continue">
+            <Button fx:id="continueButton" mnemonicParsing="false" onAction="#onContinueButton" prefHeight="42.0" prefWidth="150.0" styleClass="btn-normal" text="Continue">
                <font>
                   <Font name="MedievalSharp" size="22.0" />
                </font>
                <FlowPane.margin>
-                  <Insets bottom="20.0" left="20.0" right="20.0" top="380.0" />
+                  <Insets />
                </FlowPane.margin>
             </Button>
             <Button mnemonicParsing="false" onAction="#onStartButton" prefHeight="42.0" prefWidth="200.0" styleClass="btn-normal" text="New Game">
@@ -25,7 +25,7 @@
                   <Font name="MedievalSharp" size="22.0" />
                </font>
                <FlowPane.margin>
-                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                  <Insets />
                </FlowPane.margin>
             </Button>
             <Button mnemonicParsing="false" onAction="#onQuitButton" prefHeight="42.0" prefWidth="100.0" styleClass="btn-normal" text="Quit">
@@ -33,7 +33,7 @@
                   <Font name="MedievalSharp" size="22.0" />
                </font>
                <FlowPane.margin>
-                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                  <Insets />
                </FlowPane.margin>
             </Button>
          </children>
@@ -43,10 +43,13 @@
          <cursor>
             <Cursor fx:constant="DEFAULT" />
          </cursor>
+         <BorderPane.margin>
+            <Insets right="40.0" top="200.0" />
+         </BorderPane.margin>
       </FlowPane>
    </center>
    <left>
-      <Slider fx:id="volumeSlider" max="100" maxHeight="-Infinity" min="0" onMouseDragged="#onVolumeChange" orientation="VERTICAL" prefHeight="300.0" value="50" BorderPane.alignment="CENTER">
+      <Slider fx:id="volumeSlider" centerShape="false" max="100" maxHeight="-Infinity" min="0" onMouseDragged="#onVolumeChange" orientation="VERTICAL" prefHeight="300.0" value="50" BorderPane.alignment="CENTER">
          <BorderPane.margin>
             <Insets bottom="30.0" left="10.0" top="30.0" />
          </BorderPane.margin>
