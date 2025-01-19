@@ -115,7 +115,7 @@ object TextRenderer {
   def renderTile(tile: ITile): String = {
     val content = tile.entity match {
       case Some(entity) if IEntity.isPlayer(entity) => s" ${BLUE}${entity.id} "
-      case Some(entity) if IEntity.isWall(entity)   => s" ▓ "
+      case Some(entity) if IEntity.isWall(entity)   => s" ◼ "
       case Some(entity) if IEntity.isRelic(entity)  => s" ${MAGENTA}$$ "
       case Some(entity) if IEntity.isEcho(entity)   => s" ${RED}e "
       case _                                        => "   "

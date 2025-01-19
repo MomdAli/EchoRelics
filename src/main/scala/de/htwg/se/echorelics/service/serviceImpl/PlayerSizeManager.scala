@@ -23,6 +23,15 @@ case class PlayerSizeManager(
     }
   }
 
+  override def start: IGameManager = {
+    GridSizeManager(
+      move,
+      players,
+      grid,
+      GameEvent.OnSetGridSizeEvent(grid.size)
+    )
+  }
+
   override def quit: IGameManager = {
     MenuManager(move, players, grid, GameEvent.OnGameEndEvent)
   }

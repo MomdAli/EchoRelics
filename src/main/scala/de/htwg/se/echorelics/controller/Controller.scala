@@ -23,6 +23,7 @@ class Controller(implicit var gameManager: IGameManager) extends EventListener {
     event match {
       case GameEvent.OnRelicCollectEvent(player, relic) =>
         gameManager = gameManager.collectRelic(player, relic)
+        EventManager.notify(gameManager.event)
         EventManager.notify(GameEvent.OnUpdateRenderEvent)
       case GameEvent.OnRelicSpawnEvent =>
         gameManager = gameManager.spawnRelic
@@ -65,5 +66,10 @@ class Controller(implicit var gameManager: IGameManager) extends EventListener {
         }
       }
     }
+  }
+
+  def loadSave(manager: IGameManager): Unit = {
+    gameManager = manager
+    EventManager.notify(GameEvent.OnUpdateRenderEvent)
   }
 }

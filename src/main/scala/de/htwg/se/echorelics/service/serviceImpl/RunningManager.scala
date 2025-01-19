@@ -4,7 +4,7 @@ import com.google.inject.name.Names
 import net.codingwell.scalaguice.InjectorExtensions._
 
 import model.events.GameEvent
-import model.IGrid
+import model.{IGrid, ICommand}
 import model.entity.IEntity
 import utils.{Direction, GameState}
 import model.item.ICard
@@ -53,6 +53,9 @@ case class RunningManager(
   }
 
   override def quit: IGameManager = {
+    echorelics.EchoRelics.controller.handleCommand(
+      injector.instance[ICommand](Names.named("Save"))
+    )
     MenuManager(
       move,
       players,

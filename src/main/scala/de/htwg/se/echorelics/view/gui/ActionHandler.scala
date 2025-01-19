@@ -1,11 +1,14 @@
 package view.gui
 
 import javafx.fxml.FXML
+import javafx.scene.control.Slider
 
 import com.google.inject.Guice
 import com.google.inject.name.Names
 import net.codingwell.scalaguice.InjectorExtensions._
 import scala.util.{Failure, Success}
+import scala.compiletime.uninitialized
+import scalafx.scene.media.{Media, MediaPlayer}
 
 import _root_.controller.Controller
 import _root_.model.ICommand
@@ -13,48 +16,68 @@ import _root_.model.events.{EventManager, GameEvent}
 import _root_.service.IGameManager
 import _root_.utils.Direction
 import _root_.modules.EchorelicsModule
+import utils.NodeFinder
 
 class ActionHandler(gui: GUI, controller: Controller) {
 
   val injector = Guice.createInjector(new EchorelicsModule)
+  val audioManager = gui.audioManager
 
   @FXML
-  private def onStartButton(): Unit = {
+  def onResumeButton(): Unit = {
+    sendCommand(injector.instance[ICommand](Names.named("Resume")))
+  }
+
+  @FXML
+  def onVolumeChange(): Unit = {
+    val sliderOption = NodeFinder.findNodeById(gui.rootPane, "volumeSlider")
+    sliderOption match {
+      case Some(slider: Slider) =>
+        audioManager.setVolume("background", slider.getValue / 100)
+      case _ =>
+    }
+  }
+
+  @FXML
+  def onContinueButton(): Unit = {
+    sendCommand(injector.instance[ICommand](Names.named("Load")))
+    audioManager.playAudioClip("press")
+  }
+
+  @FXML
+  def onStartButton(): Unit = {
     sendCommand(injector.instance[ICommand](Names.named("Start")))
+    audioManager.playAudioClip("press")
   }
 
   @FXML
-  private def onGridSizeButton(): Unit = {
-    sendCommand(injector.instance[ICommand](Names.named("GridSize")))
-  }
-
-  @FXML
-  private def onPlayerSizeButton(): Unit = {
-    sendCommand(injector.instance[ICommand](Names.named("PlayerSize")))
-  }
-
-  @FXML
-  private def onQuitButton(): Unit = {
+  def onLeaveButton(): Unit = {
     sendCommand(injector.instance[ICommand](Names.named("Quit")))
   }
 
   @FXML
-  private def onMoveRightButton(): Unit = {
+  def onQuitButton(): Unit = {
+    sendCommand(injector.instance[ICommand](Names.named("Quit")))
+    sendCommand(injector.instance[ICommand](Names.named("Quit")))
+  }
+
+  @FXML
+  def onMoveRightButton(): Unit = {
     sendCommand(injector.instance[ICommand](Names.named("MoveRight")))
   }
 
   @FXML
-  private def onMoveUpButton(): Unit = {
+  def onMoveUpButton(): Unit = {
     sendCommand(injector.instance[ICommand](Names.named("MoveUp")))
   }
 
   @FXML
-  private def onMoveDownButton(): Unit = {
+  def onMoveDownButton(): Unit = {
     sendCommand(injector.instance[ICommand](Names.named("MoveDown")))
   }
 
   @FXML
-  private def onMoveLeftButton(): Unit = {
+  def onMoveLeftButton(): Unit = {
     sendCommand(injector.instance[ICommand](Names.named("MoveLeft")))
   }
 

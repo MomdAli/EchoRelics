@@ -63,17 +63,21 @@ class InputHandler(val terminal: Terminal) {
     injector.instance[ICommand](Names.named("Resume")),
     "r"
   )
-  keyMap.bind(
-    injector.instance[ICommand](Names.named("PlayerSize")),
-    "z"
-  )
-  keyMap.bind(
-    injector.instance[ICommand](Names.named("GridSize")),
-    "g"
-  )
+  // keyMap.bind(
+  //   injector.instance[ICommand](Names.named("PlayerSize")),
+  //   "z"
+  // )
+  // keyMap.bind(
+  //   injector.instance[ICommand](Names.named("GridSize")),
+  //   "g"
+  // )
   keyMap.bind(
     injector.instance[ICommand](Names.named("Quit")),
     "q"
+  )
+  keyMap.bind(
+    injector.instance[ICommand](Names.named("Load")),
+    "c"
   )
 
   def currentInput: Option[ICommand] = {

@@ -15,6 +15,17 @@ case class GridSizeManager(
 
   val state: GameState = GameState.NotStarted
 
+  override def start: IGameManager =
+    RunningManager(
+      0, // Starting the game with 0 moves
+      players.map(player => {
+        playerProvider.setId(player.id)
+        playerProvider.get()
+      }),
+      gridSpawner.setupStartingGrid(grid, players),
+      GameEvent.OnGameStartEvent
+    )
+
   override def move(direction: Direction): IGameManager = {
     direction match {
       case Direction.Up => {

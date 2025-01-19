@@ -2,24 +2,29 @@ package utils
 
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.text.{Font, Text, TextAlignment}
-import scalafx.scene.layout.{GridPane, StackPane, Pane, VBox}
+import scalafx.scene.layout._
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.paint.{Color, LinearGradient, Stop}
 import scalafx.scene.shape.Rectangle
-import scalafx.scene.control.{Label}
+import scalafx.scene.control.{Label, ScrollPane, Button}
 import scalafx.scene.Node
+import scala.collection.mutable
 
 import model.{IGrid, ITile}
 import model.entity.IEntity
+import view.gui.ActionHandler
 
 object Renderer {
+  private val eventLogQueue: mutable.Queue[(String, String)] =
+    mutable.Queue().empty
 
   // * Render the grid *
   def render(
       grid: IGrid,
       parentWidth: Double,
       parentHeight: Double,
-      padding: Double = 10
+      padding: Double = 10,
+      currentPlayerId: String
   ): GridPane = {
     // Calculate available space for the grid
     val availableWidth = parentWidth - padding * 2
@@ -29,15 +34,15 @@ object Renderer {
 
     val gridPane = new GridPane {
       alignment = Pos.Center
-      hgap = 2
-      vgap = 2
+      hgap = 0
+      vgap = 0
       styleClass += "grid"
     }
 
     for (y <- 0 until grid.size) {
       for (x <- 0 until grid.size) {
         val tile = grid.tileAt(Position(x, y))
-        val tilePane = renderTile(tile, tileSize)
+        val tilePane = renderTile(tile, tileSize, currentPlayerId, x * 10 + y)
         gridPane.add(tilePane, x, y)
       }
     }
@@ -46,53 +51,131 @@ object Renderer {
   }
 
   // * Render a single tile *
-  def renderTile(tile: ITile, tileSize: Double): StackPane = {
+  def renderTile(
+      tile: ITile,
+      tileSize: Double,
+      playerId: String,
+      seed: Int
+  ): StackPane = {
     val rect = new Rectangle {
       width = tileSize
       height = tileSize
-      arcWidth = tileSize / 4 // Rounded corners based on tile size
-      arcHeight = tileSize / 4
-
-      fill = tile.entity match {
-        case Some(entity) if IEntity.isPlayer(entity) =>
-          new LinearGradient(
-            0,
-            0,
-            1,
-            1,
-            true,
-            null,
-            List(
-              Stop(0, Color.Blue),
-              Stop(1, Color.LightBlue)
-            )
-          ) // Gradient for Player
-        case Some(entity) if IEntity.isWall(entity) =>
-          Color.DarkGray
-        case Some(entity) if IEntity.isRelic(entity) =>
-          Color.Gold
-        case Some(entity) if IEntity.isEcho(entity) =>
-          Color.OrangeRed
-        case _ =>
-          Color.White
-      }
+      // arcWidth = tileSize / 4 // Rounded corners based on tile size
+      // arcHeight = tileSize / 4
     }
+
+    // val (floorIndex, _) = Random(seed).nextInt(4)
+    val backgroundImage =
+      createImageView(s"/image/tile/Floor-${1}.jpg", tileSize)
 
     // Optional image
     val imageView = tile.entity match {
       case Some(entity) if IEntity.isPlayer(entity) =>
         createImageView(s"/image/Player-${entity.id}.png", tileSize)
+      case Some(wall) if IEntity.isWall(wall) =>
+        val (wallIndex, _) = Random(seed).nextInt(7)
+        createImageView(s"/image/tile/Wall-${wallIndex + 1}.jpg", tileSize)
+      case Some(entity) if IEntity.isRelic(entity) =>
+        val (relicIndex, _) = Random(seed).nextInt(2)
+        createImageView(s"/image/tile/Relic-${relicIndex + 1}.jpg", tileSize)
       case _ =>
         null
     }
 
+    if (tile.entity.exists(e => IEntity.isPlayer(e) && e.id == playerId)) {
+      backgroundImage.setStyle(
+        "-fx-effect: innershadow(gaussian, #5C946E, 40, 0.5, 0, 0);"
+      )
+    }
+
     val stackPane = new StackPane {
       alignment = Pos.Center
-      children = if (imageView != null) Seq(rect, imageView) else Seq(rect)
+      children = if (imageView != null) {
+        if (
+          IEntity.isWall(tile.entity.get) || IEntity.isRelic(tile.entity.get)
+        ) {
+          Seq(backgroundImage, imageView)
+        } else {
+          Seq(new StackPane {
+            children = Seq(backgroundImage, imageView)
+          })
+        }
+      } else Seq(backgroundImage)
       styleClass += "tile"
     }
 
     stackPane
+  }
+
+  def createPauseMenu(actionHandler: ActionHandler): Pane = {
+    new BorderPane {
+      stylesheets.add(getClass.getResource("/css/design.css").toExternalForm)
+      center = new FlowPane {
+        columnHalignment = scalafx.geometry.HPos.Center
+        orientation = scalafx.geometry.Orientation.Vertical
+        vgap = 20
+        padding = Insets(20)
+        children = Seq(
+          new Button {
+            text = "Resume"
+            onAction = _ => actionHandler.onResumeButton()
+            styleClass += "btn-normal"
+          },
+          new Button {
+            text = "Main Menu"
+            onAction = _ => actionHandler.onLeaveButton()
+            styleClass += "btn-normal"
+          },
+          new Button {
+            text = "Quit"
+            onAction = _ => actionHandler.onQuitButton()
+            styleClass += "btn-normal"
+          }
+        )
+      }
+      // styleClass += "simple-background"
+    }
+  }
+
+  def clearLog(): Unit = {
+    eventLogQueue.clear()
+  }
+
+  def renderEventLogSystem(message: String, color: String = "white"): Node = {
+    val maxMessages = 6 // Maximum number of messages to display
+
+    // Add the new message to the queue
+    eventLogQueue.enqueue((message, color))
+    if (eventLogQueue.size > maxMessages) {
+      eventLogQueue.dequeue()
+    }
+
+    // Create a VBox to hold the messages
+    val vbox = new VBox {
+      alignment = Pos.TopLeft
+      spacing = 5
+      padding = Insets(10)
+      style =
+        "-fx-background-color: #333; -fx-alignment: top_left; -fx-border-color: #81C784; -fx-border-width: 2; -fx-padding: 15;"
+
+      prefWidth = 600 // Set a constant width
+      prefHeight = 400 // Set a constant height
+    }
+
+    // Add each message as a Label to the VBox
+    eventLogQueue.foreach { case (msg, msgColor) =>
+      val label = new Label {
+        alignment = Pos.TOP_CENTER
+        text = msg
+        wrapText = true
+        maxWidth = 580 // Adjust based on your layout
+        style =
+          s"-fx-text-fill: $msgColor; -fx-font-size: 16px; -fx-background-color: #444; -fx-padding: 5; -fx-border-radius: 5; -fx-background-radius: 5;"
+      }
+      vbox.children.add(label)
+    }
+
+    vbox
   }
 
   // * Render the player size prompt *
@@ -215,7 +298,7 @@ object Renderer {
       gridSize: Int,
       parentWidth: Double,
       parentHeight: Double,
-      scaleFactor: Double = 0.75
+      scaleFactor: Double = 0.9
   ): Double = {
     // Calculate the maximum tile size that fits within the parent dimensions, scaled down
     val maxWidth = (parentWidth - 10) / gridSize // Subtract padding or gaps

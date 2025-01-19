@@ -27,6 +27,11 @@
                   <Font size="24.0" />
                </font>
             </Button>
+            <Button mnemonicParsing="false" onAction="#onStartButton" prefHeight="60.0" styleClass="btn-normal" text="Continue">
+               <FlowPane.margin>
+                  <Insets top="30.0" />
+               </FlowPane.margin>
+            </Button>
             <Button mnemonicParsing="false" onAction="#onQuitButton" prefHeight="60.0" prefWidth="108.0" styleClass="btn-normal" text="Back">
                <FlowPane.margin>
                   <Insets top="30.0" />

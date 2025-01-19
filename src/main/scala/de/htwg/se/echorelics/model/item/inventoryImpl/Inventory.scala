@@ -18,6 +18,13 @@ case class Inventory(maxCards: Int = 3) extends IInventory {
     }
   }
 
+  override def setCard(card: ICard): IInventory = {
+    if (cards.size < maxCards) {
+      cards += card
+    }
+    this
+  }
+
   // should remove the card and move the other cards to the left
   override def removeCard(index: Int): Boolean = {
     if (index >= 0 && index < cards.size) {
