@@ -34,7 +34,7 @@ object TextRenderer {
        |${YELLOW}Your goal is to collect all relics while avoiding echoes of your past moves.${RESET}
        |
        |${GREEN}Controls:
-       |Set Grid Size: ${RED}G${RESET} (size: 10-20)
+       |Set Grid Size: ${RED}G${RESET} (size: 10-15)
        |${GREEN}Set Player Size: ${RED}Z${RESET} (size: 2-4)
        |${GREEN}Start Game: ${RED}N
        |
@@ -117,9 +117,13 @@ object TextRenderer {
       case Some(entity) if IEntity.isPlayer(entity) => s" ${BLUE}${entity.id} "
       case Some(entity) if IEntity.isWall(entity)   => s" ◼ "
       case Some(entity) if IEntity.isRelic(entity)  => s" ${MAGENTA}$$ "
-      case Some(entity) if IEntity.isEcho(entity)   => s" ${RED}e "
-      case _                                        => "   "
+      case Some(entity) if IEntity.isEcho(entity) => s" ${RED}e${entity.owner} "
+      case _                                      => "   "
     }
     content + RESET
+  }
+
+  def renderWinner(playerId: String): String = {
+    s"${GREEN}Player $playerId won!${RESET}"
   }
 }

@@ -3,7 +3,7 @@ package model.entity.entityImpl
 import play.api.libs.json.{Json, JsObject}
 
 import model.entity.IEntity
-import model.item.ICard
+import model.item.{ICard, Rarity}
 import utils.Random
 
 case class Relic() extends IEntity {
@@ -25,13 +25,35 @@ case class Relic() extends IEntity {
   override val collectCard: Option[ICard] = {
     val seed = System.currentTimeMillis().toInt
     val rng = Random(seed)
-    val (index, _) = rng.nextInt(ICard.cards.size)
-    val card = ICard.cards(index)
+    val (randomValue, _) = rng.nextInt(100) // Generate a value between 0 and 99
 
-    val rarityChance = card.rarity.value
-    val (randomValue, _) = rng.nextInt(1000)
+    if (randomValue < 50) { // 50% chance to get a card
+      val rarityValue =
+        rng
+          .nextInt(100)
+          ._1 // Generate a value between 0 and 99 to determine rarity
+      val rarity = Rarity.values
+        .find(r => rarityValue < r.probability)
+        .getOrElse(Rarity.Common) // Determine rarity based on probability
 
-    if (randomValue < rarityChance) Some(card) else None
+      val cardsOfRarity = ICard.cards.filter(_.rarity == rarity)
+      if (cardsOfRarity.nonEmpty) {
+        Some(
+          cardsOfRarity(rng.nextInt(cardsOfRarity.size)._1)
+        ) // Get a random card of the determined rarity
+      } else {
+        None
+      }
+    } else {
+      None // 50% chance to get no card
+    }
+  }
+
+  override val obtainEcho: Boolean = {
+    val seed = System.currentTimeMillis().toInt
+    val rng = Random(seed)
+    val (randomValue, _) = rng.nextInt(100)
+    randomValue < 35 // 35% chance to obtain echo
   }
 
   override def toXml: scala.xml.Node = {

@@ -5,7 +5,7 @@ import scala.util.{Try, Success, Failure}
 
 import model.ICommand
 import service.IGameManager
-import utils.GameMemento
+import utils.{GameMemento, Position}
 
 class CommandHistory extends ICommand {
 
@@ -36,6 +36,24 @@ class CommandHistory extends ICommand {
       Success(gameManager.restore(lastMemento))
     } else {
       Failure(new NoSuchElementException("No commands to redo"))
+    }
+  }
+
+  def getPlayerPositionAfterUndos(
+      gameManager: IGameManager,
+      undos: Int
+  ): Try[Position] = {
+    val resultManager = (0 until undos).foldLeft(Try(gameManager)) {
+      (result, _) =>
+        result.flatMap(undo)
+    }
+
+    resultManager.map { updatedGameManager =>
+      updatedGameManager.grid
+        .findPlayer(updatedGameManager.currentPlayer)
+        .getOrElse(
+          throw new NoSuchElementException("Player not found in the grid")
+        )
     }
   }
 }

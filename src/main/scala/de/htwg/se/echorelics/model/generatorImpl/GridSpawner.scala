@@ -19,7 +19,11 @@ class GridSpawner(config: Config) extends IGridSpawner {
   override def spawnRelic(grid: IGrid): IGrid = {
     val seed = System.currentTimeMillis()
     val gridWithRelics =
-      spawnRelics(grid, seed, 3) // ! hardcoded number of relics
+      spawnRelics(
+        grid,
+        seed,
+        config.relicAmount
+      )
     gridWithRelics
   }
 
@@ -30,8 +34,8 @@ class GridSpawner(config: Config) extends IGridSpawner {
     val gridWithRelics = spawnRelics(
       gridWithoutCornerWalls,
       seed,
-      3
-    ) // ! hardcoded number of relics
+      config.relicAmount
+    )
     placePlayers(gridWithRelics, players)
   }
 
@@ -44,13 +48,26 @@ class GridSpawner(config: Config) extends IGridSpawner {
   }
 
   private def removeCornerWalls(grid: IGrid): IGrid = {
-    val corners = Set(
-      Position(0, 0),
-      Position(0, grid.size - 1),
-      Position(grid.size - 1, 0),
-      Position(grid.size - 1, grid.size - 1)
+    val corners = List(
+      (Position(0, 0), (1, 1)), // Top-left: add positive offsets
+      (Position(0, grid.size - 1), (1, -1)), // Bottom-left: add right and up
+      (Position(grid.size - 1, 0), (-1, 1)), // Top-right: add left and down
+      (
+        Position(grid.size - 1, grid.size - 1),
+        (-1, -1)
+      ) // Bottom-right: add negative offsets
     )
-    replaceTiles(grid, corners, ITile.emptyTile)
+
+    val safeZones = corners.flatMap { case (corner, (xOffset, yOffset)) =>
+      Set(
+        corner, // The corner itself
+        Position(corner.x + xOffset, corner.y), // Horizontal adjacent
+        Position(corner.x, corner.y + yOffset), // Vertical adjacent
+        Position(corner.x + xOffset, corner.y + yOffset) // Diagonal adjacent
+      ).filter(pos => pos.isWithinBounds(grid.size, grid.size))
+    }.toSet
+
+    replaceTiles(grid, safeZones, ITile.emptyTile)
   }
 
   private def spawnRelics(

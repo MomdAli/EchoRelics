@@ -19,14 +19,14 @@ case class StrikeCard() extends ICard {
 
     val updatedPlayers = gameManager.players.map { player =>
       if (player == gameManager.currentPlayer) player
-      else player.takeDamage
+      else player.updateStats(player.stats.decreaseHealth(1))
     }
 
     gameManager.change(
       gameManager.move + 1,
       updatedPlayers,
       gameManager.grid,
-      gameManager.event
+      GameEvent.OnPlayCardEvent(this)
     )
   }
 }

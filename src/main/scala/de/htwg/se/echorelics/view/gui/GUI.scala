@@ -24,7 +24,6 @@ import _root_.controller.Controller
 import _root_.model.events.{EventListener, EventManager, GameEvent}
 import _root_.service.IGameManager
 import _root_.utils.{Renderer, TextRenderer}
-import _root_.view.UI
 import _root_.utils.NodeFinder
 import scala.annotation.switch
 import model.IFileIO
@@ -46,7 +45,11 @@ class GUI(controller: Controller) extends JFXApp3 with EventListener {
 
   override def start(): Unit = {
 
-    audioManager.loadAudioClip("press", "/sound/UI-Button-Press.mp3")
+    audioManager.loadAudioClip("press", "/sound/UI-Select.wav")
+    audioManager.loadAudioClip("hurt", "/sound/Player-Hurt.mp3")
+    audioManager.loadAudioClip("use", "/sound/Item-Use.mp3")
+    audioManager.loadAudioClip("collect", "/sound/Relic-Collect.mp3")
+    audioManager.loadAudioClip("step", "/sound/Step.wav")
     audioManager.loadMediaPlayer("background", "/sound/Medieval.mp3")
 
     stage = new JFXApp3.PrimaryStage {
@@ -56,6 +59,7 @@ class GUI(controller: Controller) extends JFXApp3 with EventListener {
       fullScreenExitHint = ""
       fullScreenExitKey = noKeyCombination
       scene = new Scene(rootPane, 800, 600) {
+        rootPane.setFocusTraversable(false)
         onKeyPressed = (event: KeyEvent) => keyHandler.handleKeyInput(event)
       }
     }
@@ -69,6 +73,7 @@ class GUI(controller: Controller) extends JFXApp3 with EventListener {
   // Switch to a new scene
   def switchScene(sceneName: String): Unit = {
     val newRoot = loadFXML(sceneName)
+    rootPane.setFocusTraversable(false)
     rootPane.getChildren.clear()
     rootPane.getChildren.add(newRoot)
   }
@@ -96,8 +101,10 @@ class GUI(controller: Controller) extends JFXApp3 with EventListener {
         switchScene("Game")
         render(controller.gameManager)
         changeCurrentPlayerStatus("1")
+        changeCurrentPlayerStatus(controller.gameManager.currentPlayer.id)
         clearLog()
         renderEventLog("Welcome to Echo Relics!", "#5C946E")
+        showTutorialScreen()
       case GameEvent.OnSetGridSizeEvent(size: Int) =>
         switchScene("GridSize")
         render(controller.gameManager)
@@ -108,6 +115,7 @@ class GUI(controller: Controller) extends JFXApp3 with EventListener {
         renderEventLog(message, "#fffea4")
       case GameEvent.OnPlayCardEvent(card) =>
         render(controller.gameManager)
+        audioManager.playAudioClip("use")
         renderEventLog(
           s"Player ${controller.gameManager.currentPlayer.id} played a card!",
           "#5C946E"
@@ -118,13 +126,30 @@ class GUI(controller: Controller) extends JFXApp3 with EventListener {
         audioManager.stopMediaPlayer("background")
         switchScene("Game")
         render(controller.gameManager)
+        changeCurrentPlayerStatus(controller.gameManager.currentPlayer.id)
         renderEventLog("Game loaded!", "#F5F5F5")
       case GameEvent.OnPlayerMoveEvent =>
         changeCurrentPlayerStatus(controller.gameManager.currentPlayer.id)
+        audioManager.playAudioClip("step")
+      case GameEvent.OnPlayerDamageEvent(player) =>
+        render(controller.gameManager)
+        audioManager.playAudioClip("hurt")
+        renderEventLog(
+          s"Player ${player.id} was damaged!",
+          "#E9A2A1"
+        )
+      case GameEvent.OnRelicCollectEvent(player, relic) =>
+        audioManager.playAudioClip("collect")
       case GameEvent.OnGamePauseEvent =>
         showPauseMenu()
       case GameEvent.OnGameResumeEvent =>
         hidePauseMenu()
+      case GameEvent.OnWinnerEvent(playerId) =>
+        showWinnerMenu(playerId)
+      case GameEvent.OnEchoSpawnEvent =>
+        audioManager.playAudioClip("use")
+      case GameEvent.OnErrorEvent(message) =>
+        renderEventLog(message, "#ff0000")
       case _ =>
     }
   }
@@ -195,7 +220,9 @@ class GUI(controller: Controller) extends JFXApp3 with EventListener {
 
     currentPlayerContainer match {
       case Some(label: Label) =>
-        label.setText(s"Player $playerId's turn")
+        label.setText(
+          s"Player $playerId's turn \nRound ${controller.gameManager.round}"
+        )
         label.setStyle("-fx-text-fill: #F4C542;")
       case _ =>
     }
@@ -208,6 +235,12 @@ class GUI(controller: Controller) extends JFXApp3 with EventListener {
         vbox.getChildren.clear()
       case _ =>
     }
+  }
+
+  def showWinnerMenu(winnerId: String): Unit = {
+    val winnerMenu = Renderer.createWinnerScreen(winnerId, actionHandler)
+
+    rootPane.getChildren.add(winnerMenu)
   }
 
   def showPauseMenu(): Unit = {
@@ -224,6 +257,21 @@ class GUI(controller: Controller) extends JFXApp3 with EventListener {
     rootPane.getChildren.headOption.foreach(_.setEffect(new GaussianBlur(10)))
 
     rootPane.getChildren.add(pauseMenu)
+  }
+
+  def showTutorialScreen(): Unit = {
+    val tutorialScreen = Renderer.createTutorialScreen(actionHandler)
+    rootPane.getChildren.add(tutorialScreen)
+  }
+
+  def hideTutorialScreen(): Unit = {
+    rootPane.getChildren.removeIf {
+      case node: javafx.scene.layout.Pane =>
+        node.getStyle.contains(
+          "rgba(0, 0, 0, 0.9);"
+        ) // Match the tutorial screen's background
+      case _ => false
+    }
   }
 
   def hidePauseMenu(): Unit = {

@@ -3,6 +3,11 @@
     src: url('../font/Alkhemikal.ttf') format('truetype');
 }
 
+@font-face {
+    font-family: 'DigitalDisco';
+    src: url('../font/DigitalDisco.ttf') format('truetype');
+}
+
 * {
     -text-color: #F5F5F5;
     -background-color: #2B2E3A;
@@ -74,24 +79,25 @@
 
 .slider {
     -fx-background-color: linear-gradient(to top, #39424e, #1e252e);
-    -fx-border-color: -primary-color;
+    -fx-border-color: -accent-color;
     -fx-border-width: 2px;
-    -fx-background-radius: 50px;
-    -fx-border-radius: 50px;
+    -fx-background-radius: 100px;
+    -fx-border-radius: 100px;
 }
 
 .slider .track {
     -fx-background-color: linear-gradient(to top, #39424e, #1e252e);
-    -fx-background-radius: 50px;
-    -fx-border-radius: 50px;
+    -fx-background-radius: 15px;
+    -fx-border-radius: 12px;
     -fx-scale-y: 0.8;
 }
 
 .slider .thumb {
-    -fx-background-color: -primary-color;
-    -fx-background-radius: 0;
-    -fx-scale-y: 0.4;
-    -fx-scale-x: 1.2;
+    -fx-background-color: -accent-color;
+    -fx-background-radius: 80%;
+    -fx-scale-y: 1;
+    -fx-scale-x: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 10, 0, 0, 0);
 }
 
 

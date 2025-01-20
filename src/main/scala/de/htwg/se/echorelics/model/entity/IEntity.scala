@@ -29,23 +29,28 @@ trait IEntity extends Serializable[IEntity] {
 
   val injector = Guice.createInjector(new EchorelicsModule)
 
+  // All
   def id: String
   def isWalkable: Boolean
   def isCollectable: Boolean
 
+  // Player
   def score: Int = 0
   def stats: Stats = Stats(0, 0, 0)
   def inventory: IInventory = injector.instance[IInventory]
   def isFull: Boolean = false
+  def heal: IEntity = this
+  def updateStats(stats: Stats): IEntity = this
 
+  // Relic
   def updateScore(score: Int): IEntity = this
   def collectCard: Option[ICard] = None
   def addCard(card: ICard): Unit = {}
+  def obtainEcho: Boolean = false
 
-  def heal: IEntity = this
-  def takeDamage: IEntity = this
-
-  def setInventory(inventory: IInventory): IEntity = this
+  // Echo
+  def withOwner(id: String): IEntity = this
+  def owner: String = ""
 }
 
 object IEntity extends Deserializable[IEntity] {
@@ -70,7 +75,7 @@ object IEntity extends Deserializable[IEntity] {
       case "echo" =>
         Echo(
           id = (node \ "id").text,
-          owner = fromXml((node \ "owner").head).get.asInstanceOf[Player]
+          owner = (node \ "owner").text
         )
       case "empty" => IEntity.empty
       case _ =>
@@ -91,8 +96,7 @@ object IEntity extends Deserializable[IEntity] {
       case "wall"  => Success(Wall())
       case "echo" =>
         val id = (json \ "id").as[String]
-        val owner =
-          fromJson((json \ "owner").as[JsObject]).get.asInstanceOf[Player]
+        val owner = (json \ "owner").as[String]
         Success(Echo(id = id, owner = owner))
       case "empty" =>
         Success(IEntity.empty)

@@ -11,7 +11,7 @@
    <right>
       <FlowPane alignment="CENTER" columnHalignment="CENTER" orientation="VERTICAL" prefHeight="400.0" prefWidth="175.0" BorderPane.alignment="CENTER">
          <children>
-            <Button mnemonicParsing="false" onAction="#onMoveUpButton" prefHeight="60.0" prefWidth="70.0" styleClass="btn-normal" text="🡹">
+            <Button focusTraversable="false" mnemonicParsing="false" onAction="#onMoveUpButton" prefHeight="60.0" prefWidth="70.0" styleClass="btn-normal" text="🡹">
                <FlowPane.margin>
                   <Insets top="20.0" />
                </FlowPane.margin>
@@ -19,7 +19,7 @@
                   <Font size="24.0" />
                </font>
             </Button>
-            <Button mnemonicParsing="false" onAction="#onMoveDownButton" prefHeight="60.0" prefWidth="70.0" styleClass="btn-normal" text="🡻">
+            <Button focusTraversable="false" mnemonicParsing="false" onAction="#onMoveDownButton" prefHeight="60.0" prefWidth="70.0" styleClass="btn-normal" text="🡻">
                <FlowPane.margin>
                   <Insets top="20.0" />
                </FlowPane.margin>
@@ -27,12 +27,12 @@
                   <Font size="24.0" />
                </font>
             </Button>
-            <Button mnemonicParsing="false" onAction="#onStartButton" prefHeight="60.0" styleClass="btn-normal" text="Continue">
+            <Button focusTraversable="false" mnemonicParsing="false" onAction="#onStartButton" prefHeight="60.0" styleClass="btn-normal" text="Continue">
                <FlowPane.margin>
                   <Insets top="30.0" />
                </FlowPane.margin>
             </Button>
-            <Button mnemonicParsing="false" onAction="#onQuitButton" prefHeight="60.0" prefWidth="108.0" styleClass="btn-normal" text="Back">
+            <Button focusTraversable="false" mnemonicParsing="false" onAction="#onLeaveButton" prefHeight="60.0" prefWidth="108.0" styleClass="btn-normal" text="Back">
                <FlowPane.margin>
                   <Insets top="30.0" />
                </FlowPane.margin>

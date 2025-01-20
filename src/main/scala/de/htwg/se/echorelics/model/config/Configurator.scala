@@ -5,6 +5,7 @@ case class Configurator private (
     playerSize: Int = 2,
     gridSize: Int = 10,
     relicSpawnRate: Int = 15,
+    relicAmount: Int = 3,
     echoIncrementer: Int = 3,
     minHealth: Int = 3,
     wallRatio: Int = 3
@@ -12,11 +13,26 @@ case class Configurator private (
   def withPlayer(playerSize: Int): Configurator = {
     playerSize match {
       case 3 =>
-        copy(playerSize = playerSize, echoIncrementer = 2, relicSpawnRate = 20)
+        copy(
+          playerSize = playerSize,
+          echoIncrementer = 2,
+          relicSpawnRate = 7,
+          relicAmount = 4
+        )
       case 4 =>
-        copy(playerSize = playerSize, echoIncrementer = 1, relicSpawnRate = 25)
+        copy(
+          playerSize = playerSize,
+          echoIncrementer = 1,
+          relicSpawnRate = 5,
+          relicAmount = 5
+        )
       case _ =>
-        copy(playerSize = playerSize, echoIncrementer = 3, relicSpawnRate = 15)
+        copy(
+          playerSize = playerSize,
+          echoIncrementer = 3,
+          relicSpawnRate = 10,
+          relicAmount = 3
+        )
     }
   }
 
@@ -29,6 +45,7 @@ case class Configurator private (
     playerSize,
     gridSize,
     relicSpawnRate,
+    relicAmount,
     echoIncrementer,
     minHealth,
     wallRatio

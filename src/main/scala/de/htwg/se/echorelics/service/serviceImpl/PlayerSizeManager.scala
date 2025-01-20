@@ -52,7 +52,7 @@ case class PlayerSizeManager(
 
   private def decreasePlayerSize: PlayerSizeManager = {
     val newPlayers =
-      if (players.size > 1) players.init
+      if (players.size > 2) players.init
       else players
 
     copy(
