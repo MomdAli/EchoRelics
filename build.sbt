@@ -25,9 +25,25 @@ lazy val root = project
         "com.google.inject" % "guice" % "5.1.0",
         "net.codingwell" %% "scala-guice" % "7.0.0",
         "org.playframework" %% "play-json" % "3.0.4",
-        "org.scala-lang.modules" %% "scala-xml" % "2.3.0"
+        "org.scala-lang.modules" %% "scala-xml" % "2.3.0",
+        "com.spotify" % "docker-client" % "8.16.0"
       ) ++ Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
         .map(m => "org.openjfx" % s"javafx-$m" % "23" classifier osName)
     },
     fork := true
   )
+
+enablePlugins(AssemblyPlugin)
+
+assembly / test := {} // Prevent running tests during assembly
+
+assembly / assemblyJarName := "EchoRelics.jar" // Name of the JAR file
+
+assembly / assemblyMergeStrategy := { // Merge strategy for assembly
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x                             => MergeStrategy.first
+}
+
+Compile / mainClass := Some("echorelics.EchoRelics") // Main class for the JAR
+
+javaOptions ++= Seq("-source", "23", "-target", "23")
