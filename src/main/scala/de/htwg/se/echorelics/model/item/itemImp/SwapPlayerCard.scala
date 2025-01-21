@@ -6,7 +6,7 @@ import model.item.{ICard, Rarity}
 import utils.Random
 
 case class SwapPlayerCard() extends ICard {
-  override val rarity = Rarity.Rare
+  override val rarity = Rarity.Uncommon
   override val name = "Swap Player"
   override val description = "Swap position with another player."
 

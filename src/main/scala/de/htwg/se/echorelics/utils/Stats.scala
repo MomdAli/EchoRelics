@@ -8,9 +8,19 @@ case class Stats(
     val echoes: Int = 0,
     val health: Int = 3
 ) extends Serializable[Stats] {
-  def updateScore(amount: Int): Stats = this.copy(score = score + amount)
-  def updateEchoes(amount: Int): Stats = this.copy(echoes = echoes + amount)
-  def updateHealth(amount: Int): Stats = this.copy(health = health + amount)
+
+  def increaseScore(amount: Int): Stats = copy(score = score + amount)
+  def increaseEchoes(amount: Int): Stats =
+    copy(echoes = math.min(3, echoes + amount))
+  def increaseHealth(amount: Int): Stats =
+    copy(health = math.min(5, health + amount))
+
+  def decreaseScore(amount: Int): Stats =
+    copy(score = math.max(0, score - amount))
+  def decreaseEchoes(amount: Int): Stats =
+    copy(echoes = math.max(0, echoes - amount))
+  def decreaseHealth(amount: Int): Stats =
+    copy(health = math.max(0, health - amount))
 
   override def toString(): String = {
     s"Score: $score\nEchoes: $echoes\nHealth: $health"

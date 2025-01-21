@@ -14,19 +14,29 @@ class AudioManager {
   }
 
   def loadMediaPlayer(name: String, resourcePath: String): Unit = {
-    val media = new Media(getClass.getResource(resourcePath).toString)
-    val mediaPlayer = new MediaPlayer(media)
-    mediaPlayers(name) = mediaPlayer
+    try {
+      val mediaURL = Option(getClass.getResource(resourcePath))
+      require(mediaURL.isDefined, s"Media file not found: $resourcePath")
+      val media = new Media(mediaURL.get.toURI.toString)
+      val mediaPlayer = new MediaPlayer(media)
+      mediaPlayers(name) = mediaPlayer
+    } catch {
+      case e: Exception =>
+        println(s"Error loading media player: ${e.getMessage}")
+    }
   }
 
   def playAudioClip(name: String): Unit = {
-    audioClips.get(name).foreach(_.play(0.2))
+    audioClips.get(name).foreach { clip =>
+      clip.setVolume(0.015)
+      clip.play()
+    }
   }
 
   def playMediaPlayer(name: String): Unit = {
     mediaPlayers.get(name).foreach { mediaPlayer =>
       mediaPlayer.play()
-      mediaPlayer.volume = 0.2
+      mediaPlayer.setVolume(0.05)
     }
   }
 

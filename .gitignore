@@ -60,3 +60,6 @@ src_managed/
 
 # bash
 bash.exe.stackdump
+
+# Game
+save.dat

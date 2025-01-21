@@ -20,6 +20,7 @@ case class Config(
     playerSize: Int,
     gridSize: Int,
     relicSpawnRate: Int,
+    relicAmount: Int,
     echoIncrementer: Int,
     minHealth: Int,
     wallRatio: Int

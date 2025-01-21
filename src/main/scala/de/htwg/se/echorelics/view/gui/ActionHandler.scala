@@ -16,7 +16,8 @@ import _root_.model.events.{EventManager, GameEvent}
 import _root_.service.IGameManager
 import _root_.utils.Direction
 import _root_.modules.EchorelicsModule
-import utils.NodeFinder
+import _root_.utils.NodeFinder
+import _root_.utils.GameState
 
 class ActionHandler(gui: GUI, controller: Controller) {
 
@@ -33,7 +34,7 @@ class ActionHandler(gui: GUI, controller: Controller) {
     val sliderOption = NodeFinder.findNodeById(gui.rootPane, "volumeSlider")
     sliderOption match {
       case Some(slider: Slider) =>
-        audioManager.setVolume("background", slider.getValue / 100)
+        audioManager.setVolume("background", slider.getValue / 2000)
       case _ =>
     }
   }
@@ -47,7 +48,6 @@ class ActionHandler(gui: GUI, controller: Controller) {
   @FXML
   def onStartButton(): Unit = {
     sendCommand(injector.instance[ICommand](Names.named("Start")))
-    audioManager.playAudioClip("press")
   }
 
   @FXML
@@ -67,6 +67,11 @@ class ActionHandler(gui: GUI, controller: Controller) {
   }
 
   @FXML
+  def onSpawnEchoButton(): Unit = {
+    sendCommand(injector.instance[ICommand](Names.named("Echo")))
+  }
+
+  @FXML
   def onMoveUpButton(): Unit = {
     sendCommand(injector.instance[ICommand](Names.named("MoveUp")))
   }
@@ -81,7 +86,33 @@ class ActionHandler(gui: GUI, controller: Controller) {
     sendCommand(injector.instance[ICommand](Names.named("MoveLeft")))
   }
 
+  @FXML
+  def onUseCard1Button(): Unit = {
+    sendCommand(injector.instance[ICommand](Names.named("PlayCard0")))
+  }
+
+  @FXML
+  def onUseCard2Button(): Unit = {
+    sendCommand(injector.instance[ICommand](Names.named("PlayCard1")))
+  }
+
+  @FXML
+  def onUseCard3Button(): Unit = {
+    sendCommand(injector.instance[ICommand](Names.named("PlayCard2")))
+  }
+
+  @FXML
+  def onTutorialCloseButton(): Unit = {
+    gui.hideTutorialScreen()
+    audioManager.playAudioClip("press")
+  }
+
   def sendCommand(command: ICommand): Unit = {
+
+    if (controller.gameManager.state != GameState.Running) {
+      audioManager.playAudioClip("press")
+    }
+
     controller.handleCommand(command) match {
       case Success(manager: IGameManager)
           if manager.event != GameEvent.OnQuitEvent =>

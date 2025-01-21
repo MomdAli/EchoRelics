@@ -5,7 +5,7 @@ import model.events.GameEvent
 import model.item.{ICard, Rarity}
 
 case class HealCard() extends ICard {
-  override val rarity = Rarity.Common
+  override val rarity = Rarity.Uncommon
   override val name = "Heal"
   override val description = "Heal the player for 1 health point."
 
@@ -19,7 +19,7 @@ case class HealCard() extends ICard {
       gameManager.move + 1,
       updatedPlayers,
       gameManager.grid,
-      gameManager.event
+      GameEvent.OnPlayCardEvent(this)
     )
   }
 }

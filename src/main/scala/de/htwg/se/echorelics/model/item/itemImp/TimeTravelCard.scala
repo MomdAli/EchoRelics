@@ -7,7 +7,7 @@ import model.item.{ICard, Rarity}
 
 case class TimeTravelCard() extends ICard {
 
-  override val rarity: Rarity = Rarity.Uncommon
+  override val rarity: Rarity = Rarity.Rare
 
   override val name: String = "Time Travel"
 

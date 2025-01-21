@@ -6,31 +6,22 @@ import play.api.libs.json.{Json, JsObject}
 import model.entity.IEntity
 import model.events.{GameEvent, EventListener, EventManager}
 import utils.Stats
+import com.google.inject.name.Named
 
 case class Echo @Inject() (
-    id: String,
-    owner: Player
-) extends EventListener
-    with IEntity {
-  EventManager.subscribe(this)
+    id: String = "e",
+    override val owner: String = ""
+) extends IEntity {
 
-  override def handleEvent(event: GameEvent): Unit = {
-    event match {
-      case GameEvent.OnPlayerMoveEvent =>
-        EventManager.notify(GameEvent.OnMoveEchoEvent(this))
-      case GameEvent.OnPlayerDeathEvent(player) =>
-        println("Echo: Player died")
-      case _ =>
-    }
-  }
-
-  override def isWalkable: Boolean = true
+  override def isWalkable: Boolean = false
   override def isCollectable: Boolean = false
+
+  override def withOwner(id: String): IEntity = copy(owner = id)
 
   override def toXml: scala.xml.Node = {
     <entity type="echo">
       <id>{id}</id>
-      <owner>{owner.id}</owner>
+      <owner>{owner}</owner>
     </entity>
   }
 
@@ -38,7 +29,7 @@ case class Echo @Inject() (
     Json.obj(
       "type" -> "echo",
       "id" -> id,
-      "owner" -> owner.id
+      "owner" -> owner
     )
   }
 }

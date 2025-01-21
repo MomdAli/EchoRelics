@@ -7,7 +7,6 @@ import controller.Controller
 import model.events.{EventManager, EventListener, GameEvent}
 import service.IGameManager
 import utils.{GameState, TextRenderer}
-import view.UI
 
 class TUI(controller: Controller) extends EventListener {
 
@@ -49,6 +48,11 @@ class TUI(controller: Controller) extends EventListener {
         )
       case GameEvent.OnQuitEvent => close()
       case GameEvent.OnUpdateRenderEvent =>
+        render(controller.gameManager)
+      case GameEvent.OnWinnerEvent(playerId) =>
+        writeln(TextRenderer.clear)
+        writeln(TextRenderer.renderWinner(playerId))
+      case GameEvent.OnEchoesMoveEvent =>
         render(controller.gameManager)
       case _ =>
     }

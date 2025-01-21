@@ -28,7 +28,6 @@ trait IGameManager extends Serializable[IGameManager] {
   val players: List[IEntity]
   val grid: IGrid
   val event: GameEvent
-  val echoes: List[IEntity] = List()
   protected val gridSpawner: IGridSpawner = injector.instance[IGridSpawner]
 
   // methods to override
@@ -46,6 +45,9 @@ trait IGameManager extends Serializable[IGameManager] {
   def collectRelic(player: IEntity, relic: IEntity): IGameManager =
     change(event = GameEvent.OnNoneEvent)
   def playerCard(index: Int): Option[ICard] = None
+  def moveAllEchoes: IGameManager = change(event = GameEvent.OnNoneEvent)
+  def damagePlayer(player: IEntity): IGameManager =
+    change(event = GameEvent.OnNoneEvent)
 
   // already implemented methods
   def round: Int = (move / players.size).toInt + 1

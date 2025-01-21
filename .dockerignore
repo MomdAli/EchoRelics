@@ -1,0 +1,8 @@
+# Ignore all files except those required for the build
+*
+!src/
+!project/
+!build.sbt
+!Dockerfile
+!.dockerignore
+!target/

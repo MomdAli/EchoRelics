@@ -12,9 +12,11 @@ enum GameEvent:
   case OnPlayerMoveEvent
   case OnPlayerDeathEvent(player: IEntity)
   case OnPlayCardEvent(card: ICard)
+  case OnPlayerDamageEvent(player: IEntity)
   // Echoes
   case OnEchoSpawnEvent
-  case OnMoveEchoEvent(echo: IEntity)
+  case OnEchoesMoveEvent
+  case OnEchoMoveEvent(echo: IEntity)
   // Relics
   case OnRelicSpawnEvent
   case OnRelicCollectEvent(player: IEntity, relic: IEntity)
@@ -32,6 +34,9 @@ enum GameEvent:
 
   // Pause Game Events
   case OnGamePauseEvent
+
+  // Winner
+  case OnWinnerEvent(player: String)
 
   // Special
   case OnUpdateRenderEvent

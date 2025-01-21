@@ -14,7 +14,8 @@ trait IGrid extends Serializable[IGrid] {
   def tileAt(position: Position): ITile
   def isOutOfBounds(position: Position): Boolean
   def movePlayer(player: IEntity, direction: Direction): IGrid
-  def moveEcho(echo: IEntity): IGrid
+  def moveEchoes: IGrid
+  def spawnEcho(position: Position, echo: IEntity): IGrid
   def findPlayer(player: IEntity): Option[Position]
   def increaseSize: IGrid
   def decreaseSize: IGrid

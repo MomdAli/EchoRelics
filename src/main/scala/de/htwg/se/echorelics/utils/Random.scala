@@ -50,4 +50,31 @@ case class Random(seed: Int) {
     val (y, rng2) = rng1.nextInt(size)
     (Position(x, y), rng2)
   }
+
+  /** Shuffles a list of elements.
+    *
+    * @param list
+    *   The list to be shuffled.
+    * @tparam A
+    *   The type of elements in the list.
+    * @return
+    *   A tuple containing the shuffled list and the updated Random instance.
+    */
+  def shuffle[A](list: List[A]): (List[A], Random) = {
+    def shuffleRec(
+        remaining: List[A],
+        acc: List[A],
+        rng: Random
+    ): (List[A], Random) = {
+      if (remaining.isEmpty) {
+        (acc, rng)
+      } else {
+        val (index, newRng) = rng.nextInt(remaining.length)
+        val elem = remaining(index)
+        val newRemaining = remaining.patch(index, Nil, 1)
+        shuffleRec(newRemaining, elem :: acc, newRng)
+      }
+    }
+    shuffleRec(list, Nil, this)
+  }
 }

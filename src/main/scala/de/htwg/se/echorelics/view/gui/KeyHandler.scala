@@ -25,12 +25,16 @@ class KeyHandler(actionHandler: ActionHandler) {
       case KeyCode.D =>
         sendCommand(injector.instance[ICommand](Names.named("MoveRight")))
       case KeyCode.UP =>
+        event.consume()
         sendCommand(injector.instance[ICommand](Names.named("MoveUp")))
       case KeyCode.DOWN =>
+        event.consume()
         sendCommand(injector.instance[ICommand](Names.named("MoveDown")))
       case KeyCode.LEFT =>
+        event.consume()
         sendCommand(injector.instance[ICommand](Names.named("MoveLeft")))
       case KeyCode.RIGHT =>
+        event.consume()
         sendCommand(injector.instance[ICommand](Names.named("MoveRight")))
       case KeyCode.DIGIT1 =>
         sendCommand(injector.instance[ICommand](Names.named("PlayCard0")))

@@ -21,6 +21,9 @@ class Controller(implicit var gameManager: IGameManager) extends EventListener {
 
   override def handleEvent(event: GameEvent): Unit = {
     event match {
+      case GameEvent.OnPlayerMoveEvent =>
+        gameManager = gameManager.moveAllEchoes
+        EventManager.notify(gameManager.event)
       case GameEvent.OnRelicCollectEvent(player, relic) =>
         gameManager = gameManager.collectRelic(player, relic)
         EventManager.notify(gameManager.event)
@@ -36,6 +39,9 @@ class Controller(implicit var gameManager: IGameManager) extends EventListener {
             EventManager.notify(GameEvent.OnUpdateRenderEvent)
           case Failure(exception) =>
         }
+      case GameEvent.OnPlayerDamageEvent(player) =>
+        gameManager = gameManager.damagePlayer(player)
+        EventManager.notify(gameManager.event)
       case _ =>
     }
   }

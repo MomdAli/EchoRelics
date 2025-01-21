@@ -72,7 +72,14 @@ class EchorelicsModule extends AbstractModule with ScalaModule {
     bind[entity.IEntity]
       .annotatedWithName("Player")
       .toProvider[PlayerProvider]
-    bind[entity.IEntity].annotatedWithName("Echo").to[entity.entityImpl.Echo]
+
+    bind[String]
+      .annotatedWith(Names.named("DefaultOwner"))
+      .toInstance("1")
+
+    bind[entity.IEntity]
+      .annotatedWithName("Echo")
+      .toProvider(() => new entity.entityImpl.Echo(id = "e"))
     bind[entity.IEntity].annotatedWithName("Relic").to[entity.entityImpl.Relic]
     bind[entity.IEntity].annotatedWithName("Wall").to[entity.entityImpl.Wall]
 

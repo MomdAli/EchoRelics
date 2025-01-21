@@ -17,11 +17,11 @@ object EchoRelics {
     injector.instance[IGameManager](Names.named("Menu"))
   )
 
-  @main def main(): Unit = {
+  def main(args: Array[String]): Unit = {
     new Thread(new Runnable {
       override def run(): Unit = {
         val gui = new GUI(controller)
-        gui.main(Array())
+        gui.main(args)
       }
     }).start()
 
