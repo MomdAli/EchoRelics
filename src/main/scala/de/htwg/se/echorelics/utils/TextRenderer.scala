@@ -34,8 +34,6 @@ object TextRenderer {
        |${YELLOW}Your goal is to collect all relics while avoiding echoes of your past moves.${RESET}
        |
        |${GREEN}Controls:
-       |Set Grid Size: ${RED}G${RESET} (size: 10-15)
-       |${GREEN}Set Player Size: ${RED}Z${RESET} (size: 2-4)
        |${GREEN}Start Game: ${RED}N
        |
        |${GREEN}Good luck!

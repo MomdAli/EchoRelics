@@ -30,20 +30,14 @@ lazy val root = project
       ) ++ Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
         .map(m => "org.openjfx" % s"javafx-$m" % "23" classifier osName)
     },
-    fork := true
+    fork := true,
+    assembly / assemblyJarName := "EchoRelics.jar", // Name of the JAR file
+    assembly / test := {}, // Prevent running tests during assembly
+    assembly / assemblyMergeStrategy := { // Merge strategy for assembly
+      case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+      case x                             => MergeStrategy.first
+    }
   )
 
 enablePlugins(AssemblyPlugin)
-
-assembly / test := {} // Prevent running tests during assembly
-
-assembly / assemblyJarName := "EchoRelics.jar" // Name of the JAR file
-
-assembly / assemblyMergeStrategy := { // Merge strategy for assembly
-  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-  case x                             => MergeStrategy.first
-}
-
 Compile / mainClass := Some("echorelics.EchoRelics") // Main class for the JAR
-
-javaOptions ++= Seq("-source", "23", "-target", "23")
