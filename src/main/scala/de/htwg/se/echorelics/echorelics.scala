@@ -11,7 +11,6 @@ import view.tui.TUI
 import service.IGameManager
 
 object EchoRelics {
-
   val injector = Guice.createInjector(new EchorelicsModule)
   val controller = new Controller()(
     injector.instance[IGameManager](Names.named("Menu"))
