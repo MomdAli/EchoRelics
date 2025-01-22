@@ -43,3 +43,4 @@ enablePlugins(AssemblyPlugin)
 Compile / mainClass := Some("echorelics.EchoRelics") // Main class for the JAR
 coverageEnabled := true
 coverageExcludedFiles := ".*(GUI|KeyHandler|InputHandler|ActionHandler|AudioManager|Renderer).*"
+javaOptions ++= Seq("-source", "11", "-target", "11")
