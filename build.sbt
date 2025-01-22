@@ -41,3 +41,5 @@ lazy val root = project
 
 enablePlugins(AssemblyPlugin)
 Compile / mainClass := Some("echorelics.EchoRelics") // Main class for the JAR
+coverageEnabled := true
+coverageExcludedFiles := ".*(GUI|KeyHandler|InputHandler|ActionHandler|AudioManager|Renderer).*"

@@ -1,117 +1,191 @@
 package service
 
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
-import model.{Grid, GameState}
-import model.config.Config
-import model.events.GameEvent
-import model.entity.{Player, Relic, Echo}
-import model.commands.{Command, GameMemento}
-import model.generator.GridSpawner
-import model.item.Card
+import org.scalatest.matchers.should.Matchers
+
+import service.serviceImpl._
 import utils.Direction
+import model.gridImpl.Grid
+import model.entity.entityImpl.Player
+import model.events.GameEvent
 
-class GameManagerSpec extends AnyWordSpec with Matchers with MockitoSugar {
+class GameManagerSpec extends AnyWordSpec with Matchers {
 
-  "A GameManager" should {
+  val grid = new Grid(10)
+  val players = List(Player("1"), Player("2"))
+  val menuManager = MenuManager(0, players, grid, GameEvent.OnNoneEvent)
+  val runningManager = RunningManager(0, players, grid, GameEvent.OnNoneEvent)
+  val pausedManager = PausedManager(0, players, grid, GameEvent.OnNoneEvent)
+  val winnerManager = WinnerManager(0, players, grid, GameEvent.OnNoneEvent)
+  val gridSizeManager = GridSizeManager(0, players, grid, GameEvent.OnNoneEvent)
+  val playerSizeManager =
+    PlayerSizeManager(0, players, grid, GameEvent.OnNoneEvent)
 
-    val grid = new Grid(10)
-    val players = List(Player("player1"), Player("player2"))
-    val gameManager = GameManager(players)
+  "MenuManager" should {
 
-    "have the correct initial state" in {
-      gameManager.move should be(0)
-      gameManager.players should have size 2
-      gameManager.grid.size should be(10)
-      gameManager.event should be(GameEvent.OnGameEndEvent)
-      gameManager.state should be(GameState.NotStarted)
+    "initialize correctly" in {
+      menuManager should not be null
     }
 
-    "return the correct round number" in {
-      gameManager.round should be(1)
+    "set grid size" in {
+      val newManager = menuManager.setGridSize
+      newManager shouldBe a[GridSizeManager]
     }
 
-    "return the correct current player" in {
-      gameManager.currentPlayer should be(players.head)
+    "set player size" in {
+      val newManager = menuManager.setPlayerSize
+      newManager shouldBe a[PlayerSizeManager]
     }
 
-    "return the correct current player by index" in {
-      gameManager.currentPlayer(1) should be(players(1))
+    "start the game" in {
+      val newManager = menuManager.start
+      newManager shouldBe a[PlayerSizeManager]
     }
 
-    "create a valid memento" in {
-      val memento = gameManager.createMemento
-      memento.grid should be(grid)
-      memento.state should be(GameState.NotStarted)
+    "quit the game" in {
+      val newManager = menuManager.quit
+      newManager shouldBe a[MenuManager]
+    }
+  }
+
+  "RunningManager" should {
+
+    "initialize correctly" in {
+      runningManager should not be null
     }
 
-    "restore from a memento correctly" in {
-      val memento = gameManager.createMemento
-      val restoredManager = gameManager.restore(memento)
-      restoredManager.state should be(memento.state)
+    "move player" in {
+      val newManager = runningManager.move(Direction.Up)
+      newManager shouldBe a[RunningManager]
     }
 
-    "validate commands correctly" in {
-      val command = mock[Command]
-      gameManager.isValid(command) should be(false)
+    "move all echoes" in {
+      val newManager = runningManager.moveAllEchoes
+      newManager shouldBe a[RunningManager]
     }
 
-    "move in a direction correctly" in {
-      val newManager = gameManager.move(Direction.Up)
-      newManager should be(gameManager)
+    "damage player" in {
+      val player = runningManager.players.head
+      val newManager = runningManager.damagePlayer(player)
+      newManager shouldBe a[RunningManager]
     }
 
-    "quit the game correctly" in {
-      val newManager = gameManager.quit
-      newManager.event should not be (gameManager.event)
+    "pause the game" in {
+      val newManager = runningManager.pause
+      newManager shouldBe a[PausedManager]
     }
 
-    "set player size correctly" in {
-      val newManager = gameManager.setPlayerSize
-      newManager should not be (gameManager)
+    "quit the game" in {
+      val newManager = runningManager.quit
+      newManager shouldBe a[MenuManager]
     }
 
-    "set grid size correctly" in {
-      val newManager = gameManager.setGridSize
-      newManager should not be (gameManager)
+    "spawn relic" in {
+      val newManager = runningManager.spawnRelic
+      newManager shouldBe a[RunningManager]
+    }
+  }
+
+  "PausedManager" should {
+
+    "initialize correctly" in {
+      pausedManager should not be null
     }
 
-    "echo correctly" in {
-      val newManager = gameManager.echo
-      newManager should be(gameManager)
+    "resume the game" in {
+      val newManager = pausedManager.resume
+      newManager shouldBe a[RunningManager]
     }
 
-    "start the game correctly" in {
-      val newManager = gameManager.start
-      newManager should not be (gameManager)
+    "pause the game" in {
+      val newManager = pausedManager.pause
+      newManager shouldBe a[RunningManager]
     }
 
-    "pause the game correctly" in {
-      val newManager = gameManager.pause
-      newManager should be(gameManager)
+    "quit the game" in {
+      val newManager = pausedManager.quit
+      newManager shouldBe a[MenuManager]
+    }
+  }
+
+  "WinnerManager" should {
+
+    "initialize correctly" in {
+      winnerManager should not be null
     }
 
-    "resume the game correctly" in {
-      val newManager = gameManager.resume
-      newManager should be(gameManager)
+    "leave to menu" in {
+      val newManager = winnerManager.quit
+      newManager shouldBe a[MenuManager]
     }
 
-    "return the correct player card" in {
-      gameManager.playerCard(0) should be(None)
+    "echo should leave to menu" in {
+      val newManager = winnerManager.echo
+      newManager shouldBe a[MenuManager]
     }
 
-    "spawn a relic correctly" in {
-      val newManager = gameManager.spawnRelic
-      newManager should be(gameManager)
+    "start should leave to menu" in {
+      val newManager = winnerManager.start
+      newManager shouldBe a[MenuManager]
     }
 
-    "collect a relic correctly" in {
-      val player = players.head
-      val relic = mock[Relic]
-      val newManager = gameManager.collectRelic(player, relic)
-      newManager should be(gameManager)
+    "pause should leave to menu" in {
+      val newManager = winnerManager.pause
+      newManager shouldBe a[MenuManager]
+    }
+  }
+
+  "GridSizeManager" should {
+
+    "initialize correctly" in {
+      gridSizeManager should not be null
+    }
+
+    "start the game" in {
+      val newManager = gridSizeManager.start
+      newManager shouldBe a[RunningManager]
+    }
+
+    "increase grid size" in {
+      val newManager = gridSizeManager.move(Direction.Up)
+      newManager shouldBe a[GridSizeManager]
+    }
+
+    "decrease grid size" in {
+      val newManager = gridSizeManager.move(Direction.Down)
+      newManager shouldBe a[GridSizeManager]
+    }
+
+    "quit to player size manager" in {
+      val newManager = gridSizeManager.quit
+      newManager shouldBe a[PlayerSizeManager]
+    }
+  }
+
+  "PlayerSizeManager" should {
+
+    "initialize correctly" in {
+      playerSizeManager should not be null
+    }
+
+    "increase player size" in {
+      val newManager = playerSizeManager.move(Direction.Up)
+      newManager shouldBe a[PlayerSizeManager]
+    }
+
+    "decrease player size" in {
+      val newManager = playerSizeManager.move(Direction.Down)
+      newManager shouldBe a[PlayerSizeManager]
+    }
+
+    "start the game" in {
+      val newManager = playerSizeManager.start
+      newManager shouldBe a[GridSizeManager]
+    }
+
+    "quit to menu manager" in {
+      val newManager = playerSizeManager.quit
+      newManager shouldBe a[MenuManager]
     }
   }
 }

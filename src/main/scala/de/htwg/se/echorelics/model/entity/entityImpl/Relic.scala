@@ -27,26 +27,26 @@ case class Relic() extends IEntity {
     val rng = Random(seed)
     val (randomValue, _) = rng.nextInt(100) // Generate a value between 0 and 99
 
-    if (randomValue < 50) { // 50% chance to get a card
-      val rarityValue =
-        rng
-          .nextInt(100)
-          ._1 // Generate a value between 0 and 99 to determine rarity
-      val rarity = Rarity.values
-        .find(r => rarityValue < r.probability)
-        .getOrElse(Rarity.Common) // Determine rarity based on probability
+    // First 50% chance to get any card
+    if (randomValue < 50) {
+      val (rarityRoll, _) = rng.nextInt(50) // Roll for rarity (0-49)
 
+      // Determine rarity based on cumulative probabilities
+      val rarity =
+        if (rarityRoll < 20) Rarity.Common // 0-19 (20%)
+        else if (rarityRoll < 35) Rarity.Uncommon // 20-34 (15%)
+        else if (rarityRoll < 45) Rarity.Rare // 35-44 (10%)
+        else if (rarityRoll < 49) Rarity.Epic // 45-48 (4%)
+        else Rarity.Legendary // 49 (1%)
+
+      // Get all cards of the chosen rarity
       val cardsOfRarity = ICard.cards.filter(_.rarity == rarity)
+
       if (cardsOfRarity.nonEmpty) {
-        Some(
-          cardsOfRarity(rng.nextInt(cardsOfRarity.size)._1)
-        ) // Get a random card of the determined rarity
-      } else {
-        None
-      }
-    } else {
-      None // 50% chance to get no card
-    }
+        val (cardIndex, _) = rng.nextInt(cardsOfRarity.size)
+        Some(cardsOfRarity(cardIndex))
+      } else None
+    } else None // 50% chance to get no card
   }
 
   override val obtainEcho: Boolean = {

@@ -133,7 +133,10 @@ trait IGameManager extends Serializable[IGameManager] {
 object IGameManager extends Deserializable[IGameManager] {
 
   override def fromXml(node: scala.xml.Node): Try[IGameManager] = Try {
-    val move = (node \ "move").text.toInt
+    val move = (node \ "move").text match {
+      case "" => throw new NumberFormatException("Move value is missing in XML")
+      case value => value.toInt
+    }
     val players =
       (node \ "entity")
         .map(IEntity.fromXml)
