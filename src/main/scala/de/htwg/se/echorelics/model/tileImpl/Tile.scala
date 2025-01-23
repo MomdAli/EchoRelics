@@ -19,5 +19,5 @@ case class Tile(entity: Option[IEntity]) extends ITile {
     entity.exists(e => IEntity.isPlayer(e) && e.id == player.id)
   }
 
-  override def isEmpty: Boolean = entity.isEmpty
+  override def isEmpty: Boolean = entity.isEmpty || entity.contains(IEntity.empty)
 }

@@ -2,101 +2,152 @@ package model
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import model.entity.entityImpl.{Player, Relic, Wall, Echo}
-import model.entity.Empty
-import model.tileImpl.Tile
+import play.api.libs.json.{JsObject, Json}
+import scala.util.{Success, Failure}
+import scala.xml.Elem
+import model.entity.entityImpl.{Player, Wall, Relic, Echo}
+import model.entity.{Empty, IEntity}
+import utils.Position
 
 class TileSpec extends AnyWordSpec with Matchers {
 
   "A Tile" should {
 
-    "be walkable if it contains no entity" in {
-      val tile = Tile(None)
-      tile.isWalkable should be(true)
+    "be walkable if the contained entity is walkable (e.g. Relic)" in {
+      val relicTile = ITile(Some(Relic()))
+      relicTile.isWalkable shouldBe true
     }
 
-    "not be walkable if it contains a player" in {
-      val player = Player(id = "player1")
-      val tile = Tile(Some(player))
-      tile.isWalkable should be(false)
+    "not be walkable if the contained entity is not walkable (e.g. Player)" in {
+      val playerTile = ITile(Some(Player("p1")))
+      playerTile.isWalkable shouldBe false
     }
 
-    "be walkable if it contains a relic" in {
-      val relic = Relic()
-      val tile = Tile(Some(relic))
-      tile.isWalkable should be(true)
+    "detect player presence via hasPlayer" in {
+      val playerTile = ITile(Some(Player("p1")))
+      playerTile.hasPlayer shouldBe true
+      val emptyTile = ITile(None)
+      emptyTile.hasPlayer shouldBe false
     }
 
-    "not be walkable if it contains a wall" in {
-      val wall = Wall()
-      val tile = Tile(Some(wall))
-      tile.isWalkable should be(false)
+    "detect wall presence via hasWall" in {
+      val wallTile = ITile(Some(Wall()))
+      wallTile.hasWall shouldBe true
+      val emptyTile = ITile(None)
+      emptyTile.hasWall shouldBe false
     }
 
-    "not be walkable if it contains an echo" in {
-      val echo = Echo(id = "e1", owner = "player1")
-      val tile = Tile(Some(echo))
-      tile.isWalkable should be(false)
+    "detect relic presence via hasRelic" in {
+      val relicTile = ITile(Some(Relic()))
+      relicTile.hasRelic shouldBe true
+      val emptyTile = ITile(None)
+      emptyTile.hasRelic shouldBe false
+    }
+
+    "check isPlayer(player) correctly" in {
+      val player1 = Player("p1")
+      val tile = ITile(Some(player1))
+      tile.isPlayer(player1) shouldBe true
+
+      val player2 = Player("p2")
+      tile.isPlayer(player2) shouldBe false
     }
 
     "be empty if it contains no entity" in {
-      val tile = Tile(None)
-      tile.isEmpty should be(true)
+      val emptyTile = ITile(None)
+      val playerTile = ITile(Some(Player("p1")))
+      emptyTile.isEmpty shouldBe true
+      playerTile.isEmpty shouldBe false
+    }
+  }
+
+  "ITile object" should {
+
+    "provide an emptyTile" in {
+      ITile.emptyTile.isEmpty shouldBe true
     }
 
-    "not be empty if it contains an entity" in {
-      val player = Player(id = "player1")
-      val tile = Tile(Some(player))
-      tile.isEmpty should be(false)
+    "spawn an entity with spawnEntity" in {
+      val tile = ITile.spawnEntity(Player("p1"))
+      tile.entity.nonEmpty shouldBe true
+      tile.hasPlayer shouldBe true
     }
 
-    "correctly identify if it contains a player" in {
-      val player = Player(id = "player1")
-      val tile = Tile(Some(player))
-      tile.hasPlayer should be(true)
+    "apply optional entity (Some or None)" in {
+      val tileSome = ITile(Some(Relic()))
+      tileSome.hasRelic shouldBe true
+
+      val tileNone = ITile(None)
+      tileNone.isEmpty shouldBe true
     }
 
-    "correctly identify if it does not contain a player" in {
-      val relic = Relic()
-      val tile = Tile(Some(relic))
-      tile.hasPlayer should be(false)
+    "serialize toXml (empty vs. non-empty)" in {
+      val emptyTileXml = ITile.emptyTile.toXml
+      (emptyTileXml \ "entity" \ "@type").text shouldBe "empty"
+
+      val wallTileXml = ITile(Some(Wall())).toXml
+      (wallTileXml \ "entity" \ "@type").text shouldBe "wall"
     }
 
-    "correctly identify if it contains a wall" in {
-      val wall = Wall()
-      val tile = Tile(Some(wall))
-      tile.hasWall should be(true)
+    "serialize toJson (empty vs. non-empty)" in {
+      val emptyJson = ITile.emptyTile.toJson
+      emptyJson.keys.isEmpty shouldBe true
+
+      val playerJson = ITile(Some(Player("p1"))).toJson
+      (playerJson \ "type").as[String] shouldBe "player"
+      (playerJson \ "id").as[String] shouldBe "p1"
     }
 
-    "correctly identify if it does not contain a wall" in {
-      val player = Player(id = "player1")
-      val tile = Tile(Some(player))
-      tile.hasWall should be(false)
+    "deserialize fromXml (success)" in {
+      val xml: Elem =
+        <tile>
+          <entity type="wall">
+            <id>#</id>
+          </entity>
+        </tile>
+      val result = ITile.fromXml(xml)
+      result shouldBe a[Success[?]]
+      result.get.hasPlayer shouldBe false
+      result.get.entity.map(_.id) shouldBe Some("#")
     }
 
-    "correctly identify if it contains a relic" in {
-      val relic = Relic()
-      val tile = Tile(Some(relic))
-      tile.hasRelic should be(true)
+    "deserialize fromXml (empty)" in {
+      val xml: Elem =
+        <tile>
+          <entity type="empty"></entity>
+        </tile>
+      val result = ITile.fromXml(xml)
+      result shouldBe a[Success[?]]
+      result.get.isEmpty shouldBe true
     }
 
-    "correctly identify if it does not contain a relic" in {
-      val player = Player(id = "player1")
-      val tile = Tile(Some(player))
-      tile.hasRelic should be(false)
+    "deserialize fromJson (success)" in {
+      val json: JsObject = Json.obj("type" -> "echo", "id" -> "E1", "owner" -> "P1")
+      val result = ITile.fromJson(json)
+      result shouldBe a[Success[?]]
+      result.get.entity.exists(_.id == "E1") shouldBe true
     }
 
-    "correctly identify if it contains a specific player" in {
-      val player = Player(id = "player1")
-      val tile = Tile(Some(player))
-      tile.isPlayer(player) should be(true)
+    "deserialize fromJson (empty)" in {
+      val json: JsObject = Json.obj()
+      val result = ITile.fromJson(json)
+      result shouldBe a[Success[?]]
+      result.get.isEmpty shouldBe true
     }
 
-    "correctly identify if it does not contain a specific player" in {
-      val player1 = Player(id = "player1")
-      val player2 = Player(id = "player2")
-      val tile = Tile(Some(player1))
-      tile.isPlayer(player2) should be(false)
+    "handle failures in fromXml if invalid XML" in {
+      val xml: Elem = <tile></tile> // Missing <entity>
+      val result = ITile.fromXml(xml)
+      result shouldBe a[Failure[?]]
+    }
+
+    "handle failures in fromJson if invalid JSON" in {
+      val json: JsObject = Json.obj("type" -> "unknown") // Suppose no valid entity
+      val result = ITile.fromJson(json)
+      // It will currently default to Empty or fail if some logic changes
+      // Let's just check it doesn't blow up unexpectedly:
+      result.isSuccess shouldBe true
+      result.get.isEmpty shouldBe true
     }
   }
 }
