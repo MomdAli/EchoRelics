@@ -1,4 +1,8 @@
 
+![Coveralls](https://img.shields.io/coverallsCoverage/github/MomdAli/EchoRelics)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/e684383e6c3e473f9cffa11a78e7855e)](https://app.codacy.com/gh/MomdAli/EchoRelics/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+
+
 # Echo Relics: A Puzzle-Adventure Game
 
 ## Overview
