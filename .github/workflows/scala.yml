@@ -16,12 +16,15 @@ jobs:
       with:
           fetch-depth: 0
 
-    - name: Set up JDK 11
+    - name: Set up JDK
       uses: actions/setup-java@v4
       with:
-        java-version: '11'
-        distribution: 'adopt'
+        distribution: 'temurin'
+        java-version: '23'
         cache: 'sbt'
+
+    - name: Setup sbt installer
+      uses: sbt/setup-sbt@v1.1.5
 
     - name: Run compile
       run: sbt clean compile
@@ -51,6 +54,16 @@ jobs:
           with:
             fetch-depth: 0
             ref: ${{ github.event.pull_request.head.sha }}
+
+        - name: Set up JDK
+          uses: actions/setup-java@v4
+          with:
+            distribution: 'temurin'
+            java-version: '23'
+            cache: 'sbt'
+
+        - name: Setup sbt installer
+          uses: sbt/setup-sbt@v1.1.5
 
         - name: Run tests
           run: sbt clean coverage test

@@ -27,6 +27,10 @@ case class GridSizeManager(
     )
 
   override def move(direction: Direction): IGameManager = {
+    if (grid == null) {
+      return copy(event = GameEvent.OnSetGridSizeEvent(0))
+    }
+
     direction match {
       case Direction.Up => {
         val newGrid = grid.increaseSize

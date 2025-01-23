@@ -6,6 +6,7 @@ object NodeFinder {
 
   /** Recursively search for a node by its fx:id */
   def findNodeById(root: Parent, id: String): Option[Node] = {
+    if (root == null) return None
     if (id.equals(root.getId)) return Some(root)
 
     root.getChildrenUnmodifiable.toArray
@@ -16,6 +17,7 @@ object NodeFinder {
 
   /** Recursively search for a node by its style class */
   def findNodeByStyleClass(root: Parent, styleClass: String): Option[Node] = {
+    if (root == null) return None
     if (root.getStyleClass.contains(styleClass)) return Some(root)
 
     root.getChildrenUnmodifiable.toArray

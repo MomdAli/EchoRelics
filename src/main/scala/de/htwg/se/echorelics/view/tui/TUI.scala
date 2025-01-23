@@ -14,7 +14,7 @@ class TUI(controller: Controller) extends EventListener {
     terminal.writer().println(s)
     terminal.flush()
   }
-  private val terminal: Terminal = {
+  val terminal: Terminal = {
     TerminalBuilder
       .builder()
       .system(true)

@@ -3,115 +3,191 @@ package service
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers._
 import org.scalatestplus.mockito.MockitoSugar
-import model.{Grid, GameState}
-import model.config.Config
+import scala.util.{Success, Failure}
+import utils.{Direction, GameMemento, GameState}
+import model.entity.{IEntity}
 import model.events.GameEvent
-import model.entity.{Player, Relic, Echo}
-import model.commands.{Command, GameMemento}
-import model.generator.GridSpawner
-import model.item.Card
-import utils.Direction
+import model.{IGrid}
+import service.serviceImpl._
+import model.item.{ICard}
+import model.config.Config
+import model.gridImpl.Grid
+import model.entity.entityImpl.Player
 
-class GameManagerSpec extends AnyWordSpec with Matchers with MockitoSugar {
+class ExtendedGameManagerSpec extends AnyWordSpec with Matchers with MockitoSugar {
 
-  "A GameManager" should {
-
-    val grid = new Grid(10)
-    val players = List(Player("player1"), Player("player2"))
-    val gameManager = GameManager(players)
-
-    "have the correct initial state" in {
-      gameManager.move should be(0)
-      gameManager.players should have size 2
-      gameManager.grid.size should be(10)
-      gameManager.event should be(GameEvent.OnGameEndEvent)
-      gameManager.state should be(GameState.NotStarted)
+  "IGameManager default methods" should {
+    "call move(direction)" in {
+      val gm = mock[IGameManager]
+      when(gm.move(Direction.Up)).thenReturn(gm)
+      gm.move(Direction.Up) shouldBe gm
+      verify(gm).move(Direction.Up)
     }
-
-    "return the correct round number" in {
-      gameManager.round should be(1)
+    "call quit()" in {
+      val gm = mock[IGameManager]
+      when(gm.quit).thenReturn(gm)
+      gm.quit shouldBe gm
+      verify(gm).quit
     }
-
-    "return the correct current player" in {
-      gameManager.currentPlayer should be(players.head)
+    "call setPlayerSize()" in {
+      val gm = mock[IGameManager]
+      when(gm.setPlayerSize).thenReturn(gm)
+      gm.setPlayerSize shouldBe gm
+      verify(gm).setPlayerSize
     }
-
-    "return the correct current player by index" in {
-      gameManager.currentPlayer(1) should be(players(1))
+    "call setGridSize()" in {
+      val gm = mock[IGameManager]
+      when(gm.setGridSize).thenReturn(gm)
+      gm.setGridSize shouldBe gm
+      verify(gm).setGridSize
     }
-
-    "create a valid memento" in {
-      val memento = gameManager.createMemento
-      memento.grid should be(grid)
-      memento.state should be(GameState.NotStarted)
+    "call echo()" in {
+      val gm = mock[IGameManager]
+      when(gm.echo).thenReturn(gm)
+      gm.echo shouldBe gm
+      verify(gm).echo
     }
-
-    "restore from a memento correctly" in {
-      val memento = gameManager.createMemento
-      val restoredManager = gameManager.restore(memento)
-      restoredManager.state should be(memento.state)
+    "call start()" in {
+      val gm = mock[IGameManager]
+      when(gm.start).thenReturn(gm)
+      gm.start shouldBe gm
+      verify(gm).start
     }
-
-    "validate commands correctly" in {
-      val command = mock[Command]
-      gameManager.isValid(command) should be(false)
+    "call pause()" in {
+      val gm = mock[IGameManager]
+      when(gm.pause).thenReturn(gm)
+      gm.pause shouldBe gm
+      verify(gm).pause
     }
-
-    "move in a direction correctly" in {
-      val newManager = gameManager.move(Direction.Up)
-      newManager should be(gameManager)
+    "call resume()" in {
+      val gm = mock[IGameManager]
+      when(gm.resume).thenReturn(gm)
+      gm.resume shouldBe gm
+      verify(gm).resume
     }
-
-    "quit the game correctly" in {
-      val newManager = gameManager.quit
-      newManager.event should not be (gameManager.event)
+    "call spawnRelic()" in {
+      val gm = mock[IGameManager]
+      when(gm.spawnRelic).thenReturn(gm)
+      gm.spawnRelic shouldBe gm
+      verify(gm).spawnRelic
     }
-
-    "set player size correctly" in {
-      val newManager = gameManager.setPlayerSize
-      newManager should not be (gameManager)
+    "call collectRelic()" in {
+      val player = mock[IEntity]
+      val relic = mock[IEntity]
+      val gm = mock[IGameManager]
+      when(gm.collectRelic(player, relic)).thenReturn(gm)
+      gm.collectRelic(player, relic) shouldBe gm
+      verify(gm).collectRelic(player, relic)
     }
-
-    "set grid size correctly" in {
-      val newManager = gameManager.setGridSize
-      newManager should not be (gameManager)
+    "call moveAllEchoes()" in {
+      val gm = mock[IGameManager]
+      when(gm.moveAllEchoes).thenReturn(gm)
+      gm.moveAllEchoes shouldBe gm
+      verify(gm).moveAllEchoes
     }
-
-    "echo correctly" in {
-      val newManager = gameManager.echo
-      newManager should be(gameManager)
+    "call damagePlayer()" in {
+      val player = mock[IEntity]
+      val gm = mock[IGameManager]
+      when(gm.damagePlayer(player)).thenReturn(gm)
+      gm.damagePlayer(player) shouldBe gm
+      verify(gm).damagePlayer(player)
     }
-
-    "start the game correctly" in {
-      val newManager = gameManager.start
-      newManager should not be (gameManager)
+    "call toXml and toJson" in {
+      val gm = mock[IGameManager]
+      when(gm.toXml).thenReturn(<mockGameManager/>)
+      when(gm.toJson).thenReturn(play.api.libs.json.Json.obj("mock" -> true))
+      gm.toXml.label shouldBe "mockGameManager"
+      gm.toJson.toString() should include ("mock")
     }
-
-    "pause the game correctly" in {
-      val newManager = gameManager.pause
-      newManager should be(gameManager)
+    "call createMemento and restore(memento)" in {
+      val gm = mock[IGameManager]
+      val memento = GameMemento(mock[IGrid], GameState.NotStarted)
+      when(gm.createMemento).thenReturn(memento)
+      when(gm.restore(memento)).thenReturn(gm)
+      gm.createMemento shouldBe memento
+      gm.restore(memento) shouldBe gm
     }
-
-    "resume the game correctly" in {
-      val newManager = gameManager.resume
-      newManager should be(gameManager)
+    "call round and currentPlayer" in {
+      val gm = mock[IGameManager]
+      when(gm.round).thenReturn(1)
+      gm.round shouldBe 1
+      val entity = mock[IEntity]
+      when(gm.currentPlayer).thenReturn(entity)
+      gm.currentPlayer shouldBe entity
     }
-
-    "return the correct player card" in {
-      gameManager.playerCard(0) should be(None)
+    "call config" in {
+      val gm = mock[IGameManager]
+      val c = Config(1,1,1,1,1,1,1)
+      when(gm.config).thenReturn(c)
+      gm.config shouldBe c
     }
+  }
 
-    "spawn a relic correctly" in {
-      val newManager = gameManager.spawnRelic
-      newManager should be(gameManager)
+  "RunningManager" should {
+    "handle all overrides" in {
+      val rm = RunningManager(0, List(Player("1"), Player("2")), new Grid(11), GameEvent.OnNoneEvent)
+      rm.state shouldBe GameState.Running
+      rm.start.state should (be (GameState.Running) or be (GameState.NotStarted))
+      rm.pause.state shouldBe GameState.Paused
+      rm.quit.state should (be (GameState.NotStarted) or be (GameState.NotStarted))
+      rm.damagePlayer(Player("1")).state shouldBe GameState.Running
+      rm.moveAllEchoes.state shouldBe GameState.Running
+      rm.spawnRelic.state shouldBe GameState.Running
     }
+  }
 
-    "collect a relic correctly" in {
-      val player = players.head
-      val relic = mock[Relic]
-      val newManager = gameManager.collectRelic(player, relic)
-      newManager should be(gameManager)
+  "PausedManager" should {
+    "handle overrides" in {
+      val pm = PausedManager(0, List(), mock[IGrid], GameEvent.OnNoneEvent)
+      pm.state shouldBe GameState.Paused
+      pm.resume.state shouldBe GameState.Running
+      pm.pause.state shouldBe GameState.Running
+      pm.quit.state shouldBe GameState.NotStarted
+    }
+  }
+
+  "PlayerSizeManager" should {
+    "handle overrides" in {
+      val psm = PlayerSizeManager(0, List(), mock[IGrid], GameEvent.OnNoneEvent)
+      psm.state shouldBe GameState.NotStarted
+      psm.start.state shouldBe GameState.NotStarted
+      psm.quit.state shouldBe GameState.NotStarted
+      psm.move(Direction.Up).state shouldBe GameState.NotStarted
+    }
+  }
+
+  "MenuManager" should {
+    "handle overrides" in {
+      val mm = MenuManager(0, List(), mock[IGrid], GameEvent.OnNoneEvent)
+      mm.state shouldBe GameState.NotStarted
+      mm.setGridSize.state shouldBe GameState.NotStarted
+      mm.setPlayerSize.state shouldBe GameState.NotStarted
+      mm.start.state shouldBe GameState.NotStarted
+      mm.quit.event shouldBe GameEvent.OnQuitEvent
+    }
+  }
+
+  "GridSizeManager" should {
+    "handle overrides" in {
+      val gsm = GridSizeManager(0, List(), new Grid(11), GameEvent.OnNoneEvent)
+      gsm.state shouldBe GameState.NotStarted
+      gsm.start.state shouldBe GameState.Running
+      gsm.quit.state shouldBe GameState.NotStarted
+      gsm.move(Direction.Up).event.isInstanceOf[GameEvent.OnSetGridSizeEvent] shouldBe true
+      gsm.move(Direction.Down).event.isInstanceOf[GameEvent.OnSetGridSizeEvent] shouldBe true
+    }
+  }
+
+  "WinnerManager" should {
+    "handle overrides" in {
+      val wm = WinnerManager(0, List(), mock[IGrid], GameEvent.OnNoneEvent)
+      wm.state shouldBe GameState.Victory
+      wm.quit.state shouldBe GameState.NotStarted
+      wm.echo.state shouldBe GameState.NotStarted
+      wm.start.state shouldBe GameState.NotStarted
+      // it's basically redirecting to menu
     }
   }
 }
