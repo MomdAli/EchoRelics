@@ -6,6 +6,7 @@ lazy val root = project
     name := "Echo Relics",
     version := "0.1.1-SNAPSHOT",
     scalaVersion := scala3Version,
+    javacOptions ++= Seq("--release", "11"),
     libraryDependencies ++= {
       // Determine OS version of JavaFX binaries
       lazy val osName = System.getProperty("os.name") match {
@@ -43,4 +44,3 @@ enablePlugins(AssemblyPlugin)
 Compile / mainClass := Some("echorelics.EchoRelics") // Main class for the JAR
 coverageEnabled := true
 coverageExcludedFiles := ".*(GUI|KeyHandler|InputHandler|ActionHandler|AudioManager|Renderer).*"
-javaOptions ++= Seq("-source", "11", "-target", "11")
