@@ -8,9 +8,13 @@ import utils.FileEncryption
 
 class FileIO extends IFileIO {
   override def load: Try[IGameManager] = {
+    val file = new java.io.File(IFileIO.filePath + "." + IFileIO.fileExtension)
+    if (!file.exists()) {
+      return scala.util.Failure(new java.io.FileNotFoundException("Save file not found"))
+    }
     val encryptedData =
       scala.io.Source
-        .fromFile(IFileIO.filePath + "." + IFileIO.fileExtension)
+        .fromFile(file)
         .mkString
     val jsonString = FileEncryption.decrypt(encryptedData)
     val json = Json.parse(jsonString)

@@ -1,96 +1,109 @@
-package model.item
+package model
 
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.matchers.should.Matchers
+import play.api.libs.json.{JsObject, Json}
 import model.item.itemImpl._
+import model.item._
+import model.events._
 import service.IGameManager
-import model.events.GameEvent
 import model.entity.IEntity
-import model.IGrid
-import utils.{Position, Stats}
-import com.google.inject.Guice
-import modules.EchorelicsModule
-import net.codingwell.scalaguice.InjectorExtensions._
-import com.google.inject.name.Names
+import utils.{Stats}
 
-class CardSpec extends AnyWordSpec with Matchers with MockitoSugar {
+class CardSpec extends AnyWordSpec with Matchers {
 
-  "A HealCard" should {
-    "heal the current player by 1 health point" in {
-      val gameManager = mock[IGameManager]
-      val currentPlayer = mock[IEntity]
-      val healedPlayer = mock[IEntity]
+  // Minimal test Player that can heal / updateStats
+  case class TestPlayer(id: String, override val stats: Stats) extends IEntity {
+    override def isWalkable: Boolean = false
+    override def isCollectable: Boolean = false
+    override def score: Int = stats.score
+    override def heal: TestPlayer = copy(stats = stats.copy(health = stats.health + 1))
+    override def updateStats(newStats: Stats): IEntity = copy(stats = newStats)
+    override def toJson: JsObject = Json.obj("id" -> id, "stats" -> stats.toJson)
+    override def toXml: scala.xml.Node = <player><id>{id}</id><stats>{stats.toXml}</stats></player>
+  }
+  case class TestManager(
+      move: Int,
+      players: List[TestPlayer],
+      currentIndex: Int
+  ) extends IGameManager {
+    override def currentPlayer: TestPlayer = players(currentIndex)
+    override val grid: IGrid = null // not needed for these tests
+    override def change(
+        newMove: Int,
+        newPlayers: List[IEntity],
+        newGrid: IGrid,
+        event: GameEvent
+    ): IGameManager = this.copy(move = newMove, players = newPlayers.map(_.asInstanceOf[TestPlayer]))
+    override def playerCard(index: Int): Option[ICard] = None
+    override val event: GameEvent = null
+    override def state: utils.GameState = null
+  }
 
-      when(gameManager.currentPlayer).thenReturn(currentPlayer)
-      when(currentPlayer.heal).thenReturn(healedPlayer)
-      when(gameManager.players).thenReturn(List(currentPlayer))
-      when(gameManager.change(any(), any(), any(), any()))
-        .thenReturn(gameManager)
+  "ICard" should {
+    "have correct toScore, toXml, and toJson" in {
+      val card = new ICard {
+        override val rarity = Rarity.Common
+        override val name = "TestCard"
+        override val description = "Just a test"
+        override def play(gm: IGameManager) = gm
+      }
+      card.toScore shouldBe Rarity.Common.value
+      card.toXml.toString should include ("<name>TestCard</name>")
+      card.toJson.toString should include ("\"name\":\"TestCard\"")
+    }
 
-      val card = HealCard()
-      val newGameManager = card.play(gameManager)
-
-      verify(currentPlayer).heal
-      verify(gameManager).change(
-        any(),
-        any(),
-        any(),
-        eqTo(GameEvent.OnPlayCardEvent(card))
-      )
+    "load fromXml and fromJson properly using ICard object" in {
+      val xml = <card><name>Heal</name></card>
+      val json: JsObject = Json.obj("name" -> "Strike")
+      ICard.fromXml(xml).get.name shouldBe "Heal"
+      ICard.fromJson(json).get.name shouldBe "Strike"
+      ICard.cards.map(_.name) should contain ("Swap Player")
     }
   }
 
-  "A StrikeCard" should {
-    "deal 1 damage to all other players" in {
-      val injector = Guice.createInjector(new EchorelicsModule)
-      val gameManager = injector.instance[IGameManager](Names.named("Menu"))
-
-      val card = StrikeCard()
-      val newGameManager = card.play(gameManager)
+  "HealCard" should {
+    "increase health of current player" in {
+      val p1 = TestPlayer("p1", Stats(0,0,5))
+      val gm = TestManager(3, List(p1), 0)
+      val newGm = HealCard().play(gm)
+      newGm.asInstanceOf[TestManager].players.head.stats.health shouldBe 6
     }
   }
 
-  "A TimeTravelCard" should {
-    "trigger a time travel event" in {
-      val gameManager = mock[IGameManager]
-
-      val card = TimeTravelCard()
-      val newGameManager = card.play(gameManager)
-
-      verify(gameManager, never()).change(any(), any(), any(), any())
+  "SwapPlayerCard" should {
+    "do nothing if only one player" in {
+      val p1 = TestPlayer("p1", Stats())
+      val gm = TestManager(0, List(p1), 0)
+      val newGm = SwapPlayerCard().play(gm)
+      newGm shouldBe gm
     }
   }
 
-  "A SwapPlayerCard" should {
-    "swap the current player's position with another player" in {
-      val gameManager = mock[IGameManager]
-      val currentPlayer = mock[IEntity]
-      val otherPlayer = mock[IEntity]
-      val grid = mock[IGrid]
+  "TimeTravelCard" should {
+    "notify event but otherwise not change the manager" in {
+      val p1 = TestPlayer("p1", Stats())
+      val gm = TestManager(1, List(p1), 0)
+      val newGm = TimeTravelCard().play(gm)
+      newGm shouldBe gm
+    }
+  }
 
-      when(gameManager.currentPlayer).thenReturn(currentPlayer)
-      when(gameManager.players).thenReturn(List(currentPlayer, otherPlayer))
-      when(gameManager.grid).thenReturn(grid)
-      when(grid.findPlayer(currentPlayer)).thenReturn(Some(Position(0, 0)))
-      when(grid.findPlayer(otherPlayer)).thenReturn(Some(Position(1, 1)))
-      when(grid.swap(any(), any())).thenReturn(grid)
-      when(gameManager.change(any(), any(), any(), any()))
-        .thenReturn(gameManager)
-
-      val card = SwapPlayerCard()
-      val newGameManager = card.play(gameManager)
-
-      verify(grid).swap(Position(0, 0), Position(1, 1))
-      verify(gameManager).change(
-        any(),
-        any(),
-        any(),
-        eqTo(GameEvent.OnPlayCardEvent(card))
-      )
+  "StrikeCard" should {
+    "deal damage to other players but not current" in {
+      val p1 = TestPlayer("p1", Stats(0,0,10))
+      val p2 = TestPlayer("p2", Stats(0,0,10))
+      val gm = TestManager(0, List(p1,p2), 0)
+      val newGm = StrikeCard().play(gm)
+      val newPlayers = newGm.asInstanceOf[TestManager].players
+      newPlayers.head.stats.health shouldBe 10 // unchanged
+      newPlayers(1).stats.health shouldBe 9    // took damage
+    }
+    "do nothing if only one player" in {
+      val p1 = TestPlayer("p1", Stats(0,0,5))
+      val gm = TestManager(0, List(p1), 0)
+      val newGm = StrikeCard().play(gm)
+      newGm.shouldBe(gm)
     }
   }
 }

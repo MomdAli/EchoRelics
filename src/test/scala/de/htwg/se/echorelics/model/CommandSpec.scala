@@ -1,114 +1,164 @@
-package de.htwg.se.echorelics.model
+package model
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.any
 import org.scalatestplus.mockito.MockitoSugar
-import scala.util.{Success, Failure}
+import scala.util.{Failure, Success, Try}
 
-import service.IGameManager
 import model.commandImpl._
-import utils.Direction
+import model.ICommand
+import service.IGameManager
+import utils.{Direction, GameMemento}
 import model.item.ICard
-import model.{ICommand, IFileIO}
+import org.scalatest.CancelAfterFailure
 
 class CommandSpec extends AnyWordSpec with Matchers with MockitoSugar {
 
-  "An EchoCommand" should {
-    "execute echo on game manager" in {
-      val gameManager = mock[IGameManager]
-      when(gameManager.echo).thenReturn(gameManager)
-      val command = EchoCommand()
-      command.execute(gameManager) should be(Success(gameManager))
-      verify(gameManager).echo
+  "ICommand default implementations" should {
+    "fail on undo and redo by default" in {
+      val command: ICommand = new ICommand {
+        override def execute(gameManager: IGameManager): Try[IGameManager] =
+          Success(gameManager)
+      }
+      command.undo(mock[IGameManager]) shouldBe a[Failure[?]]
+      command.redo(mock[IGameManager]) shouldBe a[Failure[?]]
     }
   }
 
-  "A GridSizeCommand" should {
-    "execute setGridSize on game manager" in {
-      val gameManager = mock[IGameManager]
-      when(gameManager.setGridSize).thenReturn(gameManager)
-      val command = GridSizeCommand()
-      command.execute(gameManager) should be(Success(gameManager))
-      verify(gameManager).setGridSize
+  "EchoCommand" should {
+    "call echo on the gameManager" in {
+      val gm = mock[IGameManager]
+      val cmd = EchoCommand()
+      when(gm.echo).thenReturn(gm)
+      cmd.execute(gm) shouldBe Success(gm)
+      verify(gm).echo
     }
   }
 
-  "A MoveCommand" should {
-    "execute move on game manager" in {
-      val gameManager = mock[IGameManager]
-      val direction = Direction.Up
-      when(gameManager.move(direction)).thenReturn(gameManager)
-      val command = MoveCommand(direction)
-      command.execute(gameManager) should be(Success(gameManager))
-      verify(gameManager).move(direction)
-    }
-
-    "undo move on game manager" in {
-      val gameManager = mock[IGameManager]
-      val direction = Direction.Up
-      when(gameManager.move(direction.opposite)).thenReturn(gameManager)
-      val command = MoveCommand(direction)
-      command.undo(gameManager) should be(Success(gameManager))
-      verify(gameManager).move(direction.opposite)
+  "GridSizeCommand" should {
+    "call setGridSize on the gameManager" in {
+      val gm = mock[IGameManager]
+      val cmd = GridSizeCommand()
+      when(gm.setGridSize).thenReturn(gm)
+      cmd.execute(gm) shouldBe Success(gm)
+      verify(gm).setGridSize
     }
   }
 
-  "A PauseCommand" should {
-    "execute pause on game manager" in {
-      val gameManager = mock[IGameManager]
-      when(gameManager.pause).thenReturn(gameManager)
-      val command = PauseCommand()
-      command.execute(gameManager) should be(Success(gameManager))
-      verify(gameManager).pause
+  "PauseCommand" should {
+    "call pause on the gameManager" in {
+      val gm = mock[IGameManager]
+      val cmd = PauseCommand()
+      when(gm.pause).thenReturn(gm)
+      cmd.execute(gm) shouldBe Success(gm)
+      verify(gm).pause
     }
   }
 
-  "A PlayerSizeCommand" should {
-    "execute setPlayerSize on game manager" in {
-      val gameManager = mock[IGameManager]
-      when(gameManager.setPlayerSize).thenReturn(gameManager)
-      val command = PlayerSizeCommand()
-      command.execute(gameManager) should be(Success(gameManager))
-      verify(gameManager).setPlayerSize
+  "PlayerSizeCommand" should {
+    "call setPlayerSize on the gameManager" in {
+      val gm = mock[IGameManager]
+      val cmd = PlayerSizeCommand()
+      when(gm.setPlayerSize).thenReturn(gm)
+      cmd.execute(gm) shouldBe Success(gm)
+      verify(gm).setPlayerSize
     }
   }
 
-  "A QuitCommand" should {
-    "execute quit on game manager" in {
-      val gameManager = mock[IGameManager]
-      when(gameManager.quit).thenReturn(gameManager)
-      val command = QuitCommand()
-      command.execute(gameManager) should be(Success(gameManager))
-      verify(gameManager).quit
+  "QuitCommand" should {
+    "call quit on the gameManager" in {
+      val gm = mock[IGameManager]
+      val cmd = QuitCommand()
+      when(gm.quit).thenReturn(gm)
+      cmd.execute(gm) shouldBe Success(gm)
+      verify(gm).quit
     }
   }
 
-  "A ResumeCommand" should {
-    "execute resume on game manager" in {
-      val gameManager = mock[IGameManager]
-      when(gameManager.resume).thenReturn(gameManager)
-      val command = ResumeCommand()
-      command.execute(gameManager) should be(Success(gameManager))
-      verify(gameManager).resume
+  "ResumeCommand" should {
+    "call resume on the gameManager" in {
+      val gm = mock[IGameManager]
+      val cmd = ResumeCommand()
+      when(gm.resume).thenReturn(gm)
+      cmd.execute(gm) shouldBe Success(gm)
+      verify(gm).resume
     }
   }
 
-  "A StartCommand" should {
-    "execute start on game manager" in {
-      val gameManager = mock[IGameManager]
-      when(gameManager.start).thenReturn(gameManager)
-      val command = StartCommand()
-      command.execute(gameManager) should be(Success(gameManager))
-      verify(gameManager).start
+  "StartCommand" should {
+    "call start on the gameManager" in {
+      val gm = mock[IGameManager]
+      val cmd = StartCommand()
+      when(gm.start).thenReturn(gm)
+      cmd.execute(gm) shouldBe Success(gm)
+      verify(gm).start
     }
   }
 
-  "fail if no card is found at the given index" in {
-    val gameManager = mock[IGameManager]
-    when(gameManager.playerCard(0)).thenReturn(None)
-    val command = PlayCardCommand(0)
-    command.execute(gameManager).isFailure should be(true)
-    verify(gameManager).playerCard(0)
+  "MoveCommand" should {
+    "call move on the gameManager" in {
+      val gm = mock[IGameManager]
+      val cmd = MoveCommand(Direction.Up)
+      when(gm.move(Direction.Up)).thenReturn(gm)
+      cmd.execute(gm) shouldBe Success(gm)
+      verify(gm).move(Direction.Up)
+    }
+    "call move with opposite direction on undo" in {
+      val gm = mock[IGameManager]
+      val cmd = MoveCommand(Direction.Up)
+      when(gm.move(Direction.Down)).thenReturn(gm)
+      cmd.undo(gm) shouldBe Success(gm)
+      verify(gm).move(Direction.Down)
+    }
+  }
+
+  "PlayCardCommand" should {
+    "throw RuntimeException if no card found" in {
+      val gm = mock[IGameManager]
+      val cmd = PlayCardCommand(0)
+      when(gm.playerCard(any[Int])).thenReturn(None)
+      cmd.execute(gm).isFailure shouldBe true
+    }
+  }
+
+  "SaveGameCommand" should {
+    "save the game and return success" in {
+      val gm = mock[IGameManager]
+      val cmd = SaveGameCommand()
+      cmd.execute(gm) shouldBe a[Success[?]]
+      verify(gm, org.mockito.Mockito.atLeast(0)).currentPlayer // not strictly needed, just ensures no error
+    }
+  }
+
+
+  "CommandHistory" should {
+    "execute should push a memento and clear redo" in {
+      val history = new CommandHistory
+      val gm = mock[IGameManager]
+      val memento = mock[GameMemento]
+      when(gm.createMemento).thenReturn(memento)
+
+      history.execute(gm) shouldBe Success(gm)
+      // can't directly verify stack, but we know it's not failing
+      verify(gm).createMemento
+    }
+    "undo should restore the last memento if available" in {
+      val history = new CommandHistory
+      val gm = mock[IGameManager]
+      val memento = mock[GameMemento]
+      when(gm.createMemento).thenReturn(memento)
+      when(gm.restore(memento)).thenReturn(gm)
+
+      history.execute(gm)
+      history.undo(gm) shouldBe Success(gm)
+      verify(gm, times(1)).restore(memento)
+    }
+    "undo should fail if no commands to undo" in {
+      val history = new CommandHistory
+      val gm = mock[IGameManager]
+      history.undo(gm).isFailure shouldBe true
+    }
   }
 }

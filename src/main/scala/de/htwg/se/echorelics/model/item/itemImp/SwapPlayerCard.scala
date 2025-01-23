@@ -11,6 +11,10 @@ case class SwapPlayerCard() extends ICard {
   override val description = "Swap position with another player."
 
   override def play(gameManager: IGameManager): IGameManager = {
+
+    if (gameManager.players.size < 2)
+      return gameManager
+
     val rng = Random(System.currentTimeMillis().toInt)
     val self = gameManager.currentPlayer
     val other = {

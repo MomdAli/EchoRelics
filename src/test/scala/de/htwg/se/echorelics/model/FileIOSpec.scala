@@ -4,6 +4,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import java.io.File
 import model.fileIOImpl.xml.FileIO
+import model.fileIOImpl.json.FileIO
 import service.IGameManager
 import utils.{Direction, GameState}
 import model.events.GameEvent
@@ -17,16 +18,28 @@ class FileIOSpec extends AnyWordSpec with Matchers {
 
   "The FileIO" should {
 
-    "save a valid GameManager to an encrypted XML file" in {
-      val fileIO = FileIO()
-      val mockManager = MockGameManager()
-      fileIO.save(mockManager)
+    "return a Failure when trying to load a non-existing file" in {
+      val xmlFileIO = model.fileIOImpl.xml.FileIO()
+      val jsonFileIO = model.fileIOImpl.json.FileIO()
+      val result1 = xmlFileIO.load
+      val result2 = jsonFileIO.load
 
+      result1.isFailure shouldBe true
+      result2.isFailure shouldBe true
+    }
+
+    "save a valid GameManager to an encrypted XML and JSON file" in {
+      val xmlFileIO = model.fileIOImpl.xml.FileIO()
+      val jsonFileIO = model.fileIOImpl.json.FileIO()
+      val gameManager = new MockGameManager
       val file = new File(IFileIO.filePath + "." + IFileIO.fileExtension)
+
+      xmlFileIO.save(gameManager)
+      jsonFileIO.save(gameManager)
+
       file.exists() shouldBe true
       file.length() should be > 0L
     }
-
   }
 }
 
